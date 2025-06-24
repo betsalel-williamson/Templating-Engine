@@ -8,12 +8,13 @@
     "clean": "rm -rf dist lib",
     "build:parser": "npx peggy --format es -o lib/parser.js --dts --extra-options-file peggy.config.json src/grammar.peggy",
     "build:ts": "tsc",
-    "build": "npm run clean && mkdir -p lib && npm run build:parser && npm run build:ts",
+    "build": "tsc && npm run build:parser && npm run build:parser:new",
     "start": "npm run build && node dist/index.js",
     "test": "npm run build && vitest run",
     "build:cli": "tsc src/cli.ts --outDir lib --esModuleInterop --module Node16 --target ES2022",
     "prepublishOnly": "npm run build:parser && npm run build:cli",
-    "build:standalone": "npm run build && pkg ."
+    "build:standalone": "npm run build && pkg .",
+    "build:parser:new": "peggy -o lib/parser_new.js src/grammar_new.peggy"
   },
   "dependencies": {
     "peggy": "^5.0.4"
@@ -21,9 +22,9 @@
   "devDependencies": {
     "@types/node": "^24.0.3",
     "@vitest/coverage-v8": "^3.2.4",
+    "pkg": "^5.8.1",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.4",
-    "pkg": "^5.8.1"
+    "vitest": "^3.2.4"
   },
   "author": "",
   "license": "MIT",

@@ -3,7 +3,7 @@
  * Corrected ArgumentList action block to resolve runtime error.
  */
 {{
-  import { AstNode } from "../dist/types.js";
+  import { AstNode } from "../dist/types.js"; // Keep dist import for now
 
   function buildTemplate(parts) {
     return { type: 'Template', body: parts.filter(p => p) };
@@ -168,9 +168,9 @@ Condition "Condition"
   = "<?" templateText:$( (!("?>") .)* ) "?>" { return { kind: 'Condition', template: peg$parse(templateText, options) }; }
 
 
-// Standalone tag rules
+// # MODIFIED: Capture individual parts to reconstruct 'raw' and get 'name' directly.
 Variable
-  = "<#" name:Ident "#>" { return { type: 'Variable', name }; }
+  = lt:"<#" name:Ident gt:"#>" { return { type: 'Variable', name: name, raw: lt + name + gt }; }
 
 IndirectVariable
   = "<##" name:Ident "##>" { return { type: 'IndirectVariable', name }; }

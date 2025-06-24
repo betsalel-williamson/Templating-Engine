@@ -73,7 +73,7 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           value = resolveDotNotation(context, pathSegments);
         }
 
-        if (value === undefined) return `<#${node.name}#>`;
+        if (value === undefined) return node.raw; // Use the raw string from the parsed node
         return await evaluate(parse(String(value)), context, depth + 1);
       }
       case 'IndirectVariable': {
@@ -139,10 +139,6 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           // Continue the chain
           resolvedValue = tempValue;
         }
-
-        // This 'if' statement was dead code because the while loop's exit condition
-        // ensures 'resolvedValue' is no longer a string at this point.
-        // The 'lastResolvedStringValue' variable correctly holds the final string from within the loop.
 
         // At this point, lastResolvedStringValue holds the final string result of the indirection.
         // This string might also contain template syntax, so parse and evaluate it one last time.

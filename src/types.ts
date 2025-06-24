@@ -23,6 +23,7 @@ export interface LiteralNode {
 export interface VariableNode {
   type: 'Variable';
   name: string;
+  raw: string; // New: Stores the original raw string of the variable tag (e.g., "<#name#>" or "{{ name }}")
 }
 
 export interface IndirectVariableNode {
