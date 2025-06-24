@@ -1,0 +1,15 @@
+<!-- Displaying page 2 -->
+<p>Showing items 4 - 6 of 6 total.</p>
+<ul>
+
+  <li>
+    <strong>Item 4</strong> (User ID: u4)
+    <span class="admin-view"> - IP: 1.1.1.4</span>
+  </li>
+
+  <li>
+    <strong>Item 5</strong> (User ID: u5)
+    <span class="admin-view"> - IP: 1.1.1.5</span>
+  </li>
+
+</ul>

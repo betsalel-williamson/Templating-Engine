@@ -1,0 +1,14 @@
+Report Type: User Activity
+Data Source Key: user_activity_logs
+====================================
+
+
+[0] User Login
+    - ID: EVT-1123
+    - Details: User 'alice' logged in from IP 192.168.1.10
+    - Timestamp: 2024-05-20T10:30:00Z
+
+[1] Profile Update
+    - ID: EVT-1124
+    - Details: User 'alice' updated their email address.
+    - Timestamp: 2024-05-20T10:32:15Z

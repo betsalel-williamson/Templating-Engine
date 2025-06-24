@@ -1,0 +1,12 @@
+# Generated Kubernetes ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-service-config-prod
+data:
+  # The template uses a single 'env' variable to select the correct values.
+  DB_HOST: "prod-db-cluster.aws.internal"
+  DB_USER: "auth_user" # This value is shared across all environments
+  API_URL: "https://api.myapp.com"
+  LOG_LEVEL: "warn"
+  FEATURE_FLAG_X: "1"

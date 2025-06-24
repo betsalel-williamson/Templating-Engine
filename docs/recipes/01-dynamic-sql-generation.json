@@ -3,21 +3,21 @@
   "columns": [
     { "column": "id" },
     { "column": "name" },
-    { "column": "status" }
+    { "column": "email" }
   ],
   "rows": [
     {
       "a_row": [
-        { "value": "a1b2-c3d4" },
+        { "value": "1" },
         { "value": "Alice" },
-        { "value": "active" }
+        { "value": "alice@example.com" }
       ]
     },
     {
       "a_row": [
-        { "value": "e5f6-g7h8" },
+        { "value": "2" },
         { "value": "Bob" },
-        { "value": "inactive" }
+        { "value": "bob@example.com" }
       ]
     }
   ]

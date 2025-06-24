@@ -1,11 +1,12 @@
 Report Type: <#report_title#>
-Data Source Key: <#report_source#>
+<~<`Data Source Key: <#report_source#>
 ====================================
 
-<~
+
 [<#<#report_source#>.index#>] <#title#>
     - ID: <#id#>
     - Details: <#details#>
     - Timestamp: <#timestamp#>
+`><*?
 
-<*><[<#report_source#>]>~>
+><[<#report_source#>]>~>
