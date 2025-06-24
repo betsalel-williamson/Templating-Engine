@@ -48,7 +48,7 @@ jobs:
         with:
           name: Template Engine Test Results
           path: junit.xml
-          reporter: junit
+          reporter: "jest-junit"
           fail-on-error: true # Fail the CI if tests fail
 
       - name: Generate Code Coverage Summary for GitHub
