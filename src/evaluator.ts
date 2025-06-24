@@ -201,13 +201,14 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           }
           const subContext = new Map([...context, ...item]);
           const oneBasedIndex = startIndex + index + 1;
+          const zeroBasedIndex = startIndex + index; // Calculate 0-based index
 
-          // Legacy variables (for backward compatibility)
+          // Legacy variables (for backward compatibility) - remain 1-based
           subContext.set(`${arrayName}.elementindex`, String(oneBasedIndex));
           subContext.set(`${arrayName}.numberofelements`, String(originalArrayLength));
 
-          // New, modernized variables
-          subContext.set(`${arrayName}.index`, String(oneBasedIndex));
+          // New, modernized variables - index is 0-based, length remains original length
+          subContext.set(`${arrayName}.index`, String(zeroBasedIndex)); // Changed to 0-based
           subContext.set(`${arrayName}.length`, String(originalArrayLength));
 
           return await evaluate(node.template, subContext, depth + 1);

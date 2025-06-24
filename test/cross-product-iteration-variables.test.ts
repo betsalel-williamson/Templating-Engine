@@ -18,10 +18,10 @@ describe('Story 15: Modernize Iteration Variables', () => {
     ]]
   ]);
 
-  it('should support the new .index variable (1-based)', async () => {
+  it('should support the new .index variable (0-based)', async () => {
     const template = '<~<`<#users.index#>: <#name#>;`><*><[users]>~>';
     const result = await evaluate(template, usersContext);
-    expect(result).toBe('1: Alice;2: Bob;3: Charlie;');
+    expect(result).toBe('0: Alice;1: Bob;2: Charlie;'); // Expected 0-based
   });
 
   it('should support the new .length variable', async () => {
@@ -34,16 +34,16 @@ describe('Story 15: Modernize Iteration Variables', () => {
     const template = '<~<`Index: <#users.index#>, ElementIndex: <#users.elementindex#>, Length: <#users.length#>, NumberOfElements: <#users.numberofelements#> | `><*><[users]>~>';
     const result = await evaluate(template, usersContext);
     expect(result).toBe(
-      'Index: 1, ElementIndex: 1, Length: 3, NumberOfElements: 3 | ' +
-      'Index: 2, ElementIndex: 2, Length: 3, NumberOfElements: 3 | ' +
-      'Index: 3, ElementIndex: 3, Length: 3, NumberOfElements: 3 | '
+      'Index: 0, ElementIndex: 1, Length: 3, NumberOfElements: 3 | ' + // Index is 0-based, ElementIndex 1-based
+      'Index: 1, ElementIndex: 2, Length: 3, NumberOfElements: 3 | ' +
+      'Index: 2, ElementIndex: 3, Length: 3, NumberOfElements: 3 | '
     );
   });
 
-  it('should maintain backward compatibility for .elementindex', async () => {
+  it('should maintain backward compatibility for .elementindex (1-based)', async () => {
     const template = '<~<`<#users.elementindex#>: <#name#>;`><*><[users]>~>';
     const result = await evaluate(template, usersContext);
-    expect(result).toBe('1: Alice;2: Bob;3: Charlie;');
+    expect(result).toBe('1: Alice;2: Bob;3: Charlie;'); // Expected 1-based
   });
 
   it('should maintain backward compatibility for .numberofelements', async () => {
@@ -53,8 +53,16 @@ describe('Story 15: Modernize Iteration Variables', () => {
   });
 
   it('should correctly set new variables when slicing is applied', async () => {
+    // Slicing {2} means first 2 elements from the *original* array: Alice (index 0), Bob (index 1)
     const template = '<~{2}<`<#users.index#> of <#users.length#>: <#name#>;`><*><[users]>~>';
     const result = await evaluate(template, usersContext);
-    expect(result).toBe('1 of 3: Alice;2 of 3: Bob;');
+    expect(result).toBe('0 of 3: Alice;1 of 3: Bob;'); // Index is 0-based
+  });
+
+  it('should correctly set new variables when slicing with offset is applied', async () => {
+    // Slicing {2,1} means 1 element starting from original index 1 (Bob)
+    const template = '<~{2,1}<`<#users.index#> of <#users.length#>: <#name#>;`><*><[users]>~>';
+    const result = await evaluate(template, usersContext);
+    expect(result).toBe('1 of 3: Bob;'); // Index is 0-based
   });
 });

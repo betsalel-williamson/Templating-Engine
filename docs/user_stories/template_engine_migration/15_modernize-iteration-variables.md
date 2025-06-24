@@ -8,9 +8,9 @@
 ## Acceptance Criteria
 
 -   Within a cross-product loop:
-    -   `<#arrayName.index#>` must resolve to the 1-based index of the current element in the *original* array.
+    -   `<#arrayName.index#>` must resolve to the **0-based** index of the current element in the *original* array.
     -   `<#arrayName.length#>` must resolve to the total number of elements in the *original* array.
--   The legacy variables (`<#arrayName.elementindex#>` and `<#arrayName.numberofelements#>`) must continue to function exactly as before, providing backward compatibility.
+-   The legacy variables (`<#arrayName.elementindex#>` and `<#arrayName.numberofelements#>`) must continue to function exactly as before, providing backward compatibility (where `<#arrayName.elementindex#>` is 1-based).
 -   Unit tests must be added to verify the functionality of the new `index` and `length` variables.
 -   The `README.md` documentation must be updated to recommend the new variable names as the preferred standard, while noting the continued support for the legacy names.
 
