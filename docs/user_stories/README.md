@@ -20,6 +20,7 @@ Each user story markdown file must contain the following sections:
 # Story {Number}: {Title}
 
 - **Project**: `{project_name}`
+- **Status**: `{status}`
 - **As a** {User Persona},
 - **I want to** {Action or Goal},
 - **so that** {Benefit or Value}.
@@ -41,6 +42,11 @@ Each user story markdown file must contain the following sections:
 -   **`{Number}`**: The unique number of the story (e.g., `0`, `1`, `7`).
 -   **`{Title}`**: The full, human-readable title of the feature (e.g., "Support Multi-Factor Authentication").
 -   **`{project_name}`**: The specific project this story belongs to (e.g., `auth-service`, `api-gateway`). This is mandatory for clarity.
+-   **`{status}`**: The current lifecycle status of the user story. Allowed values:
+    -   `todo`: The story is defined and prioritized but not yet started.
+    -   `in-progress`: Active work is being done on this story.
+    -   `blocked`: Work on this story is halted due to an external dependency or issue.
+    -   `verified completed`: The story's acceptance criteria are met, the change has been deployed to production, and its impact has been measured and validated against its primary metric.
 -   **`{User Persona}`**: The actor initiating the action. This can be a human role ("Data Analyst") or a system ("Billing Service").
 -   **`{Action or Goal}`**: A concise statement of the desired functionality.
 -   **`{Benefit or Value}`**: The purpose or business value driving the feature request. This must connect to a user need.

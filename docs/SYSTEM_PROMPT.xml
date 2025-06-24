@@ -163,6 +163,7 @@
 # Story {Number}: {Title}
 
 - **Project**: `{project_name}`
+- **Status**: `{status}`
 - **As a** {User Persona},
 - **I want to** {Action or Goal},
 - **so that** {Benefit or Value}.
@@ -194,6 +195,10 @@
           <item>
             <term>{project_name}</term>
             <description>The specific project this story belongs to (e.g., `auth-service`, `api-gateway`). This is mandatory for clarity.</description>
+          </item>
+          <item>
+            <term>{status}</term>
+            <description>The current lifecycle status of the user story. Allowed values: `todo`, `in-progress`, `blocked`, `verified completed`.</description>
           </item>
           <item>
             <term>{User Persona}</term>
