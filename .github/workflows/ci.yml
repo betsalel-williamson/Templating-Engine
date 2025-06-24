@@ -41,6 +41,7 @@ jobs:
 
       - name: Upload HTML coverage report artifact
         uses: actions/upload-artifact@v4
+        id: upload_html_coverage
         with:
           name: coverage-report-html
           path: coverage # Path to the directory containing the HTML report files
@@ -99,7 +100,7 @@ jobs:
 
           # Construct the direct download URL for the HTML report
           # This format directly initiates a download of the artifact's zip file.
-          HTML_REPORT_LINK="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${ARTIFACT_ID}/zip"
+          HTML_REPORT_LINK="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${ARTIFACT_ID}"
 
           # Write the complete summary to the GitHub step summary file
           {
@@ -114,7 +115,7 @@ jobs:
             echo ""
             # Embed the detailed Markdown coverage report from the generated file
             if [ -f "$COVERAGE_TEXT_FILE" ]; then
-              cat "$COVERAGE_TEXT_FILE"
+              tail -n +2 "$COVERAGE_TEXT_FILE" | head -n -1
             else
               echo "No detailed coverage report found at $COVERAGE_TEXT_FILE."
             fi
