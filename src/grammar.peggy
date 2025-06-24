@@ -1,5 +1,7 @@
 /*
- * Peggy grammar using the correct internal recursive parsing function.
+ * Peggy grammar with a robust conditional parser.
+ * This version parses conditional parts into a list and assembles the node
+ * in the action block, making it flexible to optional branches.
  */
 {{
   import { AstNode } from "../dist/types.js";
@@ -13,50 +15,77 @@
 Start "Template"
   = parts:(Tag / Literal)* { return buildTemplate(parts); }
 
-// A Tag is one of our special constructs.
+// A Tag is any expression starting with '<'. The order is critical.
 Tag
-  = CrossProduct
-  / Conditional
+  = Expression
   / IndirectVariable
   / Variable
-  / OtherContent
+  / GenericTag
 
-// A Literal is any character sequence that does not start a tag.
+// A Literal is any character sequence that does not start with '<'.
 Literal
   = value:$([^<]+) { return { type: 'Literal', value }; }
 
 
-// --- Tag Definitions using recursive parsing ---
+// --- Tag Definitions ---
 
-CrossProduct
-  = "<~"
-    templateText:$((!"<*>") .)*
+// Unified handler for <~...~> expressions.
+Expression "Expression"
+  = "<~" body:(ConditionalBody / CrossProductBody) "~>" { return body; }
+
+// A SubTemplate is a block of text wrapped in <`...`> to be recursively parsed.
+SubTemplate
+  = "<`" templateText:$((!"`>") .)* "`>" {
+      return peg$parse(templateText, options);
+    }
+
+// Body parsers for the Expression rule.
+ConditionalBody
+  = parts:(TruePart / FalsePart / Condition)+
+    {
+      let trueBranch = null;
+      let falseBranch = null;
+      let condition = null;
+      const defaultEmptyTemplate = { type: 'Template', body: [{ type: 'Literal', value: '' }] };
+
+      for (const part of parts) {
+        if (part.kind === 'TruePart') trueBranch = part.template;
+        if (part.kind === 'FalsePart') falseBranch = part.template;
+        if (part.kind === 'Condition') condition = part.template;
+      }
+
+      if (!condition) {
+        throw new Error("Conditional expression is missing a condition part '<?...?>'.");
+      }
+
+      return {
+        type: 'Conditional',
+        condition: condition,
+        trueBranch: trueBranch || defaultEmptyTemplate,
+        falseBranch: falseBranch || defaultEmptyTemplate
+      };
+    }
+
+CrossProductBody
+  = template:SubTemplate
     "<*>"
     iterator:ArrayRule
-    "~>"
     {
-      // FIX: Use `peg$parse` for recursive calls within the grammar's scope.
-      const template = peg$parse(templateText, options);
       return { type: 'CrossProduct', template, iterator };
     }
 
-Conditional
-  = "<+"
-    trueText:$((!"<->") .)*
-    "<->"
-    falseText:$((!"<?>") .)*
-    "<?"
-    condText:$((!"?>") .)*
-    "?>"
-    ">"
-    {
-      // FIX: Use `peg$parse` for recursive calls within the grammar's scope.
-      const trueBranch = peg$parse(trueText, options);
-      const falseBranch = peg$parse(falseText, options);
-      const condition = peg$parse(condText, options);
-      return { type: 'Conditional', condition, trueBranch, falseBranch };
-    }
+// Component rules for ConditionalBody that now return a kind property.
+TruePart "True Part"
+  = "<+>" template:SubTemplate { return { kind: 'TruePart', template }; }
 
+FalsePart "False Part"
+  = "<->" template:SubTemplate { return { kind: 'FalsePart', template }; }
+
+Condition "Condition"
+  = "<?" templateText:$( (!("?>") .)* ) "?>" { return { kind: 'Condition', template: peg$parse(templateText, options) }; }
+
+
+// Standalone tag rules
 Variable
   = "<#" name:Ident "#>" { return { type: 'Variable', name }; }
 
@@ -66,8 +95,8 @@ IndirectVariable
 ArrayRule "Array"
   = "<[" name:(Ident / Variable) "]>" { return { type: 'Array', name }; }
 
-OtherContent
-  = value:$("<" [^>]* ">") { return { type: 'Literal', value }; }
+GenericTag
+  = value:$( "<" [^>]* ">" ) { return { type: 'Literal', value }; }
 
 Ident
   = $([a-zA-Z] [a-zA-Z_0-9.-]*)

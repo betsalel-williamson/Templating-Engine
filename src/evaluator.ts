@@ -99,9 +99,15 @@ export async function evaluate(node: AstNode, context: DataContext, depth: numbe
     }
 
     case 'Conditional': {
-        // This logic is for a future story.
-        console.warn("Conditional evaluation is not yet implemented.");
-        return '';
+        const { condition, trueBranch, falseBranch } = node;
+        const conditionResult = await evaluate(condition, context, depth + 1);
+
+        // Per AC: "not '0' and not an empty string" is true.
+        if (conditionResult !== '0' && conditionResult !== '') {
+          return await evaluate(trueBranch, context, depth + 1);
+        } else {
+          return await evaluate(falseBranch, context, depth + 1);
+        }
     }
 
     default:
