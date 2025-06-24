@@ -4,8 +4,7 @@ import { parse } from '../lib/parser.js';
 import { AstNode, DataContext } from '../src/types.js';
 import { fileTracer, clearTraceLog } from '../src/tracer.js';
 
-describe('Template Evaluator', () => {
-  // Clear the log file before any tests in this suite run.
+describe('Template Evaluator: Story 0', () => {
   beforeAll(() => {
     clearTraceLog();
   });
@@ -14,46 +13,40 @@ describe('Template Evaluator', () => {
     return parse(template, { tracer: fileTracer }) as AstNode;
   };
 
-  it('should handle simple literal text', async () => {
+  it('should handle a template with only literal text', async () => {
     const ast = parseTemplate('Hello, world!');
     const context: DataContext = new Map();
     const result = await evaluate(ast, context);
     expect(result).toBe('Hello, world!');
   });
 
-  it('should replace a simple variable', async () => {
+  it('should replace a simple variable when it exists in the context', async () => {
     const ast = parseTemplate('Hello, <#name#>.');
     const context: DataContext = new Map([['name', 'TypeScript']]);
     const result = await evaluate(ast, context);
     expect(result).toBe('Hello, TypeScript.');
   });
 
-  it('should perform a cross-product expansion', async () => {
-    const template = '<~- <#item.name#> ~><*><[products]>~>';
-    const ast = parseTemplate(template);
-    const context: DataContext = new Map([
-      ['products', [
-        new Map([['name', 'Apple']]),
-        new Map([['name', 'Banana']]),
-      ]],
-    ]);
+  it('should leave the variable tag in place if the variable is not in the context', async () => {
+    const ast = parseTemplate('Hello, <#name#>.');
+    const context: DataContext = new Map();
     const result = await evaluate(ast, context);
-    expect(result).toBe('- Apple - Banana ');
+    expect(result).toBe('Hello, <#name#>.');
   });
 
-  it('should evaluate a true conditional', async () => {
-    const template = '<+This is TRUE<->This is FALSE<?<#show#>?>>';
+  it('should handle a mix of literals and variables', async () => {
+    const template = 'User: <#user#>, Status: <#status#>.';
     const ast = parseTemplate(template);
-    const context: DataContext = new Map([['show', '1']]);
+    const context: DataContext = new Map([['user', 'Alice'], ['status', 'active']]);
     const result = await evaluate(ast, context);
-    expect(result).toBe('This is TRUE');
+    expect(result).toBe('User: Alice, Status: active.');
   });
 
-  it('should evaluate a false conditional', async () => {
-    const template = '<+This is TRUE<->This is FALSE<?<#show#>?>>';
+  it('should handle multiple occurrences of the same variable', async () => {
+    const template = 'Say <#word#>, then say <#word#> again.';
     const ast = parseTemplate(template);
-    const context: DataContext = new Map([['show', '0']]);
+    const context: DataContext = new Map([['word', 'Yo']]);
     const result = await evaluate(ast, context);
-    expect(result).toBe('This is FALSE');
+    expect(result).toBe('Say Yo, then say Yo again.');
   });
 });

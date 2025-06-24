@@ -4,30 +4,12 @@ import {
   DataContextValue,
 } from './types.js';
 
+/**
+ * Resolves a variable name to its value from the context.
+ * This is a direct lookup. Recursive and indirect lookups are handled by other functions.
+ */
 function resolveVariable(name: string, context: DataContext): DataContextValue | undefined {
-  let currentValue = context.get(name);
-  let currentName = name;
-  const visited = new Set<string>([currentName]);
-
-  // FIX: Loop to resolve recursive variables (e.g., var1 -> var2 -> value).
-  while (typeof currentValue === 'string' && context.has(currentValue)) {
-    currentName = currentValue;
-    if (visited.has(currentName)) {
-      throw new Error(`Circular variable reference detected: ${currentName}`);
-    }
-    visited.add(currentName);
-    currentValue = context.get(currentName);
-  }
-  return currentValue;
-}
-
-// FIX: A separate function to resolve indirect array names without full evaluation.
-function resolveArrayName(node: { type: 'Variable', name: string } | string, context: DataContext): string {
-    if (typeof node === 'string') {
-        return node;
-    }
-    const resolved = resolveVariable(node.name, context);
-    return String(resolved);
+  return context.get(name);
 }
 
 export async function evaluate(node: AstNode, context: DataContext): Promise<string> {
@@ -44,27 +26,13 @@ export async function evaluate(node: AstNode, context: DataContext): Promise<str
 
     case 'Variable': {
       const value = resolveVariable(node.name, context);
+      // Per AC, if a variable is not found, the tag is left as-is.
       return value !== undefined ? String(value) : `<#${node.name}#>`;
     }
 
     case 'IndirectVariable': {
-      let currentName = node.name;
-      let value: DataContextValue | undefined;
-      const visited = new Set<string>();
-
-      while(true) {
-        if (visited.has(currentName)) {
-            throw new Error(`Circular indirect reference detected: ${node.name}`);
-        }
-        visited.add(currentName);
-        value = resolveVariable(currentName, context);
-        if (typeof value === 'string' && context.has(value)) {
-          currentName = value;
-        } else {
-          break;
-        }
-      }
-      return value !== undefined ? String(value) : `<##${node.name}##>`;
+      // This logic is for a future story. For now, treat it as a literal.
+      return `<##${node.name}##>`;
     }
 
     case 'Array': {
@@ -72,35 +40,15 @@ export async function evaluate(node: AstNode, context: DataContext): Promise<str
     }
 
     case 'CrossProduct': {
-      const arrayName = resolveArrayName(node.iterator.name, context);
-      const list = resolveVariable(arrayName, context);
-
-      if (!Array.isArray(list)) {
-        console.warn(`Warning: Cross-product target '${arrayName}' is not an array.`);
-        return '';
-      }
-
-      const outputs: string[] = [];
-      for (const item of list) {
-        const subContext = new Map(context);
-        if (item instanceof Map) {
-          for (const [key, val] of item.entries()) {
-            subContext.set(key, val);
-          }
-        } else {
-          subContext.set('item', item);
-        }
-        outputs.push(await evaluate(node.template, subContext));
-      }
-      return outputs.join('');
+      // This logic is for a future story.
+      console.warn("CrossProduct evaluation is not yet implemented.");
+      return '';
     }
 
     case 'Conditional': {
-        const conditionResult = await evaluate(node.condition, context);
-        const isTrue = conditionResult !== '0' && conditionResult !== '';
-        return isTrue
-            ? await evaluate(node.trueBranch, context)
-            : await evaluate(node.falseBranch, context);
+        // This logic is for a future story.
+        console.warn("Conditional evaluation is not yet implemented.");
+        return '';
     }
 
     default:
