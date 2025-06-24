@@ -7,7 +7,8 @@ export type AstNode =
   | IndirectVariableNode
   | ArrayNode
   | CrossProductNode
-  | ConditionalNode;
+  | ConditionalNode
+  | FunctionCallNode; // New node type
 
 export interface TemplateNode {
   type: 'Template';
@@ -49,6 +50,15 @@ export interface ConditionalNode {
   falseBranch: AstNode;
 }
 
-// Data context for evaluation
+export interface FunctionCallNode {
+  type: 'FunctionCall';
+  functionName: string;
+  args: AstNode[];
+}
+
+// Data context and Function Registry
 export type DataContextValue = string | number | DataContext | DataContextValue[];
 export type DataContext = Map<string, DataContextValue>;
+
+export type RegisteredFunction = (...args: any[]) => Promise<string | number>;
+export type FunctionRegistry = Map<string, RegisteredFunction>;

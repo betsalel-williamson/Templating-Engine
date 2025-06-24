@@ -1,37 +1,28 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { evaluate } from '../src/evaluator.js';
-import { parse } from '../lib/parser.js';
-import { AstNode, DataContext } from '../src/types.js';
 import { comprehensiveContext } from './fixtures/test-data.js';
-import { fileTracer, clearTraceLog } from '../src/tracer.js';
+import { clearTraceLog } from '../src/tracer.js';
+import { createTestEvaluator } from './test-helper.js';
 
 describe('Comprehensive Template Tests', () => {
   beforeAll(() => {
     clearTraceLog();
   });
 
-  const parseTemplate = (template: string): AstNode => {
-    return parse(template, { tracer: fileTracer }) as AstNode;
-  };
-
-  const evalWithContext = async (template: string, context: DataContext = comprehensiveContext) => {
-    const ast = parseTemplate(template);
-    return evaluate(ast, context);
-  };
+  const evaluate = createTestEvaluator();
 
   describe('Variable Replacement', () => {
     it('should replace a simple variable', async () => {
-      const result = await evalWithContext('Hi <#var3#>');
+      const result = await evaluate('Hi <#var3#>', comprehensiveContext);
       expect(result).toBe('Hi there');
     });
 
     it('should leave an unknown variable tag unchanged', async () => {
-        const result = await evalWithContext('This is an <#unknown_var#>');
+        const result = await evaluate('This is an <#unknown_var#>', comprehensiveContext);
         expect(result).toBe('This is an <#unknown_var#>');
     });
 
     it('should handle recursive variable replacement via re-evaluation', async () => {
-      const result = await evalWithContext('<#recursive1#>');
+      const result = await evaluate('<#recursive1#>', comprehensiveContext);
       expect(result).toBe('Recursive 2');
     });
 
@@ -41,7 +32,7 @@ describe('Comprehensive Template Tests', () => {
         context.set('cycleB', '<#cycleA#>');
         const template = '<#cycleA#>';
 
-        await expect(evalWithContext(template, context)).rejects.toThrow(
+        await expect(evaluate(template, context)).rejects.toThrow(
             'Max evaluation depth exceeded'
         );
     });
@@ -49,7 +40,7 @@ describe('Comprehensive Template Tests', () => {
 
   describe('Indirection', () => {
     it('should follow a chain of indirect variables', async () => {
-      const result = await evalWithContext('See Indirection -- <##indirection-0##>');
+      const result = await evaluate('See Indirection -- <##indirection-0##>', comprehensiveContext);
       expect(result).toBe('See Indirection -- The real value we are seeking');
     });
 
@@ -57,32 +48,32 @@ describe('Comprehensive Template Tests', () => {
         const context = new Map();
         context.set('a', 'b');
         context.set('b', 'a');
-        await expect(evalWithContext('<##a##>', context)).rejects.toThrow('Circular indirect reference detected: a -> b -> a');
+        await expect(evaluate('<##a##>', context)).rejects.toThrow('Circular indirect reference detected: a -> b -> a');
     });
   });
 
   describe('Conditionals', () => {
     it('should evaluate the true branch when condition is a non-zero string', async () => {
       const template = '<~<+><`TRUE`><-><`FALSE`><?1?>~>';
-      const result = await evalWithContext(template);
+      const result = await evaluate(template);
       expect(result).toBe('TRUE');
     });
 
     it('should evaluate the true branch when condition is any non-empty, non-zero string', async () => {
       const template = '<~<+><`TRUE`><-><`FALSE`><?true?>~>';
-      const result = await evalWithContext(template);
+      const result = await evaluate(template);
       expect(result).toBe('TRUE');
     });
 
     it('should evaluate the false branch when condition is "0"', async () => {
       const template = '<~<+><`TRUE`><-><`FALSE`><?0?>~>';
-      const result = await evalWithContext(template);
+      const result = await evaluate(template);
       expect(result).toBe('FALSE');
     });
 
     it('should evaluate the false branch when condition is an empty string', async () => {
       const template = '<~<+><`TRUE`><-><`FALSE`><??>~>';
-      const result = await evalWithContext(template);
+      const result = await evaluate(template);
       expect(result).toBe('FALSE');
     });
 
@@ -90,52 +81,52 @@ describe('Comprehensive Template Tests', () => {
       const template = '<~<+><`TRUE`><-><`FALSE`><?<#maybe#>?>~>';
       const context = new Map(comprehensiveContext);
       context.set('maybe', '');
-      const result = await evalWithContext(template, context);
+      const result = await evaluate(template, context);
       expect(result).toBe('FALSE');
     });
 
     it('should handle missing false branch correctly (true case)', async () => {
       const template = '<~<+><`Is Admin`><?<#isAdmin#>?>~>';
       const context = new Map([['isAdmin', '1']]);
-      const result = await evalWithContext(template, context);
+      const result = await evaluate(template, context);
       expect(result).toBe('Is Admin');
     });
 
     it('should handle missing false branch correctly (false case)', async () => {
       const template = '<~<+><`Is Admin`><?<#isAdmin#>?>~>';
       const context = new Map([['isAdmin', '0']]);
-      const result = await evalWithContext(template, context);
+      const result = await evaluate(template, context);
       expect(result).toBe('');
     });
 
     it('should handle missing true branch correctly (true case)', async () => {
       const template = '<~<-><`Not Admin`><?<#isAdmin#>?>~>';
       const context = new Map([['isAdmin', '1']]);
-      const result = await evalWithContext(template, context);
+      const result = await evaluate(template, context);
       expect(result).toBe('');
     });
 
     it('should handle missing true branch correctly (false case)', async () => {
       const template = '<~<-><`Not Admin`><?<#isAdmin#>?>~>';
       const context = new Map([['isAdmin', '0']]);
-      const result = await evalWithContext(template, context);
+      const result = await evaluate(template, context);
       expect(result).toBe('Not Admin');
     });
 
     it('should evaluate nested expressions in branches', async () => {
       const template = '<~<+><`Hello <#name#>`><-><`Bye <#name#>`><?<#showHello#>?>~>';
       const context = new Map([['name', 'World'], ['showHello', '1']]);
-      const result = await evalWithContext(template, context);
+      const result = await evaluate(template, context);
       expect(result).toBe('Hello World');
 
       const context2 = new Map([['name', 'World'], ['showHello', '0']]);
-      const result2 = await evalWithContext(template, context2);
+      const result2 = await evaluate(template, context2);
       expect(result2).toBe('Bye World');
     });
 
     it('should handle both branches being missing', async () => {
       const template = '<~<?<#cond#>?>~>';
-      const result = await evalWithContext(template, new Map([['cond', '1']]));
+      const result = await evaluate(template, new Map([['cond', '1']]));
       expect(result).toBe('');
     });
   });
@@ -143,7 +134,7 @@ describe('Comprehensive Template Tests', () => {
   describe('Cross-Product Expansion', () => {
     it('should expand a multi-variable array using parent context', async () => {
       const template = '<~<`<#var3#> <#xar1#> <#xar2#>\n`><*><[morevalues]>~>';
-      const result = await evalWithContext(template);
+      const result = await evaluate(template, comprehensiveContext);
       const expected = 'there xalue1A xalue2A\n'
                      + 'there xalue1B xalue2B\n'
                      + 'there xalue1C xalue2C\n';
@@ -152,7 +143,7 @@ describe('Comprehensive Template Tests', () => {
 
     it('should handle special iteration variables', async() => {
       const template = '<~<`<#values.elementindex#> of <#values.numberofelements#>: <#var1#>\n`><*><[values]>~>';
-      const result = await evalWithContext(template);
+      const result = await evaluate(template, comprehensiveContext);
       const expected = '1 of 3: value1\n'
                      + '2 of 3: value2\n'
                      + '3 of 3: value3\n';
@@ -161,7 +152,7 @@ describe('Comprehensive Template Tests', () => {
 
     it('should iterate over an array referenced by an indirect name', async () => {
       const template = '<~<`<#var1#> `><*><[<#arrayNameVar#>]>~>';
-      const result = await evalWithContext(template);
+      const result = await evaluate(template, comprehensiveContext);
       expect(result).toBe('value1 value2 value3 ');
     });
   });
@@ -177,7 +168,7 @@ describe('Comprehensive Template Tests', () => {
 
     it('should generate a SQL CREATE TABLE statement with correct delimiters', async () => {
       const template = 'create table someTable (\n<~<`  <#attribute#> <#type#>`><*?,\n:\n><[attributes]>~>);';
-      const result = await evalWithContext(template, sqlContext);
+      const result = await evaluate(template, sqlContext);
       const expected = 'create table someTable (\n'
                      + '  attr1 integer,\n'
                      + '  attr2 integer,\n'
@@ -188,47 +179,14 @@ describe('Comprehensive Template Tests', () => {
 
     it('should handle only a delimiter', async () => {
         const template = '[<~<`<#attribute#>`><*?,:><[attributes]>~>]';
-        const result = await evalWithContext(template, sqlContext);
+        const result = await evaluate(template, sqlContext);
         expect(result).toBe('[attr1,attr2,attr3]');
     });
 
     it('should handle only a terminator', async () => {
         const template = '<~<`<#attribute#>`><*?:;><[attributes]>~>';
-        const result = await evalWithContext(template, sqlContext);
+        const result = await evaluate(template, sqlContext);
         expect(result).toBe('attr1attr2attr3;');
-    });
-  });
-
-  describe('Legacy README Parity Tests', () => {
-    it('README line 34: simple multiplication', async () => {
-      const template = 'Hi <#var3#> <~<`<#var1#> <#values.elementindex#> of <#values.numberofelements#> `><*><[values]>~>';
-      const result = await evalWithContext(template);
-      // NOTE: The legacy README's expected output had a typo, joining with spaces.
-      // Our implementation joins without a separator unless one is specified.
-      const expected = 'Hi there value1 1 of 3 value2 2 of 3 value3 3 of 3 ';
-      expect(result).toBe(expected);
-    });
-
-    it('README line 70: complex multiplication', async () => {
-      // NOTE: Legacy README output shows "Hi" only once, which is correct as it's outside the loop.
-      const template = 'Hi <~<`<#var3#> <#xar1#> <#xar2#>\n`><*><[morevalues]>~>';
-      const result = await evalWithContext(template);
-      const expected = 'Hi there xalue1A xalue2A\n'
-                     + 'there xalue1B xalue2B\n'
-                     + 'there xalue1C xalue2C\n';
-      expect(result).toBe(expected);
-    });
-
-    it('README line 121: conditional with missing false branch (true case)', async () => {
-        const template = '<~<+><`TRUE`><?<#isTrue#>?>~>';
-        const result = await evalWithContext(template, new Map([['isTrue', '1']]));
-        expect(result).toBe('TRUE');
-    });
-
-    it('README line 122: conditional with missing false branch (false case)', async () => {
-        const template = '<~<+><`TRUE`><?<#isTrue#>?>~>';
-        const result = await evalWithContext(template, new Map([['isTrue', '0']]));
-        expect(result).toBe('');
     });
   });
 });

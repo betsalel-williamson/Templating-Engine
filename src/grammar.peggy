@@ -1,5 +1,6 @@
 /*
- * Peggy grammar with a corrected conditional multiplier rule.
+ * Peggy grammar with support for Function Calls.
+ * Corrected ArgumentList action block to resolve runtime error.
  */
 {{
   import { AstNode } from "../dist/types.js";
@@ -13,9 +14,10 @@
 Start "Template"
   = parts:(Tag / Literal)* { return buildTemplate(parts); }
 
-// A Tag is any expression starting with '<'. The order is critical.
+// A Tag is any expression starting with '<'. The order is critical for precedence.
 Tag
-  = Expression
+  = FunctionCall
+  / Expression
   / IndirectVariable
   / Variable
   / GenericTag
@@ -23,6 +25,38 @@ Tag
 // A Literal is any character sequence that does not start with '<'.
 Literal
   = value:$([^<]+) { return { type: 'Literal', value }; }
+
+
+// --- Function Call ---
+FunctionCall "Function Call"
+  = "<{" ws name:Ident ws "(" ws args:ArgumentList? ws ")" ws "}>" {
+      return {
+        type: 'FunctionCall',
+        functionName: name,
+        args: args || []
+      };
+    }
+
+// Parses a comma-separated list of arguments.
+ArgumentList
+  = head:Argument rest:(ws "," ws tail:ArgumentList)? {
+      // 'rest' will be null if there are no more arguments.
+      // If it exists, it's an array like [ws, ",", ws, argList],
+      // and we want the argList from the recursive call which is at index 3.
+      const tailArgs = rest ? rest[3] : [];
+      return [head, ...tailArgs];
+    }
+
+// Parses a single argument, which is a full sub-template.
+Argument "Argument"
+  = value:BalancedArgumentText {
+      // Recursively parse the argument content as a new template.
+      return peg$parse(value.trim(), options);
+    }
+
+// Matches a balanced string of text for an argument, handling nested constructs.
+BalancedArgumentText
+  = $( ( FunctionCall / !(ws ("," / ")")) . )* )
 
 
 // --- Tag Definitions ---
@@ -86,7 +120,6 @@ Multiplier
 SimpleMultiplier
   = "<*>" { return { delimiter: null, terminator: null }; }
 
-// Corrected, simpler rule for the conditional multiplier.
 ConditionalMultiplier
   = "<*?" delimiter:$([^:]*) ":" terminator:$([^>]*) ">" {
       return { delimiter, terminator };
@@ -118,3 +151,5 @@ GenericTag
 
 Ident
   = $([a-zA-Z] [a-zA-Z_0-9.-]*)
+
+ws "optional whitespace" = [ \t\n\r]*
