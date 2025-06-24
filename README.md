@@ -53,8 +53,6 @@ Variables are used to inject data values into templates.
 
 The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a template snippet for each item. This is powerful for generating repetitive structures.
 
-The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a template snippet for each item. This is powerful for generating repetitive structures.
-
 * **Basic Iteration**:
 
     ```txt
@@ -63,8 +61,7 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
     Output:   - Alice- Bob
     ```
 
-* **Iteration Variables**: Within a loop, special variables like `<#arrayName.elementindex#>` (1-based index) and `<#arrayName.numberofelements#>` (total count) are available.
-    Within a loop, special variables are available, prefixed with the array name (e.g., `users.`).
+* **Iteration Variables**: Within a loop, special variables are available, prefixed with the array name (e.g., `users.`).
 
 > **Preferred (Modern):**
 
@@ -74,7 +71,7 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
 > **Legacy (Deprecated but Supported):**
 
 * `<#arrayName.elementindex#>`: (1-based index) The 1-based index of the current element in the *original* array.
-* `<#arrayName.numberofelements#>`: (total count) The total number of elements in the *original* array.
+* `<#arrayName.numberofelements#>`: (total count) The total number of a elements in the *original* array.
 
     ```txt
     Context: { users: [Map([['name', 'Alice']])] } (array length 1)
@@ -154,64 +151,65 @@ This engine is built for scenarios where deep data-driven dynamism, fine-grained
 
 To get started with this templating engine:
 
-1. **Clone the repository:**
-
+1.  **Clone the repository and install dependencies:**
     ```bash
-    git clone [repository-url] # Replace [repository-url] with your actual repo URL
-    cd template-engine-ts
-    ```
-
-2. **Install dependencies:**
-
-    ```bash
+    git clone [repository-url]
+    cd Templating-Engine
     npm install
     ```
 
-3. **Build the parser and TypeScript code:**
-
+2.  **Build the parsers and application code:**
     ```bash
     npm run build
     ```
 
-4. **Run the demo:**
+3.  **Run the demo:**
     See `src/index.ts` for a basic usage example.
-
     ```bash
     npm start
     ```
 
-5. **Explore tests for more examples:**
+4.  **Explore tests for more examples:**
     The `test/` directory contains comprehensive examples for all syntax features.
-
     ```bash
     npm test
     ```
 
 ## Building a Standalone CLI Executable
 
-For environments where Node.js is not pre-installed, or for simpler distribution, you can build a single, self-contained executable for the `template-engine` CLI.
+For environments where Node.js is not pre-installed, you can build a single, self-contained executable using Node.js's native Single Executable Application (SEA) feature.
 
-1. **Install `pkg`**:
+1.  **Install Dependencies**: Make sure you have run `npm install`.
 
+2.  **Build for your Platform**: Run the script corresponding to your operating system.
+
+    *   **Linux**:
+        ```bash
+        npm run build:standalone:linux
+        ```
+        The output will be at `dist/template-engine-linux`.
+
+    *   **macOS**:
+        ```bash
+        npm run build:standalone:macos
+        ```
+        The output will be at `dist/template-engine-macos`.
+
+    *   **Windows (in Git Bash or WSL)**:
+        ```bash
+        npm run build:standalone:windows
+        ```
+        The output will be at `dist/template-engine-win.exe`.
+
+3.  **Run the Executable**:
+    You can now run the generated executable directly without Node.js.
     ```bash
-    npm install
+    # On Linux/macOS:
+    ./dist/template-engine-linux --help
+
+    # On Windows:
+    .\\dist\\template-engine-win.exe --help
     ```
-
-    This will install `pkg` as a development dependency.
-
-2. **Build the Executable**:
-
-    ```bash
-    npm run build:standalone
-    ```
-
-    This command first builds the TypeScript source and then uses `pkg` to create executables for common platforms (Linux, macOS, Windows) in the `dist/` directory.
-
-3. **Run the Executable**:
-    You can find the executables in the `dist/` folder.
-    * On Linux/macOS: `./dist/template-engine-linux --help`
-    * On Windows: `.\dist\template-engine-win.exe --help`
-
     These executables are self-contained and do not require Node.js or `npm install` on the target machine.
 
 ## Advanced Topics & Behavioral Notes

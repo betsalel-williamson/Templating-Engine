@@ -3,8 +3,6 @@
  * This grammar will define rules for {{ variable }} syntax.
  */
 {{
-  import { AstNode } from "../dist/types.js";
-
   function buildTemplate(parts) {
     return { type: 'Template', body: parts.filter(p => p) };
   }

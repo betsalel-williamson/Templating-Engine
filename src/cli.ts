@@ -1,7 +1,8 @@
+// Use standard ESM imports. The bundler will resolve them.
 import { readFileSync } from 'fs';
 import { createSecureEvaluator } from './evaluator.js';
 import { parse } from '../lib/parser.js';
-import { DataContext, DataContextValue } from './types.js'; // Ensure DataContextValue is imported
+import type { DataContext, DataContextValue } from './types.js';
 
 // Function to recursively convert a plain JavaScript object to a DataContext (Map)
 function convertObjectToDataContext(obj: any): DataContext {
@@ -85,6 +86,7 @@ export async function runCli(argv: string[], stdinStream: NodeJS.ReadStream, std
     // The CLI's purpose is content generation, not arbitrary code execution via templates.
     const secureEvaluate = createSecureEvaluator({ functions: new Map() });
 
+    // The 'parse' function is a direct export from the generated parser module.
     const ast = parse(templateContent);
     const output = await secureEvaluate(ast, dataContext);
     stdoutStream.write(output);
@@ -112,8 +114,8 @@ function readStream(stream: NodeJS.ReadStream): Promise<string> {
   });
 }
 
-// Check if this module is being run directly as a script
-if (import.meta.url === `file://${process.argv[1]}`) {
+// This check is compatible with a CommonJS bundle produced by esbuild.
+if (require.main === module) {
   runCli(process.argv.slice(2), process.stdin, process.stdout, process.stderr)
     .then(exitCode => process.exit(exitCode))
     .catch(err => {

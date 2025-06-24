@@ -1,0 +1,5 @@
+{
+  "main": "dist/cli.bundle.js",
+  "output": "dist/cli.blob",
+  "disableExperimentalSEAWarning": true
+}

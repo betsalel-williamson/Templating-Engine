@@ -3,8 +3,6 @@
  * Corrected ArgumentList action block to resolve runtime error.
  */
 {{
-  import { AstNode } from "../dist/types.js"; // Keep dist import for now
-
   function buildTemplate(parts) {
     return { type: 'Template', body: parts.filter(p => p) };
   }

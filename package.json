@@ -3,31 +3,35 @@
   "version": "1.0.0",
   "description": "A flexible and powerful templating engine for dynamic content generation.",
   "main": "dist/index.js",
-  "type": "module",
-  "scripts": {
-    "clean": "rm -rf dist lib",
-    "build:parser": "npx peggy --format es -o lib/parser.js --dts --extra-options-file peggy.config.json src/grammar.peggy",
-    "build:parser:new": "npx peggy --format es -o lib/parser_new.js --dts src/grammar_new.peggy",
-    "build:ts": "tsc",
-    "build": "npm run clean && npm run build:parser && npm run build:parser:new && npm run build:ts",
-    "start": "npm run build && node dist/index.js",
-    "test": "npm run build && vitest run",
-    "build:standalone": "npm run build && pkg --options no-warnings --output dist/template-engine --targets node20-linux-x64,node20-macos-x64,node20-win-x64 dist/cli.js",
-    "prepublishOnly": "npm run build"
+  "bin": {
+    "template-engine": "dist/cli.bundle.js"
   },
-  "dependencies": {
-    "peggy": "^5.0.4"
+  "scripts": {
+    "start": "node dist/index.js",
+    "lint": "echo 'Linting not configured yet.'",
+    "test": "vitest",
+    "build:parsers": "mkdir -p lib && peggy --format es src/grammar.peggy -o lib/parser.js && peggy --format es src/grammar_new.peggy -o lib/parser_new.js",
+    "build:bundle": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.bundle.js --format=cjs",
+    "build": "npm run build:parsers && npm run build:bundle",
+    "sea:blob": "node --experimental-sea-config sea-config.json",
+    "build:standalone:linux": "npm run build && npm run sea:blob && ./scripts/build-sea-linux.sh",
+    "build:standalone:macos": "npm run build && npm run sea:blob && ./scripts/build-sea-macos.sh",
+    "build:standalone:windows": "npm run build && npm run sea:blob && ./scripts/build-sea-windows.sh"
   },
   "devDependencies": {
     "@types/node": "^24.0.3",
     "@vitest/coverage-v8": "^3.2.4",
-    "pkg": "^5.8.1",
+    "esbuild": "^0.25.5",
+    "peggy": "^5.0.4",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },
-  "author": "",
-  "license": "MIT",
-  "bin": {
-    "template-engine": "dist/cli.js"
-  }
+  "files": [
+    "dist/",
+    "lib/",
+    "src/",
+    "docs/",
+    "LICENSE",
+    "README.md"
+  ]
 }
