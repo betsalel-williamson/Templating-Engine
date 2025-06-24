@@ -2,12 +2,12 @@
 
 - **Project**: `template-engine-ts`
 - **As a** Developer generating a SQL `CREATE TABLE` statement,
-- **I want to** add a comma after each column definition except the last one using the `<*?true:false>` syntax,
+- **I want to** add a comma after each column definition except the last one using the `<~template<*?delimiter:terminator><[array]>~>` syntax,
 - **so that** I can generate syntactically correct code for lists without writing brittle post-processing logic to remove trailing delimiters.
 
 ## Acceptance Criteria
 
--   The grammar must be extended to parse the conditional cross-product syntax `<~template~><*?delimiter:terminator><[array]>~>`.
+-   The grammar must be extended to parse the conditional cross-product syntax `<~template<*?delimiter:terminator><[array]>~>`.
 -   The evaluator must apply the main template to each element.
 -   The evaluator must insert the `delimiter` text between each element's output, but not after the last one.
 -   The evaluator must append the `terminator` text after the final element's output (this is often an empty string).
