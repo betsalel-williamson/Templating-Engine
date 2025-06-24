@@ -99,4 +99,58 @@ describe('Template Evaluator', () => {
         expect(result).toBe('Hello World');
     });
   });
+
+  describe('Story 3: Cross-Product Evaluation (<~...<*>...~>)', () => {
+    const usersContext: DataContext = new Map([
+      ['users', [
+        new Map([['name', 'Alice'], ['email', 'alice@example.com']]),
+        new Map([['name', 'Bob'], ['email', 'bob@example.com']]),
+      ]]
+    ]);
+
+    it('should iterate over an array of Maps and evaluate the template for each', async () => {
+      const template = '<~- <#name#> (<#email#>)<*><[users]>~>';
+      const result = await evaluate(parseTemplate(template), usersContext);
+      expect(result).toBe('- Alice (alice@example.com)- Bob (bob@example.com)');
+    });
+
+    it('should access parent context variables from within the loop', async () => {
+      const template = '<~<#prefix#>: <#name#>. <*><[users]>~>';
+      const context = new Map([
+        ...usersContext,
+        ['prefix', 'User'],
+      ]);
+      const result = await evaluate(parseTemplate(template), context);
+      expect(result).toBe('User: Alice. User: Bob. ');
+    });
+
+    it('should provide special iteration variables in the sub-context', async () => {
+      const template = '<~<#users.elementindex#>/<#users.numberofelements#>: <#name#>;<*><[users]>~>';
+      const result = await evaluate(parseTemplate(template), usersContext);
+      expect(result).toBe('1/2: Alice;2/2: Bob;');
+    });
+
+    it('should produce an empty string if the array does not exist', async () => {
+      const template = '<~- <#name#><*><[users]>~>';
+      const result = await evaluate(parseTemplate(template), new Map());
+      expect(result).toBe('');
+    });
+
+    it('should produce an empty string if the referenced value is not an array', async () => {
+      const template = '<~- <#name#><*><[users]>~>';
+      const context: DataContext = new Map([['users', 'not-an-array']]);
+      const result = await evaluate(parseTemplate(template), context);
+      expect(result).toBe('');
+    });
+
+    it('should iterate using an indirect array name (Story 4)', async () => {
+        const template = '<~<#name#>, <*><[<#arrayVar#>]>~>';
+        const context: DataContext = new Map([
+            ...usersContext,
+            ['arrayVar', 'users'],
+        ]);
+        const result = await evaluate(parseTemplate(template), context);
+        expect(result).toBe('Alice, Bob, ');
+    });
+  });
 });

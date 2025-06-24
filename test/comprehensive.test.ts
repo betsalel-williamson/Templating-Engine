@@ -69,14 +69,29 @@ describe('Comprehensive Template Tests', () => {
     });
   });
 
-  describe.skip('Cross-Product Expansion', () => {
-    it('should expand a multi-variable array', async () => {
-      const template = '<~<#var3#> <#xar1#> <#xar2#>\n~><*><[morevalues]>~>';
+  describe('Cross-Product Expansion', () => {
+    it('should expand a multi-variable array using parent context', async () => {
+      const template = '<~<#var3#> <#xar1#> <#xar2#>\n<*><[morevalues]>~>';
       const result = await evalWithContext(template);
       const expected = 'there xalue1A xalue2A\n'
                      + 'there xalue1B xalue2B\n'
                      + 'there xalue1C xalue2C\n';
       expect(result).toBe(expected);
+    });
+
+    it('should handle special iteration variables', async() => {
+      const template = '<~<#values.elementindex#> of <#values.numberofelements#>: <#var1#>\n<*><[values]>~>';
+      const result = await evalWithContext(template);
+      const expected = '1 of 3: value1\n'
+                     + '2 of 3: value2\n'
+                     + '3 of 3: value3\n';
+      expect(result).toBe(expected);
+    });
+
+    it('should iterate over an array referenced by an indirect name', async () => {
+      const template = '<~<#var1#> <*><[<#arrayNameVar#>]>~>';
+      const result = await evalWithContext(template);
+      expect(result).toBe('value1 value2 value3 ');
     });
   });
 });

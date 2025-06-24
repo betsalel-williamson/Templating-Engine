@@ -60,9 +60,42 @@ export async function evaluate(node: AstNode, context: DataContext, depth: numbe
     }
 
     case 'CrossProduct': {
-      // This logic is for a future story.
-      console.warn("CrossProduct evaluation is not yet implemented.");
-      return '';
+      const { template, iterator } = node;
+
+      // 1. Resolve array name from iterator (handles direct and indirect names)
+      let arrayName: string;
+      if (typeof iterator.name === 'string') {
+        arrayName = iterator.name;
+      } else {
+        // Evaluate the VariableNode to get the array's name string
+        arrayName = await evaluate(iterator.name, context, depth + 1);
+      }
+
+      const arrayData = context.get(arrayName);
+
+      if (!Array.isArray(arrayData)) {
+        // If the key doesn't exist or is not an array, produce no output.
+        return '';
+      }
+
+      // 2. Iterate, create sub-contexts, and evaluate
+      const iterationPromises = arrayData.map(async (item, index) => {
+        if (!(item instanceof Map)) {
+          // Items must be Maps to create a new variable scope.
+          return '';
+        }
+
+        // 3. Create sub-context with item properties and special iteration variables
+        const subContext = new Map([...context, ...item]);
+        subContext.set(`${arrayName}.elementindex`, String(index + 1));
+        subContext.set(`${arrayName}.numberofelements`, String(arrayData.length));
+
+        // 4. Evaluate the nested template with the sub-context
+        return await evaluate(template, subContext, depth + 1);
+      });
+
+      const iterationResults = await Promise.all(iterationPromises);
+      return iterationResults.join('');
     }
 
     case 'Conditional': {
