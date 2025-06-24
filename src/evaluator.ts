@@ -60,41 +60,39 @@ export async function evaluate(node: AstNode, context: DataContext, depth: numbe
     }
 
     case 'CrossProduct': {
-      const { template, iterator } = node;
+      const { template, iterator, delimiter, terminator } = node;
 
-      // 1. Resolve array name from iterator (handles direct and indirect names)
       let arrayName: string;
       if (typeof iterator.name === 'string') {
         arrayName = iterator.name;
       } else {
-        // Evaluate the VariableNode to get the array's name string
         arrayName = await evaluate(iterator.name, context, depth + 1);
       }
 
       const arrayData = context.get(arrayName);
 
-      if (!Array.isArray(arrayData)) {
-        // If the key doesn't exist or is not an array, produce no output.
+      if (!Array.isArray(arrayData) || arrayData.length === 0) {
         return '';
       }
 
-      // 2. Iterate, create sub-contexts, and evaluate
       const iterationPromises = arrayData.map(async (item, index) => {
         if (!(item instanceof Map)) {
-          // Items must be Maps to create a new variable scope.
           return '';
         }
-
-        // 3. Create sub-context with item properties and special iteration variables
         const subContext = new Map([...context, ...item]);
         subContext.set(`${arrayName}.elementindex`, String(index + 1));
         subContext.set(`${arrayName}.numberofelements`, String(arrayData.length));
-
-        // 4. Evaluate the nested template with the sub-context
         return await evaluate(template, subContext, depth + 1);
       });
 
       const iterationResults = await Promise.all(iterationPromises);
+
+      // Handle delimiter and terminator
+      if (delimiter !== null && delimiter !== undefined) {
+        const finalTerminator = terminator || '';
+        return iterationResults.join(delimiter) + finalTerminator;
+      }
+
       return iterationResults.join('');
     }
 
@@ -102,7 +100,6 @@ export async function evaluate(node: AstNode, context: DataContext, depth: numbe
         const { condition, trueBranch, falseBranch } = node;
         const conditionResult = await evaluate(condition, context, depth + 1);
 
-        // Per AC: "not '0' and not an empty string" is true.
         if (conditionResult !== '0' && conditionResult !== '') {
           return await evaluate(trueBranch, context, depth + 1);
         } else {

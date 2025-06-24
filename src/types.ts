@@ -38,6 +38,8 @@ export interface CrossProductNode {
   type: 'CrossProduct';
   template: AstNode;
   iterator: ArrayNode;
+  delimiter?: string;
+  terminator?: string;
 }
 
 export interface ConditionalNode {

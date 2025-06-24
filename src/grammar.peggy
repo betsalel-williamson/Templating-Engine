@@ -1,7 +1,5 @@
 /*
- * Peggy grammar with a robust conditional parser.
- * This version parses conditional parts into a list and assembles the node
- * in the action block, making it flexible to optional branches.
+ * Peggy grammar with a corrected conditional multiplier rule.
  */
 {{
   import { AstNode } from "../dist/types.js";
@@ -68,13 +66,33 @@ ConditionalBody
 
 CrossProductBody
   = template:SubTemplate
-    "<*>"
+    multiplier:Multiplier
     iterator:ArrayRule
     {
-      return { type: 'CrossProduct', template, iterator };
+      return {
+        type: 'CrossProduct',
+        template,
+        iterator,
+        delimiter: multiplier.delimiter,
+        terminator: multiplier.terminator
+      };
     }
 
-// Component rules for ConditionalBody that now return a kind property.
+// Multiplier can be simple or conditional
+Multiplier
+  = ConditionalMultiplier
+  / SimpleMultiplier
+
+SimpleMultiplier
+  = "<*>" { return { delimiter: null, terminator: null }; }
+
+// Corrected, simpler rule for the conditional multiplier.
+ConditionalMultiplier
+  = "<*?" delimiter:$([^:]*) ":" terminator:$([^>]*) ">" {
+      return { delimiter, terminator };
+    }
+
+// Component rules for ConditionalBody.
 TruePart "True Part"
   = "<+>" template:SubTemplate { return { kind: 'TruePart', template }; }
 
