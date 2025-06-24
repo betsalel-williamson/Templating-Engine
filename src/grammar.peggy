@@ -20,7 +20,6 @@ Tag
   / Expression
   / IndirectVariable
   / Variable
-  // Removed: / GenericTag // This rule was too permissive, capturing malformed tags as literals
 
 // A Literal is any character sequence that does not start with '<'.
 Literal
@@ -114,7 +113,7 @@ CrossProductBody
       };
     }
 
-// New: Rule for parsing array slicing syntax like {offset,limit} or {limit}
+// # IMPORTANT CHANGE: Slicing is now 0-based at the grammar level
 Slice "Array Slice"
   = "{" ws offset_str:Digits? ws comma:("," ws)? limit_str:Digits? ws "}" {
       let offset = undefined;

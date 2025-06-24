@@ -179,9 +179,9 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
         const originalArrayLength = rawArrayData.length; // Store original length for numberofelements
 
         // Apply slicing logic (Story 8)
-        // Convert to 0-based index. If offset is 0 from parser (for {limit}), then 0 - 1 = -1.
-        let startIndex = node.offset !== undefined ? node.offset - 1 : 0;
-        // Clamp startIndex to ensure it's never negative, even if node.offset was 0.
+        // # IMPORTANT CHANGE: offset from parser is now expected to be 0-based.
+        let startIndex = node.offset !== undefined ? node.offset : 0;
+        // Clamp startIndex to ensure it's never negative.
         startIndex = Math.max(0, startIndex);
 
         // Calculate endIndex. If limit is undefined, go to end of array.
