@@ -1,10 +1,8 @@
-// Use standard ESM imports. The bundler will resolve them.
 import { readFileSync } from 'fs';
 import { createSecureEvaluator } from './evaluator.js';
 import { parse } from '../lib/parser.js';
 import type { DataContext, DataContextValue } from './types.js';
 
-// Function to recursively convert a plain JavaScript object to a DataContext (Map)
 function convertObjectToDataContext(obj: any): DataContext {
     const context = new Map<string, DataContextValue>();
     for (const key in obj) {
@@ -33,13 +31,8 @@ Options:
   --template <file>  Path to the template file. If omitted, template is read from stdin.
   --data <file>      Path to the JSON data file. (Required)
   --help             Show this help message.
-
-Examples:
-  template-engine --template template.txt --data data.json
-  cat template.txt | template-engine --data data.json
 `;
 
-// Exported for testing, but also serves as the main entry point for the CLI
 export async function runCli(argv: string[], stdinStream: NodeJS.ReadStream, stdoutStream: NodeJS.WriteStream, stderrStream: NodeJS.WriteStream): Promise<number> {
   let templateFilePath: string | undefined;
   let dataFilePath: string | undefined;
@@ -47,74 +40,73 @@ export async function runCli(argv: string[], stdinStream: NodeJS.ReadStream, std
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === '--help') {
-      showHelp = true;
-    } else if (arg === '--template') {
-      templateFilePath = argv[++i];
-    } else if (arg === '--data') {
-      dataFilePath = argv[++i];
-    }
+    if (arg === '--help') showHelp = true;
+    else if (arg === '--template') templateFilePath = argv[++i];
+    else if (arg === '--data') dataFilePath = argv[++i];
   }
 
   if (showHelp) {
     stdoutStream.write(USAGE);
-    return 0; // Indicate success for help
+    return 0;
   }
 
   if (!dataFilePath) {
-    stderrStream.write('Error: --data <file> is a required argument.\n');
-    stderrStream.write(USAGE);
-    return 1; // Indicate error
+    stderrStream.write('Error: --data <file> is a required argument.\n' + USAGE);
+    return 1;
   }
 
-  let templateContent: string;
-  let dataContent: string;
+  let templateContent: string = '';
 
   try {
     if (templateFilePath) {
       templateContent = readFileSync(templateFilePath, 'utf8');
     } else {
-      // Read template from stdin
       templateContent = await readStream(stdinStream);
     }
 
-    dataContent = readFileSync(dataFilePath, 'utf8');
+    const dataContent = readFileSync(dataFilePath, 'utf8');
     const parsedJson = JSON.parse(dataContent);
     const dataContext = convertObjectToDataContext(parsedJson);
 
-    // Secure evaluator with no built-in functions for CLI (for security, host app adds them)
-    // The CLI's purpose is content generation, not arbitrary code execution via templates.
     const secureEvaluate = createSecureEvaluator({ functions: new Map() });
-
-    // The 'parse' function is a direct export from the generated parser module.
     const ast = parse(templateContent);
     const output = await secureEvaluate(ast, dataContext);
     stdoutStream.write(output);
-    return 0; // Indicate success
+    return 0;
   } catch (error: any) {
-    stderrStream.write(`Error: ${error.message}\n`);
-    return 1; // Indicate error
+    // This is where the new, robust error handling lives.
+    if (error.location && error.location.start && templateContent) {
+      const { line, column } = error.location.start;
+      const sourcePath = templateFilePath || '<stdin>';
+      const lines = templateContent.split('\n');
+      const errorLine = lines[line - 1] || '';
+      const pointer = ' '.repeat(column - 1) + '^';
+      const formattedMessage = [
+        `\nSyntax Error: ${error.message}`,
+        ` at ${sourcePath}:${line}:${column}`,
+        ``,
+        `  ${line} | ${errorLine}`,
+        `    | ${pointer}`,
+        ``
+      ].join('\n');
+      stderrStream.write(formattedMessage);
+    } else {
+      stderrStream.write(`Error: ${error.message}\n`);
+    }
+    return 1;
   }
 }
 
 function readStream(stream: NodeJS.ReadStream): Promise<string> {
   return new Promise((resolve, reject) => {
     let data = '';
-    // Set encoding to utf8 for consistent text processing
     stream.setEncoding('utf8');
-    stream.on('data', chunk => {
-      data += chunk;
-    });
-    stream.on('end', () => {
-      resolve(data);
-    });
-    stream.on('error', err => {
-      reject(err);
-    });
+    stream.on('data', chunk => { data += chunk; });
+    stream.on('end', () => resolve(data));
+    stream.on('error', err => reject(err));
   });
 }
 
-// This check is compatible with a CommonJS bundle produced by esbuild.
 if (require.main === module) {
   runCli(process.argv.slice(2), process.stdin, process.stdout, process.stderr)
     .then(exitCode => process.exit(exitCode))
