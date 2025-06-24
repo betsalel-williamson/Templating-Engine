@@ -4,7 +4,6 @@
  */
 {{
   // This block is for code available in the global scope of the module.
-  // Helper functions that DON'T need access to parser options go here.
 }}
 
 {
@@ -87,7 +86,6 @@ Expression "Expression"
   = "<~" body:(ConditionalBody / CrossProductBody) "~>" { return body; }
 
 // A SubTemplate is a block of text wrapped in <`...`> to be recursively parsed.
-// THIS IS THE CORRECTED RECURSIVE RULE.
 SubTemplate "SubTemplate"
   = "<`" body:SubTemplatePart* "`>" { return buildTemplate(body); }
 
@@ -202,8 +200,13 @@ Condition "Condition"
 Variable
   = lt:"<#" name:Ident gt:"#>" { log("MATCH: Variable", name); return { type: 'Variable', name: name, raw: lt + name + gt }; }
 
-IndirectVariable
-  = "<##" name:Ident "##>" { return { type: 'IndirectVariable', name }; }
+IndirectVariable = lt:"<##" name_content:$(!"##>" .)* gt:"##>" {
+    return {
+        type: 'IndirectVariable',
+        name: peg$parse(name_content.trim(), options),
+        raw: lt + name_content + gt
+    };
+}
 
 // A robust pattern for matching multi-line content as a single string.
 ArrayRule "Array"

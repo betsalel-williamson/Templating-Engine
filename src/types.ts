@@ -28,7 +28,8 @@ export interface VariableNode {
 
 export interface IndirectVariableNode {
   type: 'IndirectVariable';
-  name: string;
+  name: AstNode; // The nested template for the name.
+  raw: string;   // The original raw tag (e.g., "<##<#env#>-key##>").
 }
 
 export interface ArrayNode {

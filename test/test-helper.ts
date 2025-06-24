@@ -16,7 +16,7 @@ export function createTestEvaluator(
   functions: FunctionRegistry = new Map(),
   cloneFunctions: boolean = false,
   parserType: 'legacy' | 'new' = 'legacy', // Default to legacy parser
-  enableTracing: boolean = false // New flag for conditional logging
+  enableTracing: boolean = true // New flag for conditional logging
 ) {
   const secureEvaluate = createSecureEvaluator({ functions, cloneFunctions });
 
