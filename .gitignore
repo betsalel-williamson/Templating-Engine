@@ -6,3 +6,4 @@ peggy.config.json
 u*.sh
 trace.log
 coverage/
+junit.xml

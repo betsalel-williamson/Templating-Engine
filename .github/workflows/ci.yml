@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Or your desired Node.js version
+          cache: 'npm'
+
+      - name: Install dependencies and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run tests and generate coverage
+        # The `json-summary` reporter outputs to coverage/coverage-summary.json
+        run: npm test -- --coverage
+        continue-on-error: true # Ensure subsequent steps run even if tests fail
+
+      - name: Upload HTML coverage report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-html
+          path: coverage/html/ # Standard path for Vitest HTML reports
+
+      - name: Report Test Results (JUnit)
+        if: success() || failure()
+        uses: dorny/test-reporter@v2
+        with:
+          name: Template Engine Test Results
+          path: junit.xml
+          reporter: junit
+          fail-on-error: true # Fail the CI if tests fail
+
+      - name: Generate Code Coverage Summary for GitHub
+        if: always() # Always run this step to provide summary regardless of test outcome
+        run: |
+          # Install jq for JSON parsing
+          sudo apt-get update && sudo apt-get install -y jq
+
+          # Define the path to the coverage summary JSON file
+          COVERAGE_FILE="coverage/coverage-summary.json"
+
+          TOTAL_COVERAGE_PERCENT="N/A"
+          COLOR="lightgrey"
+          COVERAGE_BADGE_TEXT="no report"
+
+          # Check if the coverage summary file exists and is readable
+          if [ -f "$COVERAGE_FILE" ]; then
+            # Extract the total statements percentage
+            TOTAL_COVERAGE_PERCENT=$(jq -r '.total.statements.pct' "$COVERAGE_FILE")
+
+            # Validate if it's a number
+            if [[ "$TOTAL_COVERAGE_PERCENT" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+              TOTAL_COVERAGE_INT=${TOTAL_COVERAGE_PERCENT%.*} # Remove decimal for integer comparison
+
+              # Determine the color for the badge based on coverage percentage
+              if [ "$TOTAL_COVERAGE_INT" -ge 90 ]; then
+                COLOR="brightgreen" # High coverage
+              elif [ "$TOTAL_COVERAGE_INT" -ge 75 ]; then
+                COLOR="yellow" # Medium coverage
+              elif [ "$TOTAL_COVERAGE_INT" -ge 50 ]; then
+                COLOR="orange" # Low coverage, but not critical
+              else
+                COLOR="red" # Very low coverage
+              fi
+              COVERAGE_BADGE_TEXT="${TOTAL_COVERAGE_PERCENT}%25" # URL encode % for badge
+            fi
+          fi
+
+          # Construct the badge URL
+          BADGE_URL="https://img.shields.io/badge/coverage-${COVERAGE_BADGE_TEXT}-${COLOR}"
+          BADGE_MARKDOWN="![Coverage]($BADGE_URL)"
+
+          # Write the complete summary to the GitHub step summary file
+          {
+            echo "### Code Coverage Summary"
+            echo ""
+            echo "$BADGE_MARKDOWN"
+            echo ""
+            # Link to the full HTML coverage report artifact
+            echo "For a detailed report, see the [full HTML coverage report artifact](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/coverage-report-html)."
+            echo ""
+            echo "<details><summary>Expand for full JSON summary</summary>"
+            echo ""
+            # Print the JSON summary file, indented for readability in Markdown code block
+            if [ -f "$COVERAGE_FILE" ]; then
+              jq '.' "$COVERAGE_FILE" | sed 's/^/    /'
+            else
+              echo "    No coverage JSON report found."
+            fi
+            echo ""
+            echo "</details>"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,4 +1,4 @@
-# TypeScript Templating Engine
+# Templating Engine
 
 This project provides a flexible and powerful templating engine for dynamic content generation, built with a focus on robustness and maintainability. It allows developers to create reusable templates that are easily populated with data, enabling dynamic configuration, code generation, and content rendering.
 
