@@ -99,7 +99,7 @@ ConditionalBody
     }
 
 CrossProductBody
-  = template:SubTemplate
+  = slice:Slice? template:SubTemplate
     multiplier:Multiplier
     iterator:ArrayRule
     {
@@ -108,9 +108,42 @@ CrossProductBody
         template,
         iterator,
         delimiter: multiplier.delimiter,
-        terminator: multiplier.terminator
+        terminator: multiplier.terminator,
+        offset: slice ? slice.offset : undefined,
+        limit: slice ? slice.limit : undefined
       };
     }
+
+// New: Rule for parsing array slicing syntax like {offset,limit} or {limit}
+Slice "Array Slice"
+  = "{" ws offset_str:Digits? ws comma:("," ws)? limit_str:Digits? ws "}" {
+      let offset = undefined;
+      let limit = undefined;
+
+      if (offset_str !== null) {
+          offset = parseInt(offset_str, 10);
+      }
+      if (limit_str !== null) {
+          limit = parseInt(limit_str, 10);
+      }
+
+      // Handle {limit} case where only digits are provided, no comma. E.g., {3}
+      if (offset_str !== null && comma === null && limit_str === null) {
+          limit = offset; // The parsed number is the limit
+          offset = 0;     // Offset is implicitly 0
+      }
+      // Handle {,limit} case where offset is implicit 0. E.g., {,2}
+      else if (offset_str === null && comma !== null && limit_str !== null) {
+          offset = 0;     // Offset is implicitly 0
+      }
+      // Handle {offset,} case. Offset is set, limit remains undefined (meaning 'to end').
+      // No specific 'if' block needed as default parsing handles this.
+
+      return { offset, limit };
+    }
+
+Digits "Digits"
+  = $[0-9]+
 
 // Multiplier can be simple or conditional
 Multiplier
@@ -144,7 +177,10 @@ IndirectVariable
   = "<##" name:Ident "##>" { return { type: 'IndirectVariable', name }; }
 
 ArrayRule "Array"
-  = "<[" name:(Ident / Variable) "]>" { return { type: 'Array', name }; }
+  = "<[" name:(Ident / Variable / Tag) "]>" {
+    // Tag includes FunctionCall, Expression etc. This enables Story 9
+    return { type: 'Array', name };
+  }
 
 GenericTag
   = value:$( "<" [^>]* ">" ) { return { type: 'Literal', value }; }

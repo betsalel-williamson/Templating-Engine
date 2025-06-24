@@ -70,23 +70,53 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
         return String(result);
       }
       case 'Array':
-        throw new Error(`Invalid AST: Encountered a standalone ArrayNode.`);
+        // This case should ideally not be reached if parser correctly nests Array nodes inside CrossProduct.
+        // It's here as a safeguard.
+        throw new Error(`Invalid AST: Encountered a standalone ArrayNode. Should be nested in CrossProduct.`);
       case 'CrossProduct': {
-        let arrayName = '';
+        let arrayName: string;
         if (typeof node.iterator.name === 'string') {
           arrayName = node.iterator.name;
         } else {
+          // Evaluate nested template within ArrayRule for Story 9
           arrayName = await evaluate(node.iterator.name, context, depth + 1);
         }
-        const arrayData = context.get(arrayName);
-        if (!Array.isArray(arrayData) || arrayData.length === 0) return '';
-        const iterationResults = await Promise.all(arrayData.map(async (item, index) => {
-          if (!(item instanceof Map)) return '';
+
+        const rawArrayData = context.get(arrayName);
+
+        if (!Array.isArray(rawArrayData) || rawArrayData.length === 0) return '';
+
+        const originalArrayLength = rawArrayData.length; // Store original length for numberofelements
+
+        // Apply slicing logic (Story 8)
+        // Convert to 0-based index. If offset is 0 from parser (for {limit}), then 0 - 1 = -1.
+        let startIndex = node.offset !== undefined ? node.offset - 1 : 0;
+        // Clamp startIndex to ensure it's never negative, even if node.offset was 0.
+        startIndex = Math.max(0, startIndex);
+
+        // Calculate endIndex. If limit is undefined, go to end of array.
+        let endIndex = node.limit !== undefined ? startIndex + node.limit : rawArrayData.length;
+
+        // Adjust for out-of-bounds or invalid slices
+        endIndex = Math.min(rawArrayData.length, endIndex);
+
+        const slicedArrayData = rawArrayData.slice(startIndex, endIndex);
+
+        const iterationResults = await Promise.all(slicedArrayData.map(async (item, index) => {
+          // Ensure item is a Map (object), otherwise skip or convert
+          if (!(item instanceof Map)) {
+            // Depending on desired behavior, could stringify or skip non-Map items
+            // For now, consistent with existing behavior, skip.
+            return '';
+          }
           const subContext = new Map([...context, ...item]);
-          subContext.set(`${arrayName}.elementindex`, String(index + 1));
-          subContext.set(`${arrayName}.numberofelements`, String(arrayData.length));
+          // elementindex should be 1-based index relative to the *original* array.
+          subContext.set(`${arrayName}.elementindex`, String(startIndex + index + 1));
+          subContext.set(`${arrayName}.numberofelements`, String(originalArrayLength)); // Original array length (Story 8 AC)
+
           return await evaluate(node.template, subContext, depth + 1);
         }));
+
         if (node.delimiter !== null && node.delimiter !== undefined) {
           return iterationResults.join(node.delimiter) + (node.terminator || '');
         }
