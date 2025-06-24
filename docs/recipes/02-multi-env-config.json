@@ -1,0 +1,21 @@
+{
+  "appName": "auth-service",
+  "db-user": "auth_user",
+
+  "env": "prod",
+
+  "dev-db-host": "dev-postgres.local",
+  "dev-api-url": "http://localhost:8080/api",
+  "dev-log-level": "debug",
+  "dev-feature-flag-x": "0",
+
+  "staging-db-host": "stg-db-cluster.aws.internal",
+  "staging-api-url": "https://api.staging.myapp.com",
+  "staging-log-level": "info",
+  "staging-feature-flag-x": "0",
+
+  "prod-db-host": "prod-db-cluster.aws.internal",
+  "prod-api-url": "https://api.myapp.com",
+  "prod-log-level": "warn",
+  "prod-feature-flag-x": "1"
+}

@@ -1,0 +1,24 @@
+{
+  "tableName": "users",
+  "columns": [
+    { "column": "id" },
+    { "column": "name" },
+    { "column": "status" }
+  ],
+  "rows": [
+    {
+      "a_row": [
+        { "value": "a1b2-c3d4" },
+        { "value": "Alice" },
+        { "value": "active" }
+      ]
+    },
+    {
+      "a_row": [
+        { "value": "e5f6-g7h8" },
+        { "value": "Bob" },
+        { "value": "inactive" }
+      ]
+    }
+  ]
+}

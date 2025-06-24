@@ -1,0 +1,12 @@
+# Generated Kubernetes ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: <#appName#>-config-<#env#>
+data:
+  # The template uses a single 'env' variable to select the correct values.
+  DB_HOST: "<##<#env#>-db-host##>"
+  DB_USER: "<#db-user#>" # This value is shared across all environments
+  API_URL: "<##<#env#>-api-url##>"
+  LOG_LEVEL: "<##<#env#>-log-level##>"
+  FEATURE_FLAG_X: "<##<#env#>-feature-flag-x##>"

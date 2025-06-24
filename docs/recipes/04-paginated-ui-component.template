@@ -1,0 +1,10 @@
+<!-- Displaying page <#page#> -->
+<p>Showing items <#offset#> - <~{<#offset#>,<#limit#>}1<*?+><[items]>~> of <#items.length#> total.</p>
+<ul>
+<~{<#offset#>,<#limit#>}
+  <li>
+    <strong><#name#></strong> (User ID: <#id#>)
+    <~<+><span class="admin-view"> - IP: <#last_ip#></span><?<#show_admin_details#>?~>
+  </li>
+<*><[items]>~>
+</ul>

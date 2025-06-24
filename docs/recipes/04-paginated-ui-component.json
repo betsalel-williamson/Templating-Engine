@@ -1,0 +1,14 @@
+{
+  "page": "2",
+  "offset": "2",
+  "limit": "2",
+  "show_admin_details": "1",
+
+  "items": [
+    { "id": "u-001", "name": "Alice", "last_ip": "192.168.1.10" },
+    { "id": "u-002", "name": "Bob", "last_ip": "10.0.0.52" },
+    { "id": "u-003", "name": "Charlie", "last_ip": "172.16.3.4" },
+    { "id": "u-004", "name": "David", "last_ip": "192.168.1.22" },
+    { "id": "u-005", "name": "Eve", "last_ip": "10.0.1.99" }
+  ]
+}
