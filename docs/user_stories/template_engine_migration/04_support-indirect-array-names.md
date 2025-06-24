@@ -1,9 +1,9 @@
 # Story 4: Support Indirect Array Names in Cross-Products
 
 - **Project**: `template-engine-ts`
-- **As a** Developer,
-- **I want to** use a variable to specify the array name in a cross-product, like `<*><[<#arrayVar#>]>~>`,
-- **so that** the template logic can be more dynamic and reusable.
+- **As a** Developer writing a generic report template,
+- **I want to** use a variable like `<#dataSource#>` to determine which array to iterate over in a cross-product (`<*><[<#dataSource#>]>~>`),
+- **so that** I can use the same report template to display data from different sources (`'monthly_sales'`, `'quarterly_revenue'`) by only changing one variable.
 
 ## Acceptance Criteria
 

@@ -1,9 +1,9 @@
-# Story 3: Implement Basic Cross-Product Expansion
+# Story 3: Generate Repeated Content from a List
 
 - **Project**: `template-engine-ts`
-- **As a** Developer,
-- **I want to** iterate over an array of data using the `<~template~><*><[array]>~>` syntax,
-- **so that** I can generate dynamic content from lists, a core feature of the engine.
+- **As a** Developer generating an HTML list,
+- **I want to** apply a template snippet (e.g., `<li><#item.name#></li>`) to each item in a data array,
+- **so that** I can generate repetitive structures like `<li>` tags for any number of items without duplicating template code, adhering to the DRY principle.
 
 ## Acceptance Criteria
 

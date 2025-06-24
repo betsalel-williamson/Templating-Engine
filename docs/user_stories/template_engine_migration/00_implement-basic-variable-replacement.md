@@ -1,9 +1,9 @@
 # Story 0: Implement Basic Variable Replacement
 
 - **Project**: `template-engine-ts`
-- **As a** Developer,
-- **I want to** replace simple `<#variable#>` placeholders with values from a data context,
-- **so that** the most fundamental feature of the template engine is functional, establishing the core parse-and-evaluate pipeline.
+- **As a** Developer writing a configuration file,
+- **I want to** substitute a placeholder like `<#hostname#>` with a value from a data context,
+- **so that** I can create a single template for multiple environments (e.g., dev, prod) and just change the data, applying the DRY principle to my configuration.
 
 ## Acceptance Criteria
 

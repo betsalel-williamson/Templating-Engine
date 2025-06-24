@@ -1,9 +1,9 @@
 # Story 2: Implement Indirect Variable Replacement
 
 - **Project**: `template-engine-ts`
-- **As a** Developer,
-- **I want to** use the `<##variable##>` syntax for deep, chained variable resolution,
-- **so that** advanced indirection patterns from the legacy engine are supported.
+- **As a** Developer generating code for multiple target languages (e.g., C#, Java),
+- **I want to** use a variable's *value* as the name of the next variable to look up (e.g., `lang = "java"`, `<##<#lang#>-for-loop-template##>`),
+- **so that** I can use a high-level configuration value to select from a wide range of code-generation snippets dynamically.
 
 ## Acceptance Criteria
 

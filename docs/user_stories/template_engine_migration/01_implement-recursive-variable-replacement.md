@@ -1,9 +1,9 @@
 # Story 1: Implement Recursive Variable Replacement
 
 - **Project**: `template-engine-ts`
-- **As a** Developer,
-- **I want to** have variables that resolve to the names of other variables be fully expanded,
-- **so that** I can create complex, multi-layered template configurations in parity with the legacy engine.
+- **As a** Developer managing a complex set of configuration aliases,
+- **I want to** define an alias variable (e.g., `<#active_db_host#>` ) that points to another environment-specific variable (e.g., `<#prod_db_host#>` ),
+- **so that** I can change a single alias to redirect a large part of my configuration, simplifying environment management.
 
 ## Acceptance Criteria
 
