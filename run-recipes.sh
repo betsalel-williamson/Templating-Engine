@@ -51,7 +51,7 @@ for recipe_md in docs/recipes/*.md; do
 
   # 3. Execute the CLI binary and redirect the output to the result file
   #    The quotes are essential to handle paths correctly.
-  "${CLI_BINARY}" --template "${template_file}" --data "${data_file}" > "${result_file}"
+  time "${CLI_BINARY}" --template "${template_file}" --data "${data_file}" > "${result_file}"
 
   echo "   [OK] Generated ${result_file}"
 done

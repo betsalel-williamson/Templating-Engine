@@ -1,6 +1,7 @@
 # Recipe 2: Multi-Environment Kubernetes ConfigMap
 
 ## Use Case
+
 You need to manage configuration files (e.g., a Kubernetes `ConfigMap`) for multiple environments (`dev`, `staging`, `prod`). The structure is identical, but the values differ. Maintaining separate files violates the DRY principle.
 
 ## Key Feature: Deep Indirection (`<##...##>`)
@@ -11,5 +12,6 @@ This "data as metadata" approach is a powerful differentiator, enabling highly d
 
 Template: `API_URL: <##<#env#>-api-url##>`
 If `env` is `prod`, this resolves as:
-1.  `<#env#>` -> `"prod"`
-2.  `<##prod-api-url##>` -> (looks up the key `prod-api-url`) -> `"https://api.myapp.com"`
+
+1. `<#env#>` -> `"prod"`
+2. `<##prod-api-url##>` -> (looks up the key `prod-api-url`) -> `"https://api.myapp.com"`

@@ -11,11 +11,12 @@ beforeAll(() => {
   doClear();
 });
 
-// The factory now accepts the cloneFunctions flag and a parser choice.
+// The factory now accepts the cloneFunctions flag, a parser choice, and a tracing flag.
 export function createTestEvaluator(
   functions: FunctionRegistry = new Map(),
   cloneFunctions: boolean = false,
-  parserType: 'legacy' | 'new' = 'legacy' // New parameter
+  parserType: 'legacy' | 'new' = 'legacy', // Default to legacy parser
+  enableTracing: boolean = false // New flag for conditional logging
 ) {
   const secureEvaluate = createSecureEvaluator({ functions, cloneFunctions });
 
@@ -26,7 +27,14 @@ export function createTestEvaluator(
     } else {
       parser = parseLegacy;
     }
-    const ast = parser(template, { tracer: fileTracer }) as AstNode;
+
+    // Pass the tracing flag to the parser options.
+    const options = {
+      tracer: fileTracer,
+      enablePeggyTracing: enableTracing // This flag will control the new logging
+    };
+
+    const ast = parser(template, options) as AstNode;
     return secureEvaluate(ast, context);
   };
 }

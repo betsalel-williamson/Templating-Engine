@@ -1,12 +1,42 @@
 /*
  * Peggy grammar with support for Function Calls.
- * Corrected ArgumentList action block to resolve runtime error.
+ * This version uses robust patterns for parsing multi-line content.
  */
 {{
-  function buildTemplate(parts) {
-    return { type: 'Template', body: parts.filter(p => p) };
-  }
+  // This block is for code available in the global scope of the module.
+  // Helper functions that DON'T need access to parser options go here.
 }}
+
+{
+  // This block is the "per-parse-initializer". Code here is executed
+  // for each call to `parse()` and has access to the `options` object.
+
+  // This helper function enables conditional logging.
+  const log = (...args) => {
+    if (options && options.enablePeggyTracing) {
+      console.log('[PEG_TRACE]', ...args);
+    }
+  };
+
+  function buildTemplate(parts) {
+    // Merge consecutive Literal nodes for a cleaner AST and better performance.
+    if (!parts || parts.length === 0) {
+      return { type: 'Template', body: [] };
+    }
+
+    const mergedBody = [parts[0]];
+    for (let i = 1; i < parts.length; i++) {
+      const last = mergedBody[mergedBody.length - 1];
+      const current = parts[i];
+      if (last.type === 'Literal' && current.type === 'Literal') {
+        last.value += current.value;
+      } else {
+        mergedBody.push(current);
+      }
+    }
+    return { type: 'Template', body: mergedBody.filter(p => p) };
+  }
+}
 
 // Top-level entry point.
 Start "Template"
@@ -21,7 +51,7 @@ Tag
 
 // A Literal is any character sequence that does not start with '<'.
 Literal
-  = value:$([^<]+) { return { type: 'Literal', value }; }
+  = value:$([^<]+) { log("MATCH: Literal", value); return { type: 'Literal', value }; }
 
 
 // --- Function Call ---
@@ -34,26 +64,20 @@ FunctionCall "Function Call"
       };
     }
 
-// Parses a comma-separated list of arguments.
 ArgumentList
   = head:Argument rest:(ws "," ws tail:ArgumentList)? {
-      // 'rest' will be null if there are no more arguments.
-      // If it exists, it's an array like [ws, ",", ws, argList],
-      // and we want the argList from the recursive call which is at index 3.
       const tailArgs = rest ? rest[3] : [];
       return [head, ...tailArgs];
     }
 
-// Parses a single argument, which is a full sub-template.
 Argument "Argument"
   = value:BalancedArgumentText {
-      // Recursively parse the argument content as a new template.
       return peg$parse(value.trim(), options);
     }
 
-// Matches a balanced string of text for an argument, handling nested constructs.
+// A robust and simple pattern for matching argument text as a single string.
 BalancedArgumentText
-  = $( ( FunctionCall / !(ws ("," / ")")) . )* )
+  = text:$( ( !("," / ")") . )* ) { return text; }
 
 
 // --- Tag Definitions ---
@@ -63,10 +87,14 @@ Expression "Expression"
   = "<~" body:(ConditionalBody / CrossProductBody) "~>" { return body; }
 
 // A SubTemplate is a block of text wrapped in <`...`> to be recursively parsed.
-SubTemplate
-  = "<`" templateText:$((!"`>") .)* "`>" {
-      return peg$parse(templateText, options);
-    }
+// THIS IS THE CORRECTED RECURSIVE RULE.
+SubTemplate "SubTemplate"
+  = "<`" body:SubTemplatePart* "`>" { return buildTemplate(body); }
+
+SubTemplatePart
+  = Tag
+  / value:$((!'`>') [^<])+ { log("MATCH: SubTemplateLiteral", value); return { type: 'Literal', value }; }
+
 
 // Body parsers for the Expression rule.
 ConditionalBody
@@ -96,9 +124,7 @@ ConditionalBody
     }
 
 CrossProductBody
-  = slice:Slice? template:SubTemplate
-    multiplier:Multiplier
-    iterator:ArrayRule
+  = slice:Slice? ws template:SubTemplate ws multiplier:Multiplier ws iterator:ArrayRule
     {
       return {
         type: 'CrossProduct',
@@ -111,7 +137,7 @@ CrossProductBody
       };
     }
 
-// # IMPORTANT CHANGE: Slicing is now 0-based at the grammar level
+// Slicing is 0-based at the grammar level.
 Slice "Array Slice"
   = "{" ws offset_str:Digits? ws comma:("," ws)? limit_str:Digits? ws "}" {
       let offset = undefined;
@@ -124,25 +150,19 @@ Slice "Array Slice"
           limit = parseInt(limit_str, 10);
       }
 
-      // Handle {limit} case where only digits are provided, no comma. E.g., {3}
       if (offset_str !== null && comma === null && limit_str === null) {
-          limit = offset; // The parsed number is the limit
-          offset = 0;     // Offset is implicitly 0
+          limit = offset;
+          offset = 0;
       }
-      // Handle {,limit} case where offset is implicit 0. E.g., {,2}
       else if (offset_str === null && comma !== null && limit_str !== null) {
-          offset = 0;     // Offset is implicitly 0
+          offset = 0;
       }
-      // Handle {offset,} case. Offset is set, limit remains undefined (meaning 'to end').
-      // No specific 'if' block needed as default parsing handles this.
-
       return { offset, limit };
     }
 
 Digits "Digits"
   = $[0-9]+
 
-// Multiplier can be simple or conditional
 Multiplier
   = ConditionalMultiplier
   / SimpleMultiplier
@@ -150,33 +170,44 @@ Multiplier
 SimpleMultiplier
   = "<*>" { return { delimiter: null, terminator: null }; }
 
-ConditionalMultiplier
-  = "<*?" delimiter:$([^:]*) ":" terminator:$([^>]*) ">" {
-      return { delimiter, terminator };
-    }
+ConditionalMultiplier "Conditional Multiplier"
+  = "<*?" content:$(( !">" . )*) ">" {
+      const colonIndex = content.lastIndexOf(":");
+      if (colonIndex !== -1) {
+          return {
+              delimiter: content.substring(0, colonIndex),
+              terminator: content.substring(colonIndex + 1)
+          };
+      } else {
+          // No colon found, the entire content is the delimiter.
+          return {
+              delimiter: content,
+              terminator: ""
+          };
+      }
+  }
 
-// Component rules for ConditionalBody.
 TruePart "True Part"
   = "<+>" template:SubTemplate { return { kind: 'TruePart', template }; }
 
 FalsePart "False Part"
   = "<->" template:SubTemplate { return { kind: 'FalsePart', template }; }
 
+// A robust pattern for matching multi-line content as a single string.
 Condition "Condition"
   = "<?" templateText:$( (!("?>") .)* ) "?>" { return { kind: 'Condition', template: peg$parse(templateText, options) }; }
 
 
-// # MODIFIED: Capture individual parts to reconstruct 'raw' and get 'name' directly.
+// Capture individual parts to reconstruct 'raw' and get 'name' directly.
 Variable
-  = lt:"<#" name:Ident gt:"#>" { return { type: 'Variable', name: name, raw: lt + name + gt }; }
+  = lt:"<#" name:Ident gt:"#>" { log("MATCH: Variable", name); return { type: 'Variable', name: name, raw: lt + name + gt }; }
 
 IndirectVariable
   = "<##" name:Ident "##>" { return { type: 'IndirectVariable', name }; }
 
+// A robust pattern for matching multi-line content as a single string.
 ArrayRule "Array"
-  = "<[" ws name_content:($( ( !"\]" . )* )) ws "]>" {
-    // Always parse the content within the brackets as a full template.
-    // The evaluator will then evaluate this template to get the final array name string.
+  = "<[" ws name_content:$( ( !"]>" . )* ) ws "]>" {
     return { type: 'Array', name: peg$parse(name_content.trim(), options) };
   }
 
