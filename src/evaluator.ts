@@ -1,67 +1,58 @@
 import {
   AstNode,
   DataContext,
-  DataContextValue,
 } from './types.js';
+import { parse } from '../lib/parser.js';
 
-/**
- * Resolves a variable name to its final value, following a chain of references.
- * Detects and throws an error for circular references.
- * e.g., context { a: "b", b: "c", c: "Result" }, resolveVariable("a", context) -> "Result"
- */
-function resolveVariable(name: string, context: DataContext): DataContextValue | undefined {
-  let currentName = name;
-  let currentValue = context.get(currentName);
-  const visited = new Set<string>([currentName]);
+const MAX_EVAL_DEPTH = 50;
 
-  // Keep resolving as long as the current value is a string that is also a key in the context.
-  while (typeof currentValue === 'string' && context.has(currentValue)) {
-    currentName = currentValue;
-    if (visited.has(currentName)) {
-      // Cycle detected.
-      throw new Error(`Circular variable reference detected: ${[...visited, currentName].join(' -> ')}`);
-    }
-    visited.add(currentName);
-    currentValue = context.get(currentName);
+export async function evaluate(node: AstNode, context: DataContext, depth: number = 0): Promise<string> {
+  if (depth > MAX_EVAL_DEPTH) {
+    throw new Error("Max evaluation depth exceeded, possible infinite loop in template variables.");
   }
 
-  // If the initial name was not in the context, currentValue will be undefined.
-  // If the chain ended on a valid value, that value is returned.
-  // If the chain ended because a key was not found (e.g., a -> b, but b is not a key),
-  // this will return the value of the last valid key ('b' in this case).
-  // The outer 'evaluate' function needs to handle this. Let's adjust.
-
-  // Correct logic: The loop continues as long as we find valid keys.
-  // If the loop terminates, `currentValue` holds the final value, which might be undefined.
-  if (context.has(name)) {
-      return currentValue;
-  }
-  return undefined;
-}
-
-export async function evaluate(node: AstNode, context: DataContext): Promise<string> {
   if (!node) return ''; // Guard against undefined nodes from faulty parsing
 
   switch (node.type) {
     case 'Template':
       if (!node.body) return '';
-      const results = await Promise.all(node.body.map(child => evaluate(child, context)));
+      const results = await Promise.all(node.body.map(child => evaluate(child, context, depth + 1)));
       return results.join('');
 
     case 'Literal':
       return node.value;
 
     case 'Variable': {
-      // The `resolveVariable` helper handles the recursive lookup and cycle detection.
-      const value = resolveVariable(node.name, context);
-      // If resolution results in an undefined value (e.g., not found, or chain breaks),
-      // leave the original tag in place.
-      return value !== undefined ? String(value) : `<#${node.name}#>`;
+      const value = context.get(node.name);
+      if (value === undefined) {
+        return `<#${node.name}#>`;
+      }
+      // "Template-in-a-variable" strategy: parse the value as a new template and evaluate it.
+      const subAst = parse(String(value));
+      return await evaluate(subAst, context, depth + 1);
     }
 
     case 'IndirectVariable': {
-      // This logic is for a future story. For now, treat it as a literal.
-      return `<##${node.name}##>`;
+      // "Key-chain-lookup" strategy: follow a chain of keys.
+      let currentKey = node.name;
+      if (!context.has(currentKey)) {
+        return `<##${node.name}##>`;
+      }
+
+      let currentValue = context.get(currentKey);
+      const visited = new Set<string>([currentKey]);
+
+      while (typeof currentValue === 'string' && context.has(currentValue)) {
+        currentKey = currentValue;
+        if (visited.has(currentKey)) {
+          throw new Error(`Circular indirect reference detected: ${[...visited, currentKey].join(' -> ')}`);
+        }
+        visited.add(currentKey);
+        currentValue = context.get(currentKey);
+      }
+      // The final value might be a template itself, so it needs one final evaluation pass.
+      const subAst = parse(String(currentValue));
+      return await evaluate(subAst, context, depth + 1);
     }
 
     case 'Array': {

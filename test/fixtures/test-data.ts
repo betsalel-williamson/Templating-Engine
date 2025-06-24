@@ -5,7 +5,7 @@ export const comprehensiveContext: DataContext = new Map<string, DataContextValu
   ['var3', 'there'],
 
   // Recursive Variables
-  ['recursive1', 'recursive2'],
+  ['recursive1', '<#recursive2#>'], // Corrected: Value must be a template string for re-evaluation.
   ['recursive2', 'Recursive 2'],
 
   // Indirect Variables

@@ -36,38 +36,67 @@ describe('Template Evaluator', () => {
     });
   });
 
-  describe('Story 1: Recursive Replacement', () => {
-    it('should resolve a simple recursive variable (2 levels)', async () => {
-        const template = '<#a#>';
-        const context: DataContext = new Map([['a', 'b'], ['b', 'Result']]);
-        const result = await evaluate(parseTemplate(template), context);
-        expect(result).toBe('Result');
+  describe('Story 1: Standard Variable Evaluation (<#..#>)', () => {
+    it('should evaluate a value that is also a template', async () => {
+      const template = '<#a#>';
+      const context: DataContext = new Map([['a', 'Hello <#b#>'], ['b', 'World']]);
+      const result = await evaluate(parseTemplate(template), context);
+      expect(result).toBe('Hello World');
     });
 
-    it('should resolve a multi-step recursive variable (3+ levels)', async () => {
-        const template = '<#a#>';
-        const context: DataContext = new Map([['a', 'b'], ['b', 'c'], ['c', 'Final']]);
-        const result = await evaluate(parseTemplate(template), context);
-        expect(result).toBe('Final');
+    it('should handle multiple levels of template-in-variable', async () => {
+      const template = '<#a#>';
+      const context: DataContext = new Map([['a', '<#b#>'], ['b', '<#c#>'], ['c', 'Final']]);
+      const result = await evaluate(parseTemplate(template), context);
+      expect(result).toBe('Final');
+    });
+
+    it('should throw an error on circular reference by reaching max depth', async () => {
+      const template = '<#a#>';
+      const context: DataContext = new Map([['a', '<#b#>'], ['b', '<#a#>']]);
+      await expect(evaluate(parseTemplate(template), context)).rejects.toThrow('Max evaluation depth exceeded');
+    });
+  });
+
+  describe('Story 2: Indirect Variable Evaluation (<##..##>)', () => {
+    it('should resolve a chain of keys to a final value', async () => {
+      const template = '<##a##>';
+      const context: DataContext = new Map([['a', 'b'], ['b', 'c'], ['c', 'Result']]);
+      const result = await evaluate(parseTemplate(template), context);
+      expect(result).toBe('Result');
+    });
+
+    it('should return the original tag if the initial key is not found', async () => {
+      const template = '<##a##>';
+      const context: DataContext = new Map();
+      const result = await evaluate(parseTemplate(template), context);
+      expect(result).toBe('<##a##>');
     });
 
     it('should throw an error on a direct circular reference', async () => {
-        const template = '<#a#>';
-        const context: DataContext = new Map([['a', 'a']]);
-        await expect(evaluate(parseTemplate(template), context)).rejects.toThrow('Circular variable reference detected: a -> a');
+      const template = '<##a##>';
+      const context: DataContext = new Map([['a', 'a']]);
+      await expect(evaluate(parseTemplate(template), context)).rejects.toThrow('Circular indirect reference detected: a -> a');
     });
 
     it('should throw an error on an indirect circular reference', async () => {
-        const template = '<#a#>';
-        const context: DataContext = new Map([['a', 'b'], ['b', 'c'], ['c', 'a']]);
-        await expect(evaluate(parseTemplate(template), context)).rejects.toThrow('Circular variable reference detected: a -> b -> c -> a');
+      const template = '<##a##>';
+      const context: DataContext = new Map([['a', 'b'], ['b', 'c'], ['c', 'a']]);
+      await expect(evaluate(parseTemplate(template), context)).rejects.toThrow('Circular indirect reference detected: a -> b -> c -> a');
     });
 
-    it('should return the last value if the recursion chain ends on a non-key string', async () => {
-        const template = '<#a#>';
-        const context: DataContext = new Map([['a', 'b']]); // 'b' is a valid final string value.
+    it('should return the last value if the chain breaks', async () => {
+      const template = '<##a##>';
+      const context: DataContext = new Map([['a', 'b']]); // b is a value, not a key
+      const result = await evaluate(parseTemplate(template), context);
+      expect(result).toBe('b');
+    });
+
+    it('should evaluate the final resolved value as a template', async () => {
+        const template = '<##a##>';
+        const context: DataContext = new Map([['a', 'b'], ['b', 'Hello <#c#>'], ['c', 'World']]);
         const result = await evaluate(parseTemplate(template), context);
-        expect(result).toBe('b');
+        expect(result).toBe('Hello World');
     });
   });
 });
