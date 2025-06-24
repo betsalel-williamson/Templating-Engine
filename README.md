@@ -93,7 +93,7 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
 
 ### Conditionals
 
-The `<~<+true_branch<->false_branch<?condition?>>~>` syntax allows rendering content conditionally based on a value.
+The ``<~<+><`true_branch`><-><`false_branch`><?condition?>~>`` syntax allows rendering content conditionally based on a value.
 
 * If `condition` evaluates to anything other than `"0"` or an empty string, the `true_branch` is rendered. Otherwise, the `false_branch` is rendered.
 * Both `true_branch` (`<+...`) and `false_branch` (`<->...`) are optional.
