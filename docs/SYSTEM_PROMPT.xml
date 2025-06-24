@@ -124,6 +124,10 @@
           <description>Use <code type="inline">cat > path/to/file << 'EOF'</code> for all file creation or replacement. Do <strong>NOT</strong> use <code type="inline">sed</code>, <code type="inline">awk</code>, <code type="inline">patch</code>, or similar tools.</description>
         </item>
         <item>
+          <term>Enforce Minimal Diff</term>
+          <description>When modifying an existing file, your primary goal is to produce the smallest possible logical change (a minimal diff). You MUST treat the user-provided source as the absolute source of truth for structure, style, and comments. Do NOT regenerate files from your internal knowledge. Your output must be a faithful copy of the original with only the necessary surgical changes applied.</description>
+        </item>
+        <item>
           <term>Quality</term>
           <description>All new features or components must include documentation, comprehensive unit tests, and adhere to our AI usage guidelines.</description>
         </item>
