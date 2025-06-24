@@ -62,10 +62,32 @@ describe('Template Evaluator', () => {
     });
 
     it('should throw on circular indirect reference', async () => {
-        const context = new Map();
-        context.set('a', 'b');
-        context.set('b', 'a');
-        await expect(evaluate('<##a##>', context)).rejects.toThrow('Circular indirect reference detected: a -> b -> a');
+      const context = new Map();
+      context.set('a', 'b');
+      context.set('b', 'a');
+      await expect(evaluate('<##a##>', context)).rejects.toThrow('Circular indirect reference detected: a -> b -> a');
+    });
+
+    it('should resolve indirect variable to a dot-notation key and then its value', async () => {
+      // This tests 'a' -> 'user.name' -> 'Alice'
+      const template = '<##alias_to_user_name##>';
+      const context: DataContext = new Map([
+        ['alias_to_user_name', 'user.name'],
+        ['user', new Map([['name', 'Alice']])],
+      ]);
+      const result = await evaluate(template, context);
+      expect(result).toBe('Alice');
+    });
+
+    it('should resolve indirect variable from a dot-notation key', async () => {
+      // This tests 'a.b' -> 'c' -> 'Result'
+      const template = '<##key.with.dot##>';
+      const context: DataContext = new Map([
+        ['key', new Map([['with', new Map([['dot', 'final_key_name']])]])],
+        ['final_key_name', 'Final Value'],
+      ]);
+      const result = await evaluate(template, context);
+      expect(result).toBe('Final Value');
     });
   });
 });

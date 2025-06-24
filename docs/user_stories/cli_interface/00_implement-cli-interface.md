@@ -7,12 +7,13 @@
 
 ## Acceptance Criteria
 
--   An executable binary is produced (e.g., `dist/cli.js`).
--   The package.json `bin` field is configured to create a `template-engine` command on `npm install -g`.
--   The CLI must accept a template file path and a data file path (JSON) as arguments.
--   The CLI must print the rendered output to `stdout`.
--   The CLI must exit with a non-zero status code if rendering fails.
--   The CLI must include a `--help` flag that documents its usage.
+- An executable binary is produced (e.g., `dist/cli.js`).
+- The package.json `bin` field is configured to create a `template-engine` command on `npm install -g`.
+- The CLI must accept a template file path and a data file path (JSON) as arguments.
+- The CLI must print the rendered output to `stdout`.
+- The CLI must be able to accept streaming input from `stidin`.
+- The CLI must exit with a non-zero status code if rendering fails.
+- The CLI must include a `--help` flag that documents its usage.
 
 ## Metrics for Success
 

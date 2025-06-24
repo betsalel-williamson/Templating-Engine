@@ -140,10 +140,9 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           resolvedValue = tempValue;
         }
 
-        // If the loop finished because `resolvedValue` was a string
-        if (typeof resolvedValue === 'string') {
-          lastResolvedStringValue = resolvedValue;
-        }
+        // This 'if' statement was dead code because the while loop's exit condition
+        // ensures 'resolvedValue' is no longer a string at this point.
+        // The 'lastResolvedStringValue' variable correctly holds the final string from within the loop.
 
         // At this point, lastResolvedStringValue holds the final string result of the indirection.
         // This string might also contain template syntax, so parse and evaluate it one last time.
@@ -162,14 +161,10 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
         // It's here as a safeguard.
         throw new Error(`Invalid AST: Encountered a standalone ArrayNode. Should be nested in CrossProduct.`);
       case 'CrossProduct': {
-        let arrayName: string;
-        if (typeof node.iterator.name === 'string') {
-          arrayName = node.iterator.name;
-        } else {
-          // Evaluate nested template within ArrayRule for Story 9
-          // This evaluates the template within the ArrayRule's brackets to get the string name.
-          arrayName = await evaluate(node.iterator.name, context, depth + 1);
-        }
+        // The grammar's ArrayRule always produces a TemplateNode for node.iterator.name.
+        // Therefore, typeof node.iterator.name === 'string' will always be false.
+        // Simplified logic to always evaluate the name as a template.
+        const arrayName: string = await evaluate(node.iterator.name, context, depth + 1);
 
         // Use resolveDotNotation for array data lookup as well
         const rawArrayData = resolveDotNotation(context, arrayName.split('.'));
