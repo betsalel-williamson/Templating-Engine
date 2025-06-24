@@ -4,7 +4,7 @@ import { parse } from '../lib/parser.js';
 import { AstNode, DataContext } from '../src/types.js';
 import { fileTracer, clearTraceLog } from '../src/tracer.js';
 
-describe('Template Evaluator: Story 0', () => {
+describe('Template Evaluator', () => {
   beforeAll(() => {
     clearTraceLog();
   });
@@ -13,40 +13,61 @@ describe('Template Evaluator: Story 0', () => {
     return parse(template, { tracer: fileTracer }) as AstNode;
   };
 
-  it('should handle a template with only literal text', async () => {
-    const ast = parseTemplate('Hello, world!');
-    const context: DataContext = new Map();
-    const result = await evaluate(ast, context);
-    expect(result).toBe('Hello, world!');
+  describe('Story 0: Basic Replacement', () => {
+    it('should handle a template with only literal text', async () => {
+      const ast = parseTemplate('Hello, world!');
+      const context: DataContext = new Map();
+      const result = await evaluate(ast, context);
+      expect(result).toBe('Hello, world!');
+    });
+
+    it('should replace a simple variable when it exists in the context', async () => {
+      const ast = parseTemplate('Hello, <#name#>.');
+      const context: DataContext = new Map([['name', 'TypeScript']]);
+      const result = await evaluate(ast, context);
+      expect(result).toBe('Hello, TypeScript.');
+    });
+
+    it('should leave the variable tag in place if the variable is not in the context', async () => {
+      const ast = parseTemplate('Hello, <#name#>.');
+      const context: DataContext = new Map();
+      const result = await evaluate(ast, context);
+      expect(result).toBe('Hello, <#name#>.');
+    });
   });
 
-  it('should replace a simple variable when it exists in the context', async () => {
-    const ast = parseTemplate('Hello, <#name#>.');
-    const context: DataContext = new Map([['name', 'TypeScript']]);
-    const result = await evaluate(ast, context);
-    expect(result).toBe('Hello, TypeScript.');
-  });
+  describe('Story 1: Recursive Replacement', () => {
+    it('should resolve a simple recursive variable (2 levels)', async () => {
+        const template = '<#a#>';
+        const context: DataContext = new Map([['a', 'b'], ['b', 'Result']]);
+        const result = await evaluate(parseTemplate(template), context);
+        expect(result).toBe('Result');
+    });
 
-  it('should leave the variable tag in place if the variable is not in the context', async () => {
-    const ast = parseTemplate('Hello, <#name#>.');
-    const context: DataContext = new Map();
-    const result = await evaluate(ast, context);
-    expect(result).toBe('Hello, <#name#>.');
-  });
+    it('should resolve a multi-step recursive variable (3+ levels)', async () => {
+        const template = '<#a#>';
+        const context: DataContext = new Map([['a', 'b'], ['b', 'c'], ['c', 'Final']]);
+        const result = await evaluate(parseTemplate(template), context);
+        expect(result).toBe('Final');
+    });
 
-  it('should handle a mix of literals and variables', async () => {
-    const template = 'User: <#user#>, Status: <#status#>.';
-    const ast = parseTemplate(template);
-    const context: DataContext = new Map([['user', 'Alice'], ['status', 'active']]);
-    const result = await evaluate(ast, context);
-    expect(result).toBe('User: Alice, Status: active.');
-  });
+    it('should throw an error on a direct circular reference', async () => {
+        const template = '<#a#>';
+        const context: DataContext = new Map([['a', 'a']]);
+        await expect(evaluate(parseTemplate(template), context)).rejects.toThrow('Circular variable reference detected: a -> a');
+    });
 
-  it('should handle multiple occurrences of the same variable', async () => {
-    const template = 'Say <#word#>, then say <#word#> again.';
-    const ast = parseTemplate(template);
-    const context: DataContext = new Map([['word', 'Yo']]);
-    const result = await evaluate(ast, context);
-    expect(result).toBe('Say Yo, then say Yo again.');
+    it('should throw an error on an indirect circular reference', async () => {
+        const template = '<#a#>';
+        const context: DataContext = new Map([['a', 'b'], ['b', 'c'], ['c', 'a']]);
+        await expect(evaluate(parseTemplate(template), context)).rejects.toThrow('Circular variable reference detected: a -> b -> c -> a');
+    });
+
+    it('should return the last value if the recursion chain ends on a non-key string', async () => {
+        const template = '<#a#>';
+        const context: DataContext = new Map([['a', 'b']]); // 'b' is a valid final string value.
+        const result = await evaluate(parseTemplate(template), context);
+        expect(result).toBe('b');
+    });
   });
 });

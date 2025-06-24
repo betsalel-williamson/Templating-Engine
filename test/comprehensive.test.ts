@@ -30,9 +30,20 @@ describe('Comprehensive Template Tests', () => {
         expect(result).toBe('This is an <#unknown_var#>');
     });
 
-    it.skip('should handle recursive variable replacement', async () => {
+    it('should handle recursive variable replacement', async () => {
       const result = await evalWithContext('<#recursive1#>');
       expect(result).toBe('Recursive 2');
+    });
+
+    it('should throw an error for circular variable references', async () => {
+        const context = new Map(comprehensiveContext);
+        context.set('cycleA', 'cycleB');
+        context.set('cycleB', 'cycleA');
+        const template = '<#cycleA#>';
+
+        await expect(evalWithContext(template, context)).rejects.toThrow(
+            'Circular variable reference detected: cycleA -> cycleB -> cycleA'
+        );
     });
   });
 

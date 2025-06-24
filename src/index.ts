@@ -3,28 +3,35 @@ import { evaluate } from './evaluator.js';
 import { AstNode, DataContext, DataContextValue } from './types.js';
 
 async function main() {
-  console.log('--- TypeScript Template Engine (Story 0 Demo) ---');
+  console.log('--- TypeScript Template Engine (Story 1 Demo) ---');
 
   const data: DataContext = new Map<string, DataContextValue>([
     ['name', 'Developer'],
-    ['tool', 'RPL Engine'],
+    // Recursive chain: active_host -> staging_host -> "staging.db.internal"
+    ['active_host', 'staging_host'],
+    ['staging_host', 'staging.db.internal'],
+    // Circular reference: cycle1 -> cycle2 -> cycle1
+    ['cycle1', 'cycle2'],
+    ['cycle2', 'cycle1'],
   ]);
 
-  const templateString = "Hello, <#name#>. Welcome to the <#tool#>. This is a <#missing_variable#>.\n";
-  console.log(`\nTemplate: ${templateString}`);
-
+  const template1 = "Connecting to DB host: <#active_host#>";
+  console.log(`\nTemplate: "${template1}"`);
   try {
-    const ast = parse(templateString, {}) as AstNode;
+    const ast = parse(template1, {}) as AstNode;
     const output = await evaluate(ast, data);
-    console.log(`Output: ${output}`);
-  } catch (e: unknown) {
-    console.error('\n--- ERROR ---');
-    if (e && typeof (e as any).format === 'function') {
-        const errorSources = [{ source: 'templateString', text: templateString }];
-        console.error((e as any).format(errorSources));
-    } else {
-        console.error(e);
-    }
+    console.log(`Output:   "${output}"`);
+  } catch (e) {
+    console.error(e);
+  }
+
+  const template2 = "Testing circular reference: <#cycle1#>";
+  console.log(`\nTemplate: "${template2}"`);
+  try {
+    const ast = parse(template2, {}) as AstNode;
+    await evaluate(ast, data);
+  } catch (e) {
+    console.log(`Output:   Successfully caught expected error: ${(e as Error).message}`);
   }
 }
 

@@ -7,10 +7,10 @@
 
 ## Acceptance Criteria
 
--   A template `<#var1#>` with a context `{ var1: 'var2', var2: 'Final Value' }` must produce `Final Value`.
--   The system must detect circular references (e.g., `{ varA: 'varB', varB: 'varA' }`) and throw a specific, informative error.
--   The evaluator's variable resolution logic must handle multi-step lookups correctly.
--   Unit tests must exist to validate both successful recursive replacement and the circular reference error condition.
+- A template `<#var1#>` with a context `{ var1: 'var2', var2: 'Final Value' }` must produce `Final Value`.
+- The system must detect circular references (e.g., `{ varA: 'varB', varB: 'varA' }`) and throw a specific, informative error.
+- The evaluator's variable resolution logic must handle multi-step lookups correctly.
+- Unit tests must exist to validate both successful recursive replacement and the circular reference error condition.
 
 ## Metrics for Success
 
