@@ -1,0 +1,96 @@
+#
+#
+# Copyright (c) 1990-2010, Jordan Henderson
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY Jordan Henderson ''AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL Jordan Henderson BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#
+
+%{
+
+proc found { thing } {
+	puts stderr "FOUND(${thing})"
+}
+
+%}
+
+ident	[a-zA-Z][a-zA-Z_0-9.-]*
+digits  [0-9]+
+number  (?=[.]{0,1})[0-9]+
+
+%option stack
+%x MULTICOND MULTICOND1 MULTICOND2 MULTIEND
+
+%%
+
+# <=<#junk#><=><`value`>=>
+# <=<[junk]><=><`value`>,<`value2`>,=>
+
+\<\@						{ lappend ::rtnlist "EO" }
+\@\>						{ lappend ::rtnlist "EC" }
+\<[(](.|\n)*[)]>				{ lappend ::rtnlist [list group $yytext] }
+\<\{{ident}\([ 	\n]*[,]{0,1}\)\}>		{ lappend ::rtnlist [list func0 $yytext] }
+\<\{{ident}\([ 	\n]*({ident}|\<\#{ident}\#\>|{number})[,]{0,1}\)\}>	{ lappend ::rtnlist [list funcN $yytext] }
+\<\{{ident}\(({ident}|\<\#{ident}\#\>|{number})([,]({ident}|\<\#{ident}\#\>|{number})){1,}[,]{0,1}\)\}> { lappend ::rtnlist [list funcN $yytext] }
+\<\#\#{ident}\#\#\>				{ lappend ::rtnlist [list ridef $yytext] }
+\<\#\<\#{ident}\#\>\#\>				{ lappend ::rtnlist [list idef $yytext] }
+\<\#{ident}\#\>					{ lappend ::rtnlist [list def $yytext] }
+\<\[{ident}\]\>					{ lappend ::rtnlist [list array $yytext] }
+\<\[<\#{ident}\#>\]\>		 		{ lappend ::rtnlist [list indirectarray $yytext] }
+\<\[{ident}<\#{ident}\#>\]\>			{ lappend ::rtnlist [list indirectarray $yytext] }
+\<\[<\#{ident}\#>{ident}\]\>			{ lappend ::rtnlist [list indirectarray $yytext] }
+\<\[{ident}<\#{ident}\#>{ident}\]\>		{ lappend ::rtnlist [list indirectarray $yytext] }
+\<=\<\#{ident}\#\>\<=\><`([^`]|\n)+`>=\>	{ lappend ::rtnlist [list assignvar $yytext] }
+\<=\<\[{ident}\]\>\<=\>(<`([^`]|\n)+`>,)+=\>	{ lappend ::rtnlist [list assignlist $yytext] }
+\<\*\>						{ lappend ::rtnlist "multi" }
+\<\*\?						{ yy_push_state MULTICOND; }
+<MULTICOND>\`([^`]|\n)*\`			{ yy_push_state MULTICOND1; set ::multi_tt text; set ::multi_true_text $yytext }
+<MULTICOND>\<\#{ident}\#\>			{ yy_push_state MULTICOND1; set ::multi_tt var; set ::multi_true_text $yytext }
+<MULTICOND1>:					{ yy_push_state MULTICOND2; }
+<MULTICOND2>\`([^`]|\n)*\`			{ yy_push_state MULTIEND; set ::multi_ft text; set ::multi_false_text $yytext }
+<MULTICOND2><\#{ident}\#\>			{ yy_push_state MULTIEND; set ::multi_ft var; set ::multi_false_text $yytext }
+<MULTIEND>\>					{ yy_pop_state;yy_pop_state;yy_pop_state;yy_pop_state;lappend ::rtnlist [list "multiCond" "${::multi_true_text}:${::multi_false_text}" $::multi_tt $::multi_true_text $::multi_ft $::multi_false_text] }
+[{]{digits}[}]					{ lappend ::rtnlist [list range1 $yytext] }
+[{]({digits}|random),[}]			{ lappend ::rtnlist [list range2 $yytext] }
+[{],{digits}[}]					{ lappend ::rtnlist [list range3 $yytext] }
+[{]({digits}|random),{digits}[}]		{ lappend ::rtnlist [list range4 $yytext] }
+[{]({digits}|random),[+]{digits}[}]		{ lappend ::rtnlist [list range5 $yytext] }
+\<\`([^`]|\n)*\`\>				{ lappend ::rtnlist [list text $yytext] }
+\<\?([^\?]|\n)+\?\>				{ lappend ::rtnlist [list conditional $yytext] }
+\<\+\>						{ lappend ::rtnlist "condtrue" }
+\<\-\>						{ lappend ::rtnlist "condfalse" }
+
+%%
+
+proc scanString { str } {
+   lappend ::rtnlist junk
+   unset ::rtnlist
+   set ::rtnlist ""
+   yy_scan_string ${str}
+   # {<@<#definition#><*><[words]>@><@<#something#><*><[qaz]>@>}
+
+   yylex
+   lappend rtnlist [list end]
+   return $::rtnlist
+}

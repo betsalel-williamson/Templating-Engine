@@ -1,0 +1,23 @@
+{
+  "name": "template-engine-ts",
+  "version": "1.0.0",
+  "description": "TypeScript-based replacement for the Fickle/Tcl template engine.",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist lib",
+    "build:parser": "npx peggy --format es -o lib/parser.js --dts --extra-options-file peggy.config.json src/grammar.peggy",
+    "build:ts": "tsc",
+    "build": "npm run clean && mkdir -p lib && npm run build:parser && npm run build:ts",
+    "start": "npm run build && node dist/index.js",
+    "test": "npm run build && vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "peggy": "^4.0.2",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

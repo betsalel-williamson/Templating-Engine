@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+{ git ls-files --cached; git ls-files --others --exclude-standard; } | xargs -I {} sh -c 'file_path="$1"; if [ -f "$file_path" ] && file --mime-type "$file_path" | grep -q "text/"; then echo "--- $file_path ---"; cat "$file_path" ; echo ""; fi' _ {}

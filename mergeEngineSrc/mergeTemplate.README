@@ -1,0 +1,248 @@
+ These examples can be viewed using TCL's tkcon window.
+
+ Example:
+
+   array set ::example { {<#var3#>} there}
+   array set ::example { {<[values]>}     { { {var1 value1} } { {var1 value2} } { {var1 value3}}}}
+   array set ::example { {<[morevalues]>} { { {xar1 xalue1A} {xar2 xalue2A}} { {xar1 xalue1B} {xar2 xalue2B}} { {xar1 xalue1C} {xar2 xalue2C}}}}
+   array set ::example { {<#recursive1#>} {<#recursive2#>}}
+   array set ::example { {<#recursive2#>} {Recursive 2}}
+
+   sets the following key - value pairs:
+          KEY           VALUE
+         <#var3#>       hello
+         <[values]>     {{var1 value1} {var1 value2} {var1 value3}}
+         <[morevalues]> {{{xar1 xalue1A} {xar2 xalue2A} {xar3 xalue3A}} {{xar1 xalue1B} {xar2 xalue2B} {xar3 xalue3B}} {{xar1 xalue1C} {xar2 xalue2C} {xar3 xalue3C}}}
+         <#recursive1#> <#recursive2#>
+         <#recursive2#> "Recursive 2"
+
+ Keys must match the following regular expression:
+   [a-zA-Z][a-zA-Z_0-9.-]*
+
+ So the following are valid keys:
+    a
+    a1
+    a-1
+    a_1
+    a.b.c-1
+ and the following are not valid keys:
+
+    1a
+    #a
+    -a
+    _a
+    $a
+    .a
+
+ Expressions supported:
+ 
+ <#name#> -> variable replacement
+
+ expandTemplate ::example {Hi <#var3#>}     # returns: Hi there
+ expandTemplate ::example {<#recursive1#>}  # returns: Recursive 2
+
+ A more complex but very useful form is multiplication:
+ expandTemplate ::example {Hi <#var3#> <~<`<#var1#> <#values.elementindex#> of <#values.numberofelements#> `><*><[values]>~>}
+                                            # returns: Hi there value1 1 of 3 value2 2 of 3 value3 3 of 3
+
+ - the <*> operator is important.  It allows you to go far beyond simple variable value replacements. This operator
+   cannot occur in a bare context. It must occur with in an expression context, <~ ... expression ... ~>.
+
+ - Commonly, you need to group a set of variables so they can be treated as 1 context or scope.
+   The <`stuff`>, the opening <` and closing `> from the grouping. This grouping is only valid in an expression context.
+
+ - For the scope of the <*>, there are several additional variables defined.  It is important to note, the
+   scope of the variables, their existance and the values bound to them, only exist for the duration of the <*> expression.
+   prior to the expression they may not exist and after the expression they may not exist.  If they do, then those values are
+   restored, pushed, the new scope and values, and then popped.
+   In the above example, you see <#values.elementindex#>.  elementindex is the index into the current array and number of elements
+   is the number of elements in the current array.  Also defined <varName>.elementindexmin and <varName>.elementindexmax.
+
+ - controlling the number of elements from the array, pay close attention to '{2}'
+   expandTemplate ::example {Hi <#var3#> <~{2}<`<#var1#> <#values.elementindex#> of <#values.numberofelements#> `><*><[values]>~>}
+                                            # returns: Hi there  1 of 3  2 of 3 
+
+ - The {[[offset],]max} controls the start index and number of elements in the array that are expanded. 
+   expandTemplate ::example {Hi <#var3#> <~{2,3}<`<#var1#> <#values.elementindex#> of <#values.numberofelements#> `><*><[values]>~>}
+                                            # returns: Hi there  2 of 3  3 of 3 
+
+
+ REVIEW:
+  1- Its all about data. The contents of the dictionary is everything.  Even the template can be a variable in the dictionary.
+
+  2- Its also about replacement. If there is a matching replacement, then it will be replaced, possibly in a recursive fashion.
+
+  3- simple variable expansion is <#varName#>, which may be recursive.  If the replacement value of VAR is another expression, 
+     it will be expanded as well.  There is no cycle detection on recursive expressions.  This will be added in a future release.
+
+  4- simple use of the array variable.  Each entry in the array defines a unique scope of variable(s). The array, entry by entry,
+     is re-applied to the expression, producing multiple expansions.  This can be controlled by using the {[[offset],]max} option.
+
+  5- The data and the template, which is also data, have no meaning to the replacement engine.  As far as the engine is concerned,
+     replacement until no more replacement is possible is all that it is concerned with.
+
+ Next - Arrays are just a list and a list can be a list of more lists.
+
+ The variable 'morevalues' is a list of lists.  As we already know, the <*> operator defines a new scope of variable-values for 
+ each iteration.  Actually, the above variable 'values' and 'morevalues' are treated identically.  'values' is a list of 3 lists,
+ each containing exactly 1 list. 'morevalues' differs in that each of the lists contains multiple variable-value pairs.  It is
+ possible to define different variables in the different lists or just different values.
+
+ expandTemplate ::example {Hi <~<`<#var3#> <#xar1#> <#xar2>
+ `><*><[morevalues]>~>}
+                                            # returns: Hi there xalue1A xalue2A
+ there xalue1B xalue2B
+ there xalue1C xalue2C
+
+ Note that the one variable 'var3' is used inside of the grouped expression and therefore repeats 3 times, each result the same
+ value.  The other 2 variables change value based on the list. Also note the 'newline' in the template. The newline also appears
+ in the resultant.
+
+ Next - Indirection
+ Indirection is about the value being used as a variable.  A chain of
+ indirection is followed as long as the values result in a defined
+ variable. If the value can be used as a variable, then it is converted into a
+ variable and the resulting value.  This continues until the resulting value
+ is not a valid variable name or the value is not in the dictionary.  We would
+ call this a leaf value. This is
+ like the recursive behavior however. For indirection, the value is not a
+ proper variable. The value is just a regular value. This might seen like a
+ minor difference but it can be useful and important. An practical example for
+ this might be where we are generating code.  We might of a prototype snippet
+ of a for loop in each of the following languages: C, TCL, C++, Java, C#. We
+ might have a single variable that contains the langauge we are to generate
+ in.  That could then be expanded into a language specific for-loop
+ generation.  This would be an example of indirection, where the indirection
+ is the target language we intend to generate.
+
+ array set ::example { {<#indirection-0#>} {indirection-1} }
+ array set ::example { {<#indirection-1#>} {indirection-2} }
+ array set ::example { {<#indirection-2#>} {indirection-3} }
+ array set ::example { {<#indirection-3#>} {The real value we are seeking} }
+
+ expandTemplate ::example {See Indirection -- <##indirection-0##>}
+# returns: See Indirection -- The real value we are seeking
+
+ Next - Functions, how do I add a function???
+ 1- The language is designed to be a transformational language. Everything is data. Data can be viewed as both an expression
+    and as data. The language is actually a 'hosted' language.  It is implemented in some host language. The hosting language
+    can be called.  However, the called function should be a pure function, that is without side-effects.
+
+    Remember, this language is not a general purpose computational language.  It is for replacement transformation. Therefore
+    the called functions show be pure functions.  The return value is the replacement value.
+
+ 2- Functions can only be called in an expression.
+
+ Example, given the TCL implementation:
+ Assume a TCL proc 'now', takes no arguments and returns the current yyyy-mm-dd hh:mm:ss,
+
+ proc now { } { return [clock format [clock seconds] -format "%c"] }
+
+ then the following:
+ expandTemplate ::example <~<{now(,)}>~>     # returns:  the date/time on the computer you are executing it on.
+
+ Of course, more complex functions can be constructed. The parameters being most likely
+ variables.  Note, there is currently no direct way to change the dictionary and hence 
+ the context that made the call.
+
+ Next - conditional replacement
+
+ 1- Conditional replacement is very useful to have.  Using it, we can determine whether or not
+    one replacement or another should be used. 
+
+ 2- The condition is just data of course, potentially from various replacements already.
+
+ The general form is:
+    <+>replaceTrue<->replaceFalse<?value?>
+
+ The 'value' is non-zero is true and zero is false.
+ If the 'value' is non-zero, true, then the <+> replacement is evaluated.
+ If the 'value' is zero, false, then the <-> replacement is evaluated.
+
+  expandTemplate ::example <~<+><`TRUE`><-><`FALSE`><?1?>~>     # returns: TRUE
+  expandTemplate ::example <~<+><`TRUE`><-><`FALSE`><?0?>~>     # returns: FALSE
+
+ Of course, the 1 or 0 used could be a value from a variable or a function. Likewise the values
+ for TRUE and FALSE could have been as well.  The <+> operator, as well as the <-> operator are
+ optional.
+
+  expandTemplate ::example <~<+><`TRUE`><?1?>~>     # returns: TRUE
+  expandTemplate ::example <~<+><`TRUE`><?0?>~>     # returns: 
+
+Next - array cross product conditional expressions
+ Most programming langauges expect lists of parameters, attributes and
+ elements to be in a very specific list form.  For example, in the SQL create
+ table statement, it looks much like this:
+   create table someTable (
+             attr1 integer,
+             attr2 integer,
+	     attr3 integer
+             );
+
+  Note that after each attribute definition there is a comma except for the
+  last attribute in the list.  The conditional form of the cross product
+  allows us to handle this form easily.
+
+  array set ::example { {<[attributes]>} {{{attribute attr1} {type integer}} {{attribute attr2} {type integer}} {{attribute attr3} {type integer}}}}
+
+  The following will produce the above code fragment:
+
+  expandTemplate ::example {create table someTable (
+<~<`   <#attribute#> <#type#>`><*?`,
+`:`
+`><[attributes]>~>);}
+
+Next - More indirection
+  
+  As we noted earlier, with simple or non-array variables, it is possible to
+  have recursive replacements on variables. That is a variable which who's
+  replacement is yet another variable, will be replaced until there is no
+  more replacement.
+
+  The same is true for array variables in a limited context.  The limit is
+  that the variable must be a simple variable, not another array variable.
+
+  array set ::example { {<#var1#>} value}
+  array set ::example { {<#var2#>} values}
+  array set ::example { {<[values]>}     { { {var1 value1} } { {var1 value2} } { {var1 value3}}}}
+
+  All 3 of the following templates are effectively identical.  What differs is
+  how the array variable name 'values' is achieved.  In the first case, it
+  literally is 'values'.  In the second case, it is through in-direction. In
+  the third case, it is not only through in-direction but also concatentation
+  of a text value in the same expression chunk.
+
+  expandTemplate ::example {Hi <#var3#> <~{2}<`<#var1#> <#values.elementindex#> of <#values.numberofelements#> `><*><[values]>~>}
+                                           # returns: Hi there  1 of 3  2 of 3 
+  expandTemplate ::example {Hi <#var3#> <~{2}<`<#var1#> <#values.elementindex#> of <#values.numberofelements#> `><*><[<#var2#>]>~>}
+                                           # returns: Hi there  1 of 3  2 of 3 
+  expandTemplate ::example {Hi <#var3#> <~{2}<`<#var1#> <#values.elementindex#> of <#values.numberofelements#> `><*><[<#var1#>s]>~>}
+                                           # returns: Hi there  1 of 3  2 of 3 
+
+  You might wonder why support something like this?  Well, firstly, a language
+  should allow all of its full expressions anywhere an expression can be used,
+  including its own terms.  Currently the parser is limited and this is not
+  fully supported.  However, even with the limited parser, a number of these
+  are.
+
+  Second, this is a language about data where data and meta data are
+  effectively equal.  So, in some cases the data you are referencing is just
+  data and in some cases it is metadata.  The usefulness is that the language
+  makes no distinction between the 2. Certainly, if we look at languages like
+  SQL, it does.  The SQL metadata is distinct from the data.  The distinction
+  can be seen in that a SELECT statement knows how many columns will be
+  returned. Likewise, it is not possible to write a SELECT FROM clause without
+  referencing a known table.  So, although most databases treat the metadata
+  as data, the SQL language does not. Take the language C.  A struct is
+  metadata.  During runtime, we say that instances of a struct might
+  exist. Each instance contains data that can be referenced by name.  The
+  struct and the names associated with it, not the values, are metadata.  That
+  metadata is static with respect to a compiled, executing program. The data
+  that struct can hold can change as the program executes. The C language does
+  not include runtime information about a struct that can be accessed by the
+  program.  The metadata is only available at compile time.  Because of this
+  separation, it is not possible to write a C function that can print the
+  contents of any structure. For example, if the struct metadata were
+  available, it would like like data. The C language separates out, makes a clear
+  distinction, between what is metadata and what is data.  The languages Java,
+  C#, Ruby, Python, and Perl all treat metadata the same as data to some degree.
