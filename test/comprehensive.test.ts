@@ -108,8 +108,6 @@ describe('Comprehensive Template Tests', () => {
       expect(result).toBe('');
     });
 
-
-
     it('should handle missing true branch correctly (true case)', async () => {
       const template = '<~<-><`Not Admin`><?<#isAdmin#>?>~>';
       const context = new Map([['isAdmin', '1']]);
@@ -198,6 +196,39 @@ describe('Comprehensive Template Tests', () => {
         const template = '<~<`<#attribute#>`><*?:;><[attributes]>~>';
         const result = await evalWithContext(template, sqlContext);
         expect(result).toBe('attr1attr2attr3;');
+    });
+  });
+
+  describe('Legacy README Parity Tests', () => {
+    it('README line 34: simple multiplication', async () => {
+      const template = 'Hi <#var3#> <~<`<#var1#> <#values.elementindex#> of <#values.numberofelements#> `><*><[values]>~>';
+      const result = await evalWithContext(template);
+      // NOTE: The legacy README's expected output had a typo, joining with spaces.
+      // Our implementation joins without a separator unless one is specified.
+      const expected = 'Hi there value1 1 of 3 value2 2 of 3 value3 3 of 3 ';
+      expect(result).toBe(expected);
+    });
+
+    it('README line 70: complex multiplication', async () => {
+      // NOTE: Legacy README output shows "Hi" only once, which is correct as it's outside the loop.
+      const template = 'Hi <~<`<#var3#> <#xar1#> <#xar2#>\n`><*><[morevalues]>~>';
+      const result = await evalWithContext(template);
+      const expected = 'Hi there xalue1A xalue2A\n'
+                     + 'there xalue1B xalue2B\n'
+                     + 'there xalue1C xalue2C\n';
+      expect(result).toBe(expected);
+    });
+
+    it('README line 121: conditional with missing false branch (true case)', async () => {
+        const template = '<~<+><`TRUE`><?<#isTrue#>?>~>';
+        const result = await evalWithContext(template, new Map([['isTrue', '1']]));
+        expect(result).toBe('TRUE');
+    });
+
+    it('README line 122: conditional with missing false branch (false case)', async () => {
+        const template = '<~<+><`TRUE`><?<#isTrue#>?>~>';
+        const result = await evalWithContext(template, new Map([['isTrue', '0']]));
+        expect(result).toBe('');
     });
   });
 });
