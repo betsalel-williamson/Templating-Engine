@@ -12,11 +12,14 @@
     "start": "npm run build && node dist/index.js",
     "test": "npm run build && vitest run"
   },
+  "dependencies": {
+    "peggy": "^5.0.4"
+  },
   "devDependencies": {
-    "@types/node": "^20.12.7",
-    "peggy": "^4.0.2",
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
+    "@types/node": "^24.0.3",
+    "@vitest/coverage-v8": "^3.2.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   },
   "author": "",
   "license": "ISC"
