@@ -1,7 +1,6 @@
 node_modules
 dist
 lib
-peggy.config.json
 *.log
 u*.sh
 trace.log

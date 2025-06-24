@@ -1,0 +1,17 @@
+{
+  "returnTypes": {
+    "Start": "AstNode",
+    "Tag": "AstNode",
+    "Literal": "AstNode",
+    "Variable": "AstNode",
+    "IndirectVariable": "AstNode",
+    "ArrayRule": "AstNode",
+    "CrossProduct": "AstNode",
+    "Conditional": "AstNode",
+    "OtherContent": "AstNode",
+    "CrossProductContent": "AstNode",
+    "ConditionalTrueContent": "AstNode",
+    "ConditionalFalseContent": "AstNode",
+    "ConditionalConditionContent": "AstNode"
+  }
+}
