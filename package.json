@@ -7,14 +7,13 @@
   "scripts": {
     "clean": "rm -rf dist lib",
     "build:parser": "npx peggy --format es -o lib/parser.js --dts --extra-options-file peggy.config.json src/grammar.peggy",
+    "build:parser:new": "npx peggy --format es -o lib/parser_new.js --dts src/grammar_new.peggy",
     "build:ts": "tsc",
-    "build": "npm run build:parser:new && tsc && npm run build:parser",
+    "build": "npm run clean && npm run build:parser && npm run build:parser:new && npm run build:ts",
     "start": "npm run build && node dist/index.js",
     "test": "npm run build && vitest run",
-    "build:cli": "tsc src/cli.ts --outDir lib --esModuleInterop --module Node16 --target ES2022",
-    "prepublishOnly": "npm run build:parser && npm run build:cli",
-    "build:standalone": "npm run build && pkg .",
-    "build:parser:new": "peggy -o lib/parser_new.js src/grammar_new.peggy"
+    "build:standalone": "npm run build && pkg --options no-warnings --output dist/template-engine --targets node20-linux-x64,node20-macos-x64,node20-win-x64 dist/cli.js",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "peggy": "^5.0.4"
