@@ -17,6 +17,8 @@ This project provides a flexible and powerful templating engine for dynamic cont
 
 The templating engine uses a unique syntax derived from the original `mergeEngine` (for historical context, see [jordanhenderson.com](https://jordanhenderson.com/)). It combines various tags and expressions to define dynamic content.
 
+> **WARNING** This version of the template language is not compatible with mergeEngine because slicing uses 0-based indexing, where it was previously 1-based indexing. To update legacy code, increment all slices `{X,Y}` by decrementing `X` by one.
+
 ### Variables
 
 Variables are used to inject data values into templates.
