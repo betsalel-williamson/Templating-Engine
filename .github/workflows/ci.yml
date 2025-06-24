@@ -31,8 +31,11 @@ jobs:
           npm ci
           npm run build
 
-      - name: Run tests and generate coverage
-        # The `json-summary` reporter outputs to coverage/coverage-summary.json
+      - name: Run tests and generate coverage reports
+        # The coverage reporters configured in vitest.config.ts will generate:
+        # - coverage/coverage-summary.json for total percentage
+        # - coverage/text-report.md for the detailed markdown table
+        # - coverage/html/ for the full interactive HTML report
         run: npm test -- --coverage
         continue-on-error: true # Ensure subsequent steps run even if tests fail
 
@@ -40,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report-html
-          path: coverage # Standard path for Vitest HTML reports
+          path: coverage # Path to the directory containing the HTML report files
 
       - name: Report Test Results (JUnit)
         if: success() || failure()
@@ -57,39 +60,46 @@ jobs:
           # Install jq for JSON parsing
           sudo apt-get update && sudo apt-get install -y jq
 
-          # Define the path to the coverage summary JSON file
-          COVERAGE_FILE="coverage/coverage-summary.json"
+          # Define paths to coverage report files
+          COVERAGE_JSON_FILE="coverage/coverage-summary.json"
+          COVERAGE_TEXT_FILE="coverage/text-report.md" # This will contain the Markdown table
 
           TOTAL_COVERAGE_PERCENT="N/A"
           COLOR="lightgrey"
-          COVERAGE_BADGE_TEXT="no report"
+          COVERAGE_BADGE_TEXT="no%20report" # Default URL-encoded text for badge
 
-          # Check if the coverage summary file exists and is readable
-          if [ -f "$COVERAGE_FILE" ]; then
-            # Extract the total statements percentage
-            TOTAL_COVERAGE_PERCENT=$(jq -r '.total.statements.pct' "$COVERAGE_FILE")
+          # Try to extract total coverage percentage from JSON summary
+          if [ -f "$COVERAGE_JSON_FILE" ]; then
+            TOTAL_COVERAGE_PERCENT=$(jq -r '.total.statements.pct' "$COVERAGE_JSON_FILE")
 
-            # Validate if it's a number
+            # Validate if it's a number and determine badge color
             if [[ "$TOTAL_COVERAGE_PERCENT" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
               TOTAL_COVERAGE_INT=${TOTAL_COVERAGE_PERCENT%.*} # Remove decimal for integer comparison
 
-              # Determine the color for the badge based on coverage percentage
               if [ "$TOTAL_COVERAGE_INT" -ge 90 ]; then
-                COLOR="brightgreen" # High coverage
+                COLOR="brightgreen"
               elif [ "$TOTAL_COVERAGE_INT" -ge 75 ]; then
-                COLOR="yellow" # Medium coverage
+                COLOR="yellow"
               elif [ "$TOTAL_COVERAGE_INT" -ge 50 ]; then
-                COLOR="orange" # Low coverage, but not critical
+                COLOR="orange"
               else
-                COLOR="red" # Very low coverage
+                COLOR="red"
               fi
               COVERAGE_BADGE_TEXT="${TOTAL_COVERAGE_PERCENT}%25" # URL encode % for badge
             fi
           fi
 
-          # Construct the badge URL
+          # Construct the coverage badge URL
           BADGE_URL="https://img.shields.io/badge/coverage-${COVERAGE_BADGE_TEXT}-${COLOR}"
           BADGE_MARKDOWN="![Coverage]($BADGE_URL)"
+
+          # Get the artifact ID from the previous upload step's output
+          # This ID is specific to the uploaded artifact for the current run
+          ARTIFACT_ID="${{ steps.upload_html_coverage.outputs.artifact-id }}"
+
+          # Construct the direct download URL for the HTML report
+          # This format directly initiates a download of the artifact's zip file.
+          HTML_REPORT_LINK="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${ARTIFACT_ID}/zip"
 
           # Write the complete summary to the GitHub step summary file
           {
@@ -97,14 +107,25 @@ jobs:
             echo ""
             echo "$BADGE_MARKDOWN"
             echo ""
-            # Link to the full HTML coverage report artifact
-            echo "For a detailed report, see the [full HTML coverage report artifact](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/coverage-report-html)."
+            # Link directly to the HTML report artifact's download endpoint
+            echo "For a detailed, interactive report, [download the HTML coverage report here](${HTML_REPORT_LINK})."
+            echo ""
+            echo "<details><summary>Expand for full report</summary>"
+            echo ""
+            # Embed the detailed Markdown coverage report from the generated file
+            if [ -f "$COVERAGE_TEXT_FILE" ]; then
+              cat "$COVERAGE_TEXT_FILE"
+            else
+              echo "No detailed coverage report found at $COVERAGE_TEXT_FILE."
+            fi
+            echo ""
+            echo "</details>"
             echo ""
             echo "<details><summary>Expand for full JSON summary</summary>"
             echo ""
             # Print the JSON summary file, indented for readability in Markdown code block
-            if [ -f "$COVERAGE_FILE" ]; then
-              jq '.' "$COVERAGE_FILE" | sed 's/^/    /'
+            if [ -f "$COVERAGE_JSON_FILE" ]; then
+              jq '.' "$COVERAGE_JSON_FILE" | sed 's/^/    /'
             else
               echo "    No coverage JSON report found."
             fi

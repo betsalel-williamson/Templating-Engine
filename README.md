@@ -2,6 +2,17 @@
 
 This project provides a flexible and powerful templating engine for dynamic content generation, built with a focus on robustness and maintainability. It allows developers to create reusable templates that are easily populated with data, enabling dynamic configuration, code generation, and content rendering.
 
+<p align="center">
+    <a href="https://github.com/betsalel-williamson/Templating-Engine/blob/main/LICENSE">
+        <img alt="License" src="https://img.shields.io/github/license/betsalel-williamson/Templating-Engine?style=flat-square&color=blue">
+    </a>
+    <a href="https://github.com/betsalel-williamson/Templating-Engine/actions/workflows/ci.yml">
+        <img alt="CI Status" src="https://github.com/betsalel-williamson/Templating-Engine/actions/workflows/ci.yml/badge.svg">
+    </a>
+    <img alt="Language" src="https://img.shields.io/github/languages/count/betsalel-williamson/Templating-Engine?style=flat-square">
+    <img alt="Language" src="https://img.shields.io/github/languages/top/betsalel-williamson/Templating-Engine?style=flat-square">
+</p>
+
 ## Core Concepts & Syntax
 
 The templating engine uses a unique syntax derived from the original `mergeEngine` (for historical context, see [jordanhenderson.com](https://jordanhenderson.com/)). It combines various tags and expressions to define dynamic content.
