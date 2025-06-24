@@ -7,10 +7,10 @@
 
 ## Acceptance Criteria
 
--   The grammar's `ArrayRule` must be updated to accept a `Variable` node as its name.
--   The evaluator, when processing a `CrossProductNode`, must first resolve the array name if it's a variable before fetching the array from the context.
--   A template `<~...<*><[<#arrayNameVar#>]>~>` with context `{ arrayNameVar: 'products', products: [...] }` must correctly iterate over the `products` array.
--   Unit tests must validate this indirection capability.
+- The grammar's `ArrayRule` must be updated to accept a `Variable` node as its name.
+- The evaluator, when processing a `CrossProductNode`, must first resolve the array name if it's a variable before fetching the array from the context.
+- A template `<~...<*><[<#arrayNameVar#>]>~>` with context `{ arrayNameVar: 'products', products: [...] }` must correctly iterate over the `products` array.
+- Unit tests must validate this indirection capability.
 
 ## Metrics for Success
 
