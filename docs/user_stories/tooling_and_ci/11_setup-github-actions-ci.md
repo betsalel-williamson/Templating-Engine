@@ -7,10 +7,10 @@
 
 ## Acceptance Criteria
 
--   A workflow file exists at `.github/workflows/ci.yml`.
--   The workflow must trigger on push events to the `main` branch.
--   The workflow must successfully execute the following steps: checkout code, install dependencies (`npm ci`), run linter, and run the test suite (`npm test`).
--   A failure in any step must cause the entire workflow run to fail.
+- A workflow file exists at `.github/workflows/ci.yml`.
+- The workflow must trigger on push events to the `main` branch.
+- The workflow must successfully execute the following steps: checkout code, install dependencies (`npm ci`), run linter, and run the test suite (`npm test`).
+- A failure in any step must cause the entire workflow run to fail.
 
 ## Metrics for Success
 
