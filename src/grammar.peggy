@@ -177,9 +177,10 @@ IndirectVariable
   = "<##" name:Ident "##>" { return { type: 'IndirectVariable', name }; }
 
 ArrayRule "Array"
-  = "<[" name:(Ident / Variable / Tag) "]>" {
-    // Tag includes FunctionCall, Expression etc. This enables Story 9
-    return { type: 'Array', name };
+  = "<[" ws name_content:($( ( !"\]" . )* )) ws "]>" {
+    // Always parse the content within the brackets as a full template.
+    // The evaluator will then evaluate this template to get the final array name string.
+    return { type: 'Array', name: peg$parse(name_content.trim(), options) };
   }
 
 GenericTag

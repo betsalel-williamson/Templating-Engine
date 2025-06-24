@@ -53,13 +53,27 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
         if (!context.has(currentKey)) return `<##${node.name}##>`;
         let currentValue = context.get(currentKey);
         const visited = new Set<string>([currentKey]);
+
+        // Keep resolving as long as the current value is a string AND it's a key in the context
         while (typeof currentValue === 'string' && context.has(currentValue)) {
           currentKey = currentValue;
           if (visited.has(currentKey)) throw new Error(`Circular indirect reference detected: ${[...visited, currentKey].join(' -> ')}`);
           visited.add(currentKey);
           currentValue = context.get(currentKey);
         }
-        return await evaluate(parse(String(currentValue)), context, depth + 1);
+
+        // After the loop, currentValue is the final resolved value.
+        // If it's a string, it might be a template that needs further evaluation.
+        // If it's not a string, it means the indirection resolved to a non-string value (like an array or number),
+        // in which case the *key* that led to this value is the array name we need.
+        if (typeof currentValue === 'string') {
+          return await evaluate(parse(currentValue), context, depth + 1);
+        } else {
+          // The indirection resolved to a a non-string value (e.g., an array, number, boolean).
+          // We return the *key* that mapped to this value, as this is typically what's expected
+          // when an indirect variable is used to point to an array.
+          return currentKey;
+        }
       }
       case 'FunctionCall': {
         const { functionName, args } = node;
@@ -79,6 +93,7 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           arrayName = node.iterator.name;
         } else {
           // Evaluate nested template within ArrayRule for Story 9
+          // This evaluates the template within the ArrayRule's brackets to get the string name.
           arrayName = await evaluate(node.iterator.name, context, depth + 1);
         }
 

@@ -32,7 +32,7 @@ export interface IndirectVariableNode {
 
 export interface ArrayNode {
   type: 'Array';
-  name: string | { type: 'Variable', name: string } | AstNode; // AstNode for templated array names (Story 9)
+  name: string | VariableNode | IndirectVariableNode | TemplateNode; // Updated: Explicitly include IndirectVariableNode and TemplateNode
 }
 
 export interface CrossProductNode {
