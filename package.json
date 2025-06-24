@@ -10,7 +10,10 @@
     "build:ts": "tsc",
     "build": "npm run clean && mkdir -p lib && npm run build:parser && npm run build:ts",
     "start": "npm run build && node dist/index.js",
-    "test": "npm run build && vitest run"
+    "test": "npm run build && vitest run",
+    "build:cli": "tsc src/cli.ts --outDir lib --esModuleInterop --module Node16 --target ES2022",
+    "prepublishOnly": "npm run build:parser && npm run build:cli",
+    "build:standalone": "npm run build && pkg ."
   },
   "dependencies": {
     "peggy": "^5.0.4"
@@ -19,8 +22,12 @@
     "@types/node": "^24.0.3",
     "@vitest/coverage-v8": "^3.2.4",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "pkg": "^5.8.1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "MIT",
+  "bin": {
+    "template-engine": "lib/cli.js"
+  }
 }

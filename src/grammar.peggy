@@ -20,7 +20,7 @@ Tag
   / Expression
   / IndirectVariable
   / Variable
-  / GenericTag
+  // Removed: / GenericTag // This rule was too permissive, capturing malformed tags as literals
 
 // A Literal is any character sequence that does not start with '<'.
 Literal
@@ -182,9 +182,6 @@ ArrayRule "Array"
     // The evaluator will then evaluate this template to get the final array name string.
     return { type: 'Array', name: peg$parse(name_content.trim(), options) };
   }
-
-GenericTag
-  = value:$( "<" [^>]* ">" ) { return { type: 'Literal', value }; }
 
 Ident
   = $([a-zA-Z] [a-zA-Z_0-9.-]*)

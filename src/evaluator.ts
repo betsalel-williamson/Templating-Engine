@@ -3,6 +3,7 @@ import {
   DataContext,
   FunctionRegistry,
   RegisteredFunction,
+  DataContextValue,
 } from './types.js';
 import { parse } from '../lib/parser.js';
 
@@ -12,6 +13,22 @@ interface EvaluatorConfig {
   functions: FunctionRegistry;
   cloneFunctions?: boolean;
 }
+
+// Helper function to resolve dot-separated variable names in a DataContext Map
+function resolveDotNotation(context: DataContext, path: string[]): DataContextValue | undefined {
+  let current: DataContextValue | undefined = context;
+  for (let i = 0; i < path.length; i++) {
+    const segment = path[i];
+    if (current instanceof Map) {
+      current = current.get(segment);
+    } else {
+      // If at any point current is not a Map, we cannot resolve further.
+      return undefined;
+    }
+  }
+  return current;
+}
+
 
 export function createSecureEvaluator(config: EvaluatorConfig) {
   const privateFunctions = new Map<string, RegisteredFunction>();
@@ -44,36 +61,93 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
       case 'Literal':
         return node.value;
       case 'Variable': {
-        const value = context.get(node.name);
+        // First, try to find the full variable name directly in the current context.
+        // This is crucial for "magic" iteration variables (e.g., 'users.index', 'users.elementindex')
+        // which are set directly as keys in the sub-context.
+        let value = context.get(node.name);
+
+        // If not found as a direct key, and the name contains a dot,
+        // try resolving it as a dot-notation path for nested objects.
+        if (value === undefined && node.name.includes('.')) {
+          const pathSegments = node.name.split('.');
+          value = resolveDotNotation(context, pathSegments);
+        }
+
         if (value === undefined) return `<#${node.name}#>`;
         return await evaluate(parse(String(value)), context, depth + 1);
       }
       case 'IndirectVariable': {
-        let currentKey = node.name;
-        if (!context.has(currentKey)) return `<##${node.name}##>`;
-        let currentValue = context.get(currentKey);
-        const visited = new Set<string>([currentKey]);
+        let currentKeyToLookup: string = node.name; // The key we are currently trying to resolve
+        let lastResolvedStringValue: string | undefined; // Stores the last string value successfully resolved or the last key
 
-        // Keep resolving as long as the current value is a string AND it's a key in the context
-        while (typeof currentValue === 'string' && context.has(currentValue)) {
-          currentKey = currentValue;
-          if (visited.has(currentKey)) throw new Error(`Circular indirect reference detected: ${[...visited, currentKey].join(' -> ')}`);
-          visited.add(currentKey);
-          currentValue = context.get(currentKey);
-        }
+        const visitedKeysInChain = new Set<string>(); // Tracks the *keys* that have been looked up in this chain
 
-        // After the loop, currentValue is the final resolved value.
-        // If it's a string, it might be a template that needs further evaluation.
-        // If it's not a string, it means the indirection resolved to a non-string value (like an array or number),
-        // in which case the *key* that led to this value is the array name we need.
-        if (typeof currentValue === 'string') {
-          return await evaluate(parse(currentValue), context, depth + 1);
+        // Resolve the very first key to get its value
+        let initialValue: DataContextValue | undefined;
+        if (currentKeyToLookup.includes('.')) {
+          initialValue = resolveDotNotation(context, currentKeyToLookup.split('.'));
         } else {
-          // The indirection resolved to a a non-string value (e.g., an array, number, boolean).
-          // We return the *key* that mapped to this value, as this is typically what's expected
-          // when an indirect variable is used to point to an array.
-          return currentKey;
+          initialValue = context.get(currentKeyToLookup);
         }
+
+        // If the initial key is not found, return the original tag.
+        if (initialValue === undefined) {
+          return `<##${node.name}##>`;
+        }
+
+        // Add the first key to the visited set
+        visitedKeysInChain.add(currentKeyToLookup);
+
+        // The resolved value from the current key. This can be a string, Map, array, etc.
+        let resolvedValue: DataContextValue = initialValue;
+
+        // Loop as long as the resolved value is a string and potentially points to another key.
+        // The string value from the previous step becomes the key for the next.
+        while (typeof resolvedValue === 'string') {
+          const nextKeyCandidate = resolvedValue; // The string value becomes the next key
+
+          // Check for circular reference before attempting to resolve the next key
+          if (visitedKeysInChain.has(nextKeyCandidate)) {
+            throw new Error(`Circular indirect reference detected: ${[...Array.from(visitedKeysInChain), nextKeyCandidate].join(' -> ')}`);
+          }
+          visitedKeysInChain.add(nextKeyCandidate); // Add the candidate key to visited
+
+          let tempValue: DataContextValue | undefined;
+          if (nextKeyCandidate.includes('.')) {
+            tempValue = resolveDotNotation(context, nextKeyCandidate.split('.'));
+          } else {
+            tempValue = context.get(nextKeyCandidate);
+          }
+
+          if (tempValue === undefined) {
+            // The chain breaks because the `nextKeyCandidate` does not exist as a key.
+            // The final result of the indirection is this `nextKeyCandidate` string itself.
+            lastResolvedStringValue = nextKeyCandidate;
+            resolvedValue = undefined; // Signal termination
+            break;
+          }
+
+          // If tempValue is not a string, the indirection chain terminates.
+          // The result of the indirect variable should be the *key string* that pointed to it.
+          // This is critical for ArrayRule's string requirement.
+          if (typeof tempValue !== 'string') {
+            lastResolvedStringValue = nextKeyCandidate; // The key string that led to the non-string value
+            resolvedValue = undefined; // Signal termination
+            break;
+          }
+
+          // Continue the chain
+          resolvedValue = tempValue;
+        }
+
+        // If the loop finished because `resolvedValue` was a string
+        if (typeof resolvedValue === 'string') {
+          lastResolvedStringValue = resolvedValue;
+        }
+
+        // At this point, lastResolvedStringValue holds the final string result of the indirection.
+        // This string might also contain template syntax, so parse and evaluate it one last time.
+        return await evaluate(parse(lastResolvedStringValue as string), context, depth + 1);
       }
       case 'FunctionCall': {
         const { functionName, args } = node;
@@ -97,7 +171,8 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           arrayName = await evaluate(node.iterator.name, context, depth + 1);
         }
 
-        const rawArrayData = context.get(arrayName);
+        // Use resolveDotNotation for array data lookup as well
+        const rawArrayData = resolveDotNotation(context, arrayName.split('.'));
 
         if (!Array.isArray(rawArrayData) || rawArrayData.length === 0) return '';
 
@@ -125,9 +200,15 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
             return '';
           }
           const subContext = new Map([...context, ...item]);
-          // elementindex should be 1-based index relative to the *original* array.
-          subContext.set(`${arrayName}.elementindex`, String(startIndex + index + 1));
-          subContext.set(`${arrayName}.numberofelements`, String(originalArrayLength)); // Original array length (Story 8 AC)
+          const oneBasedIndex = startIndex + index + 1;
+
+          // Legacy variables (for backward compatibility)
+          subContext.set(`${arrayName}.elementindex`, String(oneBasedIndex));
+          subContext.set(`${arrayName}.numberofelements`, String(originalArrayLength));
+
+          // New, modernized variables
+          subContext.set(`${arrayName}.index`, String(oneBasedIndex));
+          subContext.set(`${arrayName}.length`, String(originalArrayLength));
 
           return await evaluate(node.template, subContext, depth + 1);
         }));

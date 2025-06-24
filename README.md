@@ -51,6 +51,9 @@ Variables are used to inject data values into templates.
 
 The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a template snippet for each item. This is powerful for generating repetitive structures.
 
+
+The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a template snippet for each item. This is powerful for generating repetitive structures.
+
 * **Basic Iteration**:
 
     ```rpl
@@ -60,8 +63,14 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
     ```
 
 * **Iteration Variables**: Within a loop, special variables like `<#arrayName.elementindex#>` (1-based index) and `<#arrayName.numberofelements#>` (total count) are available.
+    Within a loop, special variables are available, prefixed with the array name (e.g., `users.`).
+    **Preferred (Modern):**
+    - `<#arrayName.index#>`: The 1-based index of the current element in the *original* array.
+    - `<#arrayName.length#>`: The total number of elements in the *original* array.
+    **Legacy (Deprecated but Supported):**
+    - `<#arrayName.elementindex#>`: (1-based index) The 1-based index of the current element in the *original* array.
+    - `<#arrayName.numberofelements#>`: (total count) The total number of elements in the *original* array.
 
-    ```rpl
     Context: { users: [Map([['name', 'Alice']])] } (array length 1)
     Template: <~<`<#users.elementindex#> of <#users.numberofelements#>: <#name#>;`><*><[users]>~>
     Output:   1 of 1: Alice;
@@ -154,3 +163,26 @@ To get started with this templating engine:
     ```bash
     npm test
     ```
+
+## Building a Standalone CLI Executable
+
+For environments where Node.js is not pre-installed, or for simpler distribution, you can build a single, self-contained executable for the `template-engine` CLI.
+
+1.  **Install `pkg`**:
+    ```bash
+    npm install
+    ```
+    This will install `pkg` as a development dependency.
+
+2.  **Build the Executable**:
+    ```bash
+    npm run build:standalone
+    ```
+    This command first builds the TypeScript source and then uses `pkg` to create executables for common platforms (Linux, macOS, Windows) in the `dist/` directory.
+
+3.  **Run the Executable**:
+    You can find the executables in the `dist/` folder.
+    -   On Linux/macOS: `./dist/template-engine-linux --help`
+    -   On Windows: `.\dist\template-engine-win.exe --help`
+
+    These executables are self-contained and do not require Node.js or `npm install` on the target machine.

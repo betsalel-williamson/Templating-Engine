@@ -59,7 +59,7 @@ export interface FunctionCallNode {
 }
 
 // Data context and Function Registry
-export type DataContextValue = string | number | DataContext | DataContextValue[];
+export type DataContextValue = string | number | undefined | DataContext | DataContextValue[];
 export type DataContext = Map<string, DataContextValue>;
 
 export type RegisteredFunction = (...args: any[]) => Promise<string | number>;
