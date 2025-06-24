@@ -12,7 +12,7 @@ The new syntax will draw inspiration from widely adopted template engines (e.g.,
 
 Initially, not all advanced features of the existing TCL-based engine (e.g., specific array slicing notations, complex indirect variable chaining, conditional delimiters in loops) will be directly translated. The focus is on establishing the core syntax and behavior.
 
-### Canonical AST Strategy
+## Canonical AST Strategy
 
 To ensure a single, performant `evaluator` function independent of syntax versions, both the legacy and new templating grammars will produce a **unified, canonical Abstract Syntax Tree (AST)**. This means:
 

@@ -53,6 +53,8 @@ Variables are used to inject data values into templates.
 
 The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a template snippet for each item. This is powerful for generating repetitive structures.
 
+The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a template snippet for each item. This is powerful for generating repetitive structures.
+
 * **Basic Iteration**:
 
     ```txt
@@ -131,6 +133,22 @@ The `<{functionName(arg1,arg2,...)}>` syntax allows calling pre-registered JavaS
     Template: <{toUpperCase(<#user#>)}>
     Output:   ALICE
     ```
+
+## Why This Templating Engine?
+
+While many templating solutions exist, this engine offers a distinct set of features and a philosophical approach that differentiates it for specific use cases, especially dynamic configuration, code generation, and advanced data transformations.
+
+Unlike more common templating libraries that focus primarily on rendering web content and sometimes limit dynamic behavior, our engine emphasizes:
+
+1. **Deep Indirection as a First-Class Feature**: The `<##variableName##>` syntax is a powerful construct that allows the *value* of one variable to dynamically determine the *name* of the next variable to resolve. This "data as metadata" approach enables highly adaptive and generic templates, where a single configuration value can switch entire content structures or code generation patterns. Most other engines require complex helper functions or multi-step logic in the host application to achieve similar effects.
+
+2. **Robust Recursive Resolution**: Variables whose values are themselves template expressions are recursively evaluated until a final literal value is found. The engine includes explicit mechanisms for detecting circular references and preventing infinite loops, ensuring stability even with complex self-referential data.
+
+3. **Expressive Iteration Control**: Our "Cross-Product" iteration, beyond standard looping, includes unique features like direct inline conditional delimiters (`<*?delimiter:terminator>`). This enables precise control over list formatting (e.g., comma-separated lists without trailing commas) directly within the template construct, often simplifying what would require more verbose conditional logic in other languages.
+
+4. **Security-First Function Integration**: The `createSecureEvaluator` factory implements a "trusted kernel" pattern that creates a private, immutable copy of the function registry. For even higher security, it offers deep cloning of registered functions to explicitly break closures, preventing runtime manipulation of external state. This focus on securing the function execution boundary is paramount for environments where templates might be loaded from untrusted sources or used in sensitive contexts.
+
+This engine is built for scenarios where deep data-driven dynamism, fine-grained control over output, and a robust, secure execution environment are paramount. We are currently migrating its powerful features to a modern, more accessible syntax (like `{{ ... }}` and `{% ... %}`) to blend its unique capabilities with a developer-friendly experience.
 
 ## Getting Started
 
