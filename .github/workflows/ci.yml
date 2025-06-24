@@ -40,7 +40,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report-html
-          path: coverage/html/ # Standard path for Vitest HTML reports
+          path: coverage # Standard path for Vitest HTML reports
 
       - name: Report Test Results (JUnit)
         if: success() || failure()
