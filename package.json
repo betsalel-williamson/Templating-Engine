@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "lint": "echo 'Linting not configured yet.'",
-    "test": "vitest",
+    "test": "vitest run",
     "build:parsers": "mkdir -p lib && peggy --format es src/grammar.peggy -o lib/parser.js && peggy --format es src/grammar_new.peggy -o lib/parser_new.js",
     "build:bundle": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.bundle.js --format=cjs",
     "build": "npm run build:parsers && npm run build:bundle",
