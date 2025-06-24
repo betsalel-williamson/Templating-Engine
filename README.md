@@ -51,8 +51,6 @@ Variables are used to inject data values into templates.
 
 The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a template snippet for each item. This is powerful for generating repetitive structures.
 
-The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a template snippet for each item. This is powerful for generating repetitive structures.
-
 * **Basic Iteration**:
 
     ```txt
@@ -63,12 +61,16 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
 
 * **Iteration Variables**: Within a loop, special variables like `<#arrayName.elementindex#>` (1-based index) and `<#arrayName.numberofelements#>` (total count) are available.
     Within a loop, special variables are available, prefixed with the array name (e.g., `users.`).
-    **Preferred (Modern):**
-  * `<#arrayName.index#>`: The **0-based** index of the current element in the *original* array.
-  * `<#arrayName.length#>`: The total number of elements in the *original* array.
-    **Legacy (Deprecated but Supported):**
-  * `<#arrayName.elementindex#>`: (1-based index) The 1-based index of the current element in the *original* array.
-  * `<#arrayName.numberofelements#>`: (total count) The total number of elements in the *original* array.
+
+> **Preferred (Modern):**
+
+* `<#arrayName.index#>`: The **0-based** index of the current element in the *original* array.
+* `<#arrayName.length#>`: The total number of elements in the *original* array.
+
+> **Legacy (Deprecated but Supported):**
+
+* `<#arrayName.elementindex#>`: (1-based index) The 1-based index of the current element in the *original* array.
+* `<#arrayName.numberofelements#>`: (total count) The total number of elements in the *original* array.
 
     ```txt
     Context: { users: [Map([['name', 'Alice']])] } (array length 1)
