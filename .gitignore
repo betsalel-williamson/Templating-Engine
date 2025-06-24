@@ -5,3 +5,4 @@ peggy.config.json
 *.log
 u*.sh
 trace.log
+coverage/
