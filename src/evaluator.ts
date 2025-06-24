@@ -223,6 +223,6 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
       default:
         const exhaustiveCheck: never = node;
         throw new Error(`Unhandled AST node type: ${(exhaustiveCheck as any)?.type}`);
-    }
+    } /* v8 ignore next */ // each case statement either returns or throws and will not reach here
   };
 }
