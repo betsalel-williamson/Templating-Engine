@@ -1,18 +1,15 @@
 name: Release Binaries
 
 on:
-  # Automated trigger for new version tags
   push:
     tags:
-      - "v*.*.*"
-  # Manual trigger for re-running a release for an existing tag
+      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       tag:
-        description: "The tag to build and release (e.g., v1.0.0)"
+        description: 'The tag to build and release (e.g., v1.0.0)'
         required: true
 
-# Enforce a consistent shell for all steps in all jobs.
 defaults:
   run:
     shell: bash
@@ -26,8 +23,6 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      # Determine the tag ref to check out. Use the manual input if it exists,
-      # otherwise fall back to the tag from the push event.
       - name: Set tag reference
         id: set_ref
         run: |
@@ -45,8 +40,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci --no-audit --no-progress
@@ -56,7 +51,6 @@ jobs:
 
       - name: Get version from tag
         id: get_version
-        # Extract the version number (e.g., "1.0.0") from the full ref
         run: echo "VERSION=$(basename ${{ steps.set_ref.outputs.REF }})" >> $GITHUB_OUTPUT
 
       - name: Prepare Binary (Linux)
@@ -81,8 +75,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binary-${{ runner.os }}
-          path: |
-            dist/template-engine-${{ steps.get_version.outputs.VERSION }}-${{ runner.os == 'Windows' && 'win.exe' || (runner.os | lower) }}
+          # CORRECTED: Use the toLowerCase() function for valid syntax
+          path: dist/template-engine-${{ steps.get_version.outputs.VERSION }}-${{ runner.os == 'Windows' && 'win.exe' || toLowerCase(runner.os) }}
           if-no-files-found: error
 
   publish-release:
@@ -113,11 +107,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          # Use the tag name determined earlier
           tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
           name: "Release ${{ steps.get_tag.outputs.TAG_NAME }}"
           generate_release_notes: true
-          # The softprops action will fail if a release for the tag already exists.
-          # This is a safety feature. The documented process is to manually delete
-          # the old release before triggering this manual run.
           files: dist/*/*
