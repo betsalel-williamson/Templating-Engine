@@ -23,5 +23,6 @@
     "MD033": {
       "allowed_elements": ["p", "a", "h1", "img"]
     }
-  }
+  },
+  "diffEditor.ignoreTrimWhitespace": true,
 }
