@@ -1,12 +1,18 @@
 name: Release Binaries
 
 on:
+  # Automated trigger for new version tags
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
+  # Manual trigger for re-running a release for an existing tag
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tag to build and release (e.g., v1.0.0)"
+        required: true
 
-# MODIFIED: Enforce a consistent shell for all steps in all jobs.
-# This prevents platform-specific issues between PowerShell and Bash.
+# Enforce a consistent shell for all steps in all jobs.
 defaults:
   run:
     shell: bash
@@ -20,16 +26,28 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - name: Checkout repository
+      # Determine the tag ref to check out. Use the manual input if it exists,
+      # otherwise fall back to the tag from the push event.
+      - name: Set tag reference
+        id: set_ref
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "REF=refs/tags/${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "REF=${{ github.ref }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout repository at specific tag
         uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.set_ref.outputs.REF }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
-      # MODIFIED: Add flags to make npm more robust in CI environments.
       - name: Install dependencies
         run: npm ci --no-audit --no-progress
 
@@ -38,33 +56,33 @@ jobs:
 
       - name: Get version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+        # Extract the version number (e.g., "1.0.0") from the full ref
+        run: echo "VERSION=$(basename ${{ steps.set_ref.outputs.REF }})" >> $GITHUB_OUTPUT
 
       - name: Prepare Binary (Linux)
         if: runner.os == 'Linux'
         run: |
           npm run build:standalone:linux
-          mv dist/template-engine-linux dist/template-engine-v${{ steps.get_version.outputs.VERSION }}-linux
+          mv dist/template-engine-linux dist/template-engine-${{ steps.get_version.outputs.VERSION }}-linux
 
       - name: Prepare Binary (macOS)
         if: runner.os == 'macOS'
         run: |
           npm run build:standalone:macos
-          mv dist/template-engine-macos dist/template-engine-v${{ steps.get_version.outputs.VERSION }}-macos
+          mv dist/template-engine-macos dist/template-engine-${{ steps.get_version.outputs.VERSION }}-macos
 
       - name: Prepare Binary (Windows)
         if: runner.os == 'Windows'
         run: |
           npm run build:standalone:windows
-          mv dist/template-engine-win.exe dist/template-engine-v${{ steps.get_version.outputs.VERSION }}-win.exe
+          mv dist/template-engine-win.exe dist/template-engine-${{ steps.get_version.outputs.VERSION }}-win.exe
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
           name: binary-${{ runner.os }}
-          path: |
-            dist/template-engine-v${{ steps.get_version.outputs.VERSION }}-${{ runner.os == 'Windows' && 'win.exe' || (runner.os | lower) }}
-          if-no-files-found: error # Fail the build if the binary is missing
+          path: dist/template-engine-${{ steps.get_version.outputs.VERSION }}-${{ runner.os == 'Windows' && 'win.exe' || (runner.os | lower) }}
+          if-no-files-found: error
 
   publish-release:
     name: Publish Release
@@ -74,6 +92,15 @@ jobs:
       contents: write
 
     steps:
+      - name: Determine tag name for release
+        id: get_tag
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "TAG_NAME=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "TAG_NAME=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Download all binary artifacts
         uses: actions/download-artifact@v4
         with:
@@ -85,7 +112,11 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          name: "Release ${{ github.ref_name }}"
+          # Use the tag name determined earlier
+          tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
+          name: "Release ${{ steps.get_tag.outputs.TAG_NAME }}"
           generate_release_notes: true
-          # Upload all files from the subdirectories in 'dist'
+          # The softprops action will fail if a release for the tag already exists.
+          # This is a safety feature. The documented process is to manually delete
+          # the old release before triggering this manual run.
           files: dist/*/*
