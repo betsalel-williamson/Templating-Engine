@@ -24,7 +24,7 @@ The templating engine uses a unique syntax derived from the original `mergeEngin
 The language is defined by the following set of special character sequences that act as keywords or delimiters.
 
 - **Expressions:** `<~ ... ~>`
-- **Sub-Templates (Literals):** `<` ... `>`
+- **Sub-Templates (Literals):** ``<` ... `>``
 - **Variables:** `<#...#>`
 - **Indirect Variables:** `<##...##>`
 - **Function Calls:** `<{...}>`
