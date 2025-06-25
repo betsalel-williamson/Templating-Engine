@@ -1,8 +1,9 @@
 {
   "name": "template-engine-ts",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A flexible and powerful templating engine for dynamic content generation.",
   "main": "dist/index.js",
+  "type": "module",
   "bin": {
     "template-engine": "dist/cli.bundle.js"
   },
@@ -33,5 +34,10 @@
     "docs/",
     "LICENSE",
     "README.md"
+  ],
+  "keywords": [
+    "template",
+    "engine",
+    "codegen"
   ]
 }
