@@ -81,7 +81,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binary-${{ runner.os }}
-          path: dist/template-engine-${{ steps.get_version.outputs.VERSION }}-${{ runner.os == 'Windows' && 'win.exe' || (runner.os | lower) }}
+          path: |
+            dist/template-engine-${{ steps.get_version.outputs.VERSION }}-${{ runner.os == 'Windows' && 'win.exe' || (runner.os | lower) }}
           if-no-files-found: error
 
   publish-release:
