@@ -60,30 +60,33 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
       case 'Literal':
         return node.value;
       case 'Variable': {
-        let value = context.get(node.name);
-        if (value === undefined && node.name.includes('.')) {
-          const pathSegments = node.name.split('.');
+        const resolvedVarName = await evaluate(node.name, context, depth + 1);
+
+        // MODIFIED: Handle array.length property access outside of loops.
+        if (resolvedVarName.endsWith('.length')) {
+          const arrayKey = resolvedVarName.slice(0, -7); // remove '.length'
+          const arrayData = context.get(arrayKey);
+          if (Array.isArray(arrayData)) {
+            return String(arrayData.length);
+          }
+        }
+
+        let value = context.get(resolvedVarName);
+        if (value === undefined && resolvedVarName.includes('.')) {
+          const pathSegments = resolvedVarName.split('.');
           value = resolveDotNotation(context, pathSegments);
         }
+
         if (value === undefined) return node.raw;
         return await evaluate(parse(String(value)), context, depth + 1);
       }
       case 'IndirectVariable': {
         const firstKeyToLookup = await evaluate(node.name, context, depth + 1);
-
         let currentKeyToLookup: string = firstKeyToLookup;
         let lastResolvedStringValue: string | undefined;
-
         const visitedKeysInChain = new Set<string>();
+        let initialValue = resolveDotNotation(context, currentKeyToLookup.split('.'));
 
-        let initialValue: DataContextValue | undefined;
-        if (currentKeyToLookup.includes('.')) {
-          initialValue = resolveDotNotation(context, currentKeyToLookup.split('.'));
-        } else {
-          initialValue = context.get(currentKeyToLookup);
-        }
-
-        // CORRECTED: If the initial key lookup fails, return the original raw tag.
         if (initialValue === undefined) {
           return node.raw;
         }
@@ -97,20 +100,12 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
             throw new Error(`Circular indirect reference detected: ${[...Array.from(visitedKeysInChain), nextKeyCandidate].join(' -> ')}`);
           }
           visitedKeysInChain.add(nextKeyCandidate);
-
-          let tempValue: DataContextValue | undefined;
-          if (nextKeyCandidate.includes('.')) {
-            tempValue = resolveDotNotation(context, nextKeyCandidate.split('.'));
-          } else {
-            tempValue = context.get(nextKeyCandidate);
-          }
-
+          let tempValue = resolveDotNotation(context, nextKeyCandidate.split('.'));
           if (tempValue === undefined) {
             lastResolvedStringValue = nextKeyCandidate;
             resolvedValue = undefined;
             break;
           }
-
           if (typeof tempValue !== 'string') {
             lastResolvedStringValue = nextKeyCandidate;
             resolvedValue = undefined;
@@ -118,7 +113,6 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           }
           resolvedValue = tempValue;
         }
-
         return await evaluate(parse(lastResolvedStringValue as string), context, depth + 1);
       }
       case 'FunctionCall': {
@@ -134,13 +128,35 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
       case 'CrossProduct': {
         const arrayName: string = await evaluate(node.iterator.name, context, depth + 1);
         const rawArrayData = resolveDotNotation(context, arrayName.split('.'));
-
         if (!Array.isArray(rawArrayData) || rawArrayData.length === 0) return '';
         const originalArrayLength = rawArrayData.length;
-        let startIndex = node.offset !== undefined ? node.offset : 0;
-        startIndex = Math.max(0, startIndex);
-        let endIndex = node.limit !== undefined ? startIndex + node.limit : rawArrayData.length;
-        endIndex = Math.min(rawArrayData.length, endIndex);
+
+        let startIndex = 0;
+        let endIndex = rawArrayData.length;
+
+        if (node.sliceTemplate) {
+          const sliceString = await evaluate(node.sliceTemplate, context, depth + 1);
+          const parts = sliceString.split(',').map(s => s.trim());
+
+          let offset: number | undefined;
+          let limit: number | undefined;
+
+          if (parts.length === 1 && parts[0]) {
+            limit = parseInt(parts[0], 10);
+            offset = 0;
+          } else if (parts.length >= 2) {
+            offset = parts[0] ? parseInt(parts[0], 10) : 0;
+            limit = parts[1] ? parseInt(parts[1], 10) : undefined;
+          }
+
+          if (offset !== undefined && !isNaN(offset)) {
+            startIndex = Math.max(0, offset);
+          }
+          if (limit !== undefined && !isNaN(limit)) {
+            endIndex = Math.min(rawArrayData.length, startIndex + limit);
+          }
+        }
+
         const slicedArrayData = rawArrayData.slice(startIndex, endIndex);
 
         const iterationResults = await Promise.all(slicedArrayData.map(async (item, index) => {
@@ -154,7 +170,6 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           subContext.set(`${arrayName}.length`, String(originalArrayLength));
           return await evaluate(node.template, subContext, depth + 1);
         }));
-
         if (node.delimiter !== null && node.delimiter !== undefined) {
           return iterationResults.join(node.delimiter) + (node.terminator || '');
         }

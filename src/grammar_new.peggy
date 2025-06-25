@@ -23,10 +23,21 @@ Literal
 
 // --- New Tag Definitions ---
 
-// # MODIFIED: Capture individual parts (including whitespace around name) to reconstruct 'raw' and get 'name' directly.
 NewVariable "New Variable"
   = open_brace:"{{" ws_pre:ws name:Ident ws_post:ws close_brace:"}}" {
-      return { type: 'Variable', name: name, raw: open_brace + ws_pre + name + ws_post + close_brace };
+      // The `name` of a VariableNode must be an AstNode that evaluates to the
+      // variable's key. For a simple `{{ name }}`, this is a TemplateNode
+      // containing a single LiteralNode. This makes the new syntax compatible
+      // with the evaluator.
+      const nameTemplate = {
+        type: 'Template',
+        body: [{ type: 'Literal', value: name }]
+      };
+      return {
+        type: 'Variable',
+        name: nameTemplate,
+        raw: open_brace + ws_pre + name + ws_post + close_brace
+      };
     }
 
 Ident

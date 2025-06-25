@@ -162,7 +162,7 @@ describe('CLI Interface (Story 12)', () => {
   });
 
   it('should return 1 and provide detailed location info for a malformed tag', async () => {
-    const templateContent = 'Hello\nThis is an <#invalid tag#>';
+    const templateContent = 'Hello\nThis is an <#malformed';
     mockReadFileSync.mockImplementation((filePath: fs.PathOrFileDescriptor) => {
       if (filePath === 'template.txt') return templateContent;
       if (filePath === 'data.json') return '{}';
@@ -178,7 +178,7 @@ describe('CLI Interface (Story 12)', () => {
     // The rich formatting (location, source line, pointer) is handled by cli.ts.
     expect(stderrOutput).toContain('Syntax Error: Expected end of input but "<" found.');
     expect(stderrOutput).toContain('at template.txt:2:12');
-    expect(stderrOutput).toContain('  2 | This is an <#invalid tag#>');
+    expect(stderrOutput).toContain('  2 | This is an <#malformed');
     expect(stderrOutput).toContain('|            ^');
   });
 });

@@ -3,6 +3,5 @@ dist
 lib
 *.log
 u*.sh
-trace.log
 coverage/
 junit.xml

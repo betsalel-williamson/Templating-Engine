@@ -1,13 +1,8 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { DataContext } from '../../src/types.js';
-import { clearTraceLog } from '../../src/tracer.js';
 import { createTestEvaluator } from '../test-helper.js';
 
 describe('New Syntax: Basic Variable Replacement ({{...}})', () => {
-  beforeAll(() => {
-    clearTraceLog();
-  });
-
   // Use the new parser for these tests
   const evaluate = createTestEvaluator(new Map(), false, 'new');
 

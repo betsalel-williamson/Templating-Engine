@@ -1,13 +1,8 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { DataContext } from '../src/types.js';
-import { clearTraceLog } from '../src/tracer.js';
 import { createTestEvaluator } from './test-helper.js';
 
 describe('Story 9: Support Templated Array Names in Cross-Products', () => {
-  beforeAll(() => {
-    clearTraceLog();
-  });
-
   const evaluate = createTestEvaluator();
 
   const baseContext: DataContext = new Map([

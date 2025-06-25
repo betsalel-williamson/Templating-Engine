@@ -1,15 +1,8 @@
-import { describe, it, expect, beforeAll } from 'vitest';
-import { createSecureEvaluator } from '../src/evaluator.js';
-import { parse } from '../lib/parser.js';
-import { DataContext, FunctionRegistry } from '../src/types.js';
-import { clearTraceLog } from '../src/tracer.js';
+import { describe, it, expect } from 'vitest';
+import { DataContext } from '../src/types.js';
 import { createTestEvaluator } from './test-helper.js';
 
 describe('Template Evaluator', () => {
-  beforeAll(() => {
-    clearTraceLog();
-  });
-
   const evaluate = createTestEvaluator();
 
   describe('Story 1: Standard Variable Evaluation (<#..#>)', () => {

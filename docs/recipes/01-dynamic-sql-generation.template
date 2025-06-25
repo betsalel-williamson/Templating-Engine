@@ -1,7 +1,6 @@
 -- Generated SQL for batch inserting user data
 
-INSERT INTO <#tableName#> (<~<`<#column#>`><*?,: ><[columns]>~>)
+INSERT INTO <#tableName#> (<~<`<#column#>`><*?, :><[columns]>~>)
 VALUES
-<~<`
-  (<~<`'<#value#>'`><*?,: ><[a_row]>~>)`><*?,:
-><[rows]>~>;
+<~<`  (<~<`'<#value#>'`><*?, :><[a_row]>~>)`><*?,
+:;><[rows]>~>

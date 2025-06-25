@@ -1,13 +1,8 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { comprehensiveContext } from './fixtures/test-data.js';
-import { clearTraceLog } from '../src/tracer.js';
 import { createTestEvaluator } from './test-helper.js';
 
 describe('Comprehensive Template Tests', () => {
-  beforeAll(() => {
-    clearTraceLog();
-  });
-
   const evaluate = createTestEvaluator();
 
   describe('Conditionals', () => {

@@ -1,14 +1,9 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { DataContext, AstNode, ArrayNode } from '../src/types.js'; // Removed TemplateNode, LiteralNode as they are not directly used here
-import { clearTraceLog } from '../src/tracer.js';
 import { createTestEvaluator } from './test-helper.js';
 import { createSecureEvaluator } from '../src/evaluator.js'; // Import createSecureEvaluator directly
 
 describe('Evaluator Coverage Tests (Story 16)', () => {
-  beforeAll(() => {
-    clearTraceLog();
-  });
-
   // Use the standard test evaluator for most cases that require parsing
   const evaluateParsedTemplate = createTestEvaluator();
 

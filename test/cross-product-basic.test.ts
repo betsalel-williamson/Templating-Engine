@@ -1,14 +1,9 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { DataContext } from '../src/types.js';
-import { clearTraceLog } from '../src/tracer.js';
 import { createTestEvaluator } from './test-helper.js';
 import { comprehensiveContext } from './fixtures/test-data.js';
 
 describe('Template Evaluator', () => {
-  beforeAll(() => {
-    clearTraceLog();
-  });
-
   const evaluate = createTestEvaluator();
 
   describe('Story 3: Cross-Product Evaluation (<~...<*>...~>)', () => {

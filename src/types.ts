@@ -8,7 +8,7 @@ export type AstNode =
   | ArrayNode
   | CrossProductNode
   | ConditionalNode
-  | FunctionCallNode; // New node type
+  | FunctionCallNode;
 
 export interface TemplateNode {
   type: 'Template';
@@ -22,8 +22,8 @@ export interface LiteralNode {
 
 export interface VariableNode {
   type: 'Variable';
-  name: string;
-  raw: string; // New: Stores the original raw string of the variable tag (e.g., "<#name#>" or "{{ name }}")
+  name: AstNode; // MODIFIED: The name is a nested template.
+  raw: string;
 }
 
 export interface IndirectVariableNode {
@@ -43,8 +43,7 @@ export interface CrossProductNode {
   iterator: ArrayNode;
   delimiter?: string;
   terminator?: string;
-  offset?: number; // New: for array slicing
-  limit?: number;  // New: for array slicing
+  sliceTemplate?: AstNode; // MODIFIED: Replaces offset/limit with a template.
 }
 
 export interface ConditionalNode {
