@@ -1,0 +1,97 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  # This job runs in a matrix, creating one build for each target OS.
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Get version from tag
+        id: get_version
+        # The GITHUB_REF_NAME variable contains the tag name (e.g., "v1.0.0")
+        # This command removes the leading 'v' and saves it to a step output
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+        shell: bash # Ensure this step uses bash on all runners
+
+      - name: Build Standalone Binary (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          npm run build:standalone:linux
+          mv dist/template-engine-linux dist/template-engine-v${{ steps.get_version.outputs.VERSION }}-linux
+
+      - name: Build Standalone Binary (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          npm run build:standalone:macos
+          mv dist/template-engine-macos dist/template-engine-v${{ steps.get_version.outputs.VERSION }}-macos
+
+      - name: Build Standalone Binary (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          npm run build:standalone:windows
+          mv dist/template-engine-win.exe dist/template-engine-v${{ steps.get_version.outputs.VERSION }}-win.exe
+        shell: bash # Run this step in bash for consistency
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-engine-binaries
+          # The path needs to be specific to the OS runner
+          path: |
+            dist/template-engine-v${{ steps.get_version.outputs.VERSION }}-linux
+            dist/template-engine-v${{ steps.get_version.outputs.VERSION }}-macos
+            dist/template-engine-v${{ steps.get_version.outputs.VERSION }}-win.exe
+          if-no-files-found: 'ignore' # Ignore if files for other OSes are not found
+
+  # This job runs only after all matrix builds succeed.
+  # It collects all the uploaded binaries and creates the GitHub Release.
+  publish-release:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    needs: build # Depends on the matrix build job
+    permissions:
+      contents: write # Required to create a release
+
+    steps:
+      - name: Download all binary artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: template-engine-binaries
+          path: dist # Download all artifacts into a 'dist' directory
+
+      - name: List downloaded files
+        run: ls -R dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          # The name of the release will be the tag name (e.g., "v1.0.0")
+          name: "Release ${{ github.ref_name }}"
+          # Automatically generate release notes from commits since the last tag
+          generate_release_notes: true
+          # Upload all files from the 'dist' directory as release assets
+          files: dist/*
