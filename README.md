@@ -19,11 +19,25 @@ The templating engine uses a unique syntax derived from the original `mergeEngin
 
 > **WARNING** This version of the template language is not compatible with mergeEngine because slicing uses 0-based indexing, where it was previously 1-based indexing. To update legacy code, increment all slices `{X,Y}` by decrementing `X` by one.
 
+### Language Keywords & Delimiters (Legacy Syntax)
+
+The language is defined by the following set of special character sequences that act as keywords or delimiters.
+
+- **Expressions:** `<~ ... ~>`
+- **Sub-Templates (Literals):** `<` ... `>`
+- **Variables:** `<#...#>`
+- **Indirect Variables:** `<##...##>`
+- **Function Calls:** `<{...}>`
+- **Conditionals:** `<+>`, `<->`, `<?...?>`
+- **Iteration (Cross-Product):** `<*>`, `<*?delimiter:terminator>`
+- **Array Names:** `<[...]>`
+- **Array Slicing:** `{offset,limit}`
+
 ### Variables
 
 Variables are used to inject data values into templates.
 
-* **Simple Variable Replacement**: `<#variableName#>`
+- **Simple Variable Replacement**: `<#variableName#>`
     The engine replaces placeholders with corresponding values from the data context. If a variable is not found, its tag is left unchanged.
 
     ```txt
@@ -32,7 +46,7 @@ Variables are used to inject data values into templates.
     Output:   Hello, World.
     ```
 
-* **Recursive Variable Replacement**: If a variable's value is itself a variable tag, the engine will recursively resolve it until a non-variable value is found.
+- **Recursive Variable Replacement**: If a variable's value is itself a variable tag, the engine will recursively resolve it until a non-variable value is found.
 
     ```txt
     Context: { recursive1: '<#recursive2#>', recursive2: 'Final Value' }
@@ -40,7 +54,7 @@ Variables are used to inject data values into templates.
     Output:   Final Value
     ```
 
-* **Indirect Variable Replacement**: `<##variableName##>`
+- **Indirect Variable Replacement**: `<##variableName##>`
     This allows a variable's *value* to be used as the *name* of the next variable to look up, enabling dynamic selection of data sources. The engine will follow a chain of indirection until a non-variable value or an undefined key is reached.
 
     ```txt
@@ -53,7 +67,7 @@ Variables are used to inject data values into templates.
 
 The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a template snippet for each item. This is powerful for generating repetitive structures.
 
-* **Basic Iteration**:
+- **Basic Iteration**:
 
     ```txt
     Context: { users: [Map([['name', 'Alice']]), Map([['name', 'Bob']])] }
@@ -61,17 +75,17 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
     Output:   - Alice- Bob
     ```
 
-* **Iteration Variables**: Within a loop, special variables are available, prefixed with the array name (e.g., `users.`).
+- **Iteration Variables**: Within a loop, special variables are available, prefixed with the array name (e.g., `users.`).
 
 > **Preferred (Modern):**
 
-* `<#arrayName.index#>`: The **0-based** index of the current element in the *original* array.
-* `<#arrayName.length#>`: The total number of elements in the *original* array.
+- `<#arrayName.index#>`: The **0-based** index of the current element in the *original* array.
+- `<#arrayName.length#>`: The total number of elements in the *original* array.
 
 > **Legacy (Deprecated but Supported):**
 
-* `<#arrayName.elementindex#>`: (1-based index) The 1-based index of the current element in the *original* array.
-* `<#arrayName.numberofelements#>`: (total count) The total number of a elements in the *original* array.
+- `<#arrayName.elementindex#>`: (1-based index) The 1-based index of the current element in the *original* array.
+- `<#arrayName.numberofelements#>`: (total count) The total number of a elements in the *original* array.
 
     ```txt
     Context: { users: [Map([['name', 'Alice']])] } (array length 1)
@@ -80,7 +94,7 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
 
     ```
 
-* **Array Slicing**: Control which elements of an array are iterated over using `{offset,limit}` syntax (e.g., `{2}` for first 2, `{1,2}` for 2 elements starting at index 1).
+- **Array Slicing**: Control which elements of an array are iterated over using `{offset,limit}` syntax (e.g., `{2}` for first 2, `{1,2}` for 2 elements starting at index 1).
 
     ```txt
     Context: { numbers: [Map([['value', 'one']]), Map([['value', 'two']]), Map([['value', 'three']])] }
@@ -88,7 +102,7 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
     Output:   onetwo
     ```
 
-* **Templated Array Names**: The name of the array to iterate can itself be a template, allowing for dynamic selection of data sources.
+- **Templated Array Names**: The name of the array to iterate can itself be a template, allowing for dynamic selection of data sources.
 
     ```txt
     Context: { entity: 'users', users_list: [Map([['name', 'Alice']]), Map([['name', 'Bob']])] }
@@ -96,7 +110,7 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
     Output:   - Alice- Bob
     ```
 
-* **Conditional Delimiters**: Define a delimiter that appears *between* items, and an optional terminator *after* the last item.
+- **Conditional Delimiters**: Define a delimiter that appears *between* items, and an optional terminator *after* the last item.
 
     ```txt
     Context: { attributes: [Map([['attribute', 'attr1']]), Map([['attribute', 'attr2']])] }
@@ -108,8 +122,8 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
 
 The ``<~<+><`true_branch`><-><`false_branch`><?condition?>~>`` syntax allows rendering content conditionally based on a value.
 
-* If `condition` evaluates to anything other than `"0"` or an empty string, the `true_branch` is rendered. Otherwise, the `false_branch` is rendered.
-* Both `true_branch` (`<+...`) and `false_branch` (`<->...`) are optional.
+- If `condition` evaluates to anything other than `"0"` or an empty string, the `true_branch` is rendered. Otherwise, the `false_branch` is rendered.
+- Both `true_branch` (`<+...`) and `false_branch` (`<->...`) are optional.
 
     ```txt
     Context: { isAdmin: '1' }
@@ -121,8 +135,8 @@ The ``<~<+><`true_branch`><-><`false_branch`><?condition?>~>`` syntax allows ren
 
 The `<{functionName(arg1,arg2,...)}>` syntax allows calling pre-registered JavaScript functions from within templates.
 
-* Functions can return dynamically generated data (e.g., current timestamp) or perform simple data transformations.
-* **Security Note**: Functions must be explicitly registered by the host application. The engine itself does not include built-in functions for file system, network, or shell interaction, maintaining a secure transformation boundary.
+- Functions can return dynamically generated data (e.g., current timestamp) or perform simple data transformations.
+- **Security Note**: Functions must be explicitly registered by the host application. The engine itself does not include built-in functions for file system, network, or shell interaction, maintaining a secure transformation boundary.
 
     ```txt
     Context: { user: 'Alice' }
@@ -151,26 +165,30 @@ This engine is built for scenarios where deep data-driven dynamism, fine-grained
 
 To get started with this templating engine:
 
-1.  **Clone the repository and install dependencies:**
+1. **Clone the repository and install dependencies:**
+
     ```bash
     git clone [repository-url]
     cd Templating-Engine
     npm install
     ```
 
-2.  **Build the parsers and application code:**
+2. **Build the parsers and application code:**
+
     ```bash
     npm run build
     ```
 
-3.  **Run the demo:**
+3. **Run the demo:**
     See `src/index.ts` for a basic usage example.
+
     ```bash
     npm start
     ```
 
-4.  **Explore tests for more examples:**
+4. **Explore tests for more examples:**
     The `test/` directory contains comprehensive examples for all syntax features.
+
     ```bash
     npm test
     ```
@@ -179,30 +197,37 @@ To get started with this templating engine:
 
 For environments where Node.js is not pre-installed, you can build a single, self-contained executable using Node.js's native Single Executable Application (SEA) feature.
 
-1.  **Install Dependencies**: Make sure you have run `npm install`.
+1. **Install Dependencies**: Make sure you have run `npm install`.
 
-2.  **Build for your Platform**: Run the script corresponding to your operating system.
+2. **Build for your Platform**: Run the script corresponding to your operating system.
 
-    *   **Linux**:
+    - **Linux**:
+
         ```bash
         npm run build:standalone:linux
         ```
+
         The output will be at `dist/template-engine-linux`.
 
-    *   **macOS**:
+    - **macOS**:
+
         ```bash
         npm run build:standalone:macos
         ```
+
         The output will be at `dist/template-engine-macos`.
 
-    *   **Windows (in Git Bash or WSL)**:
+    - **Windows (in Git Bash or WSL)**:
+
         ```bash
         npm run build:standalone:windows
         ```
+
         The output will be at `dist/template-engine-win.exe`.
 
-3.  **Run the Executable**:
+3. **Run the Executable**:
     You can now run the generated executable directly without Node.js.
+
     ```bash
     # On Linux/macOS:
     ./dist/template-engine-linux --help
@@ -210,6 +235,7 @@ For environments where Node.js is not pre-installed, you can build a single, sel
     # On Windows:
     .\\dist\\template-engine-win.exe --help
     ```
+
     These executables are self-contained and do not require Node.js or `npm install` on the target machine.
 
 ## Advanced Topics & Behavioral Notes
@@ -220,8 +246,8 @@ Understanding the specific behaviors and limitations of the templating engine he
 
 The template engine is designed to prevent infinite loops and provide clear diagnostics for recursive variable resolutions:
 
-* **Maximum Evaluation Depth**: To prevent uncontrolled recursion and potential stack overflows (e.g., from deeply nested variable references like `<#a#> <#a#>`), the engine enforces a `MAX_EVAL_DEPTH` limit (defaulting to 50 levels). If this limit is exceeded, an error is thrown: `Max evaluation depth exceeded, possible infinite loop in template variables.`.
-* **Circular Reference Detection (Indirect Variables)**: For indirect variable references (`<##name##>`) which can form explicit cycles (e.g., `{a: 'b', b: 'a'}`), the engine employs a dedicated cycle detection mechanism. If a key is revisited within the same indirection chain, a more specific error is thrown: `Circular indirect reference detected: a -> b -> a`. This pinpoints the exact cycle.
+- **Maximum Evaluation Depth**: To prevent uncontrolled recursion and potential stack overflows (e.g., from deeply nested variable references like `<#a#> <#a#>`), the engine enforces a `MAX_EVAL_DEPTH` limit (defaulting to 50 levels). If this limit is exceeded, an error is thrown: `Max evaluation depth exceeded, possible infinite loop in template variables.`.
+- **Circular Reference Detection (Indirect Variables)**: For indirect variable references (`<##name##>`) which can form explicit cycles (e.g., `{a: 'b', b: 'a'}`), the engine employs a dedicated cycle detection mechanism. If a key is revisited within the same indirection chain, a more specific error is thrown: `Circular indirect reference detected: a -> b -> a`. This pinpoints the exact cycle.
 
 When encountering such errors, review your template and data context to break the recursive dependency.
 
@@ -229,17 +255,17 @@ When encountering such errors, review your template and data context to break th
 
 The `template-engine` CLI can accept template input via `stdin` (e.g., `cat template.txt | template-engine --data data.json`). It's important to understand how this input is processed:
 
-* **All-at-Once Parsing**: The CLI's parser is an "all-at-once" parser. It reads the *entire* `stdin` stream until the stream closes (e.g., `Ctrl+D` on Linux/macOS, `Ctrl+Z` on Windows, or the piping process finishes). Only then is the complete received content passed to the parser.
-* **No Incremental Processing**: The CLI will **not** pause and wait for more input if it encounters an incomplete template tag (e.g., `<#variable` without a closing `#>`) while the stream is still open. If the stream *closes* with an incomplete tag, the parser will immediately report a syntax error (e.g., `Expected "#" or ">"`) and the CLI will exit with a non-zero status code.
-* **Error Handling**: If a parsing error occurs due to incomplete or malformed input, the CLI will output the error message to `stderr` and exit with status code `1`.
+- **All-at-Once Parsing**: The CLI's parser is an "all-at-once" parser. It reads the *entire* `stdin` stream until the stream closes (e.g., `Ctrl+D` on Linux/macOS, `Ctrl+Z` on Windows, or the piping process finishes). Only then is the complete received content passed to the parser.
+- **No Incremental Processing**: The CLI will **not** pause and wait for more input if it encounters an incomplete template tag (e.g., `<#variable` without a closing `#>`) while the stream is still open. If the stream *closes* with an incomplete tag, the parser will immediately report a syntax error (e.g., `Expected "#" or ">"`) and the CLI will exit with a non-zero status code.
+- **Error Handling**: If a parsing error occurs due to incomplete or malformed input, the CLI will output the error message to `stderr` and exit with status code `1`.
 
 ### Extending Functionality with a Host Application
 
 The standalone CLI is designed for common use cases. For more complex scenarios, leveraging the template engine's API directly within a Node.js "host" application offers greater control:
 
-* **Custom Functions**: The CLI's function registry is intentionally empty for security. In a host application, you can register your own JavaScript functions (e.g., to interact with databases, perform complex calculations, or access external services) using `createSecureEvaluator({ functions: yourFunctionMap })`. Remember our security guidelines (`docs/ai_guidelines/README.md`, `docs/secure_templating_guide.md`) when registering functions.
-* **Incremental Input Processing**: If you need to process templates from a continuously flowing stream (e.g., a network socket) and parse/evaluate them chunk by chunk, a host application can manage the input stream and call `parse()` and `evaluate()` as complete template segments become available. The CLI does not support this "streaming parse" behavior.
-* **Dynamic Context Manipulation**: A host script can dynamically modify the data context based on runtime conditions, user input, or external events before each template evaluation, providing flexibility beyond static JSON files.
-* **Error Handling**: In a host application, you have full programmatic control over error handling for parsing or evaluation failures, allowing for custom logging, retry mechanisms, or graceful degradation.
+- **Custom Functions**: The CLI's function registry is intentionally empty for security. In a host application, you can register your own JavaScript functions (e.g., to interact with databases, perform complex calculations, or access external services) using `createSecureEvaluator({ functions: yourFunctionMap })`. Remember our security guidelines (`docs/ai_guidelines/README.md`, `docs/secure_templating_guide.md`) when registering functions.
+- **Incremental Input Processing**: If you need to process templates from a continuously flowing stream (e.g., a network socket) and parse/evaluate them chunk by chunk, a host application can manage the input stream and call `parse()` and `evaluate()` as complete template segments become available. The CLI does not support this "streaming parse" behavior.
+- **Dynamic Context Manipulation**: A host script can dynamically modify the data context based on runtime conditions, user input, or external events before each template evaluation, providing flexibility beyond static JSON files.
+- **Error Handling**: In a host application, you have full programmatic control over error handling for parsing or evaluation failures, allowing for custom logging, retry mechanisms, or graceful degradation.
 
 By understanding these nuances, you can choose the most appropriate method for integrating the `template-engine` into your workflows, from simple CLI usage to sophisticated programmatic control.
