@@ -1,0 +1,15 @@
+import "pkl:json"
+
+fileContents = read("modulepath:/01-dynamic-sql-generation.json").text
+data = new json.Parser {}.parse(fileContents)
+
+// Assemble the final output.
+output {
+  text = """
+-- Generated SQL for batch inserting user data
+
+INSERT INTO \(data.tableName) (\(data.columns.toList().map((entry) -> "\(entry.getProperty("column"))").join(", ")))
+VALUES
+\(data.rows.toList().map((row) -> "  (\(row.a_row.toList().map((val) -> "'\(val.getProperty("value"))'").join(", ")))").join(",\n"));
+"""
+}
