@@ -7,12 +7,12 @@
 
 ## Acceptance Criteria
 
--   The grammar must parse the full conditional structure `<~<+true_branch<->false_branch<?condition?>>~>` into a `ConditionalNode`.
--   The evaluator must first evaluate the `condition` part of the node.
--   If the result of the `condition` is not "0" and not an empty string, the `trueBranch` is evaluated and returned.
--   If the result of the `condition` is "0" or an empty string, the `falseBranch` is evaluated and returned.
--   The branches and condition themselves can contain nested expressions which must be evaluated correctly.
--   Unit tests must cover both the true and false paths, including with optional branches.
+- The grammar must parse the full conditional structure `<~<+true_branch<->false_branch<?condition?>>~>` into a `ConditionalNode`.
+- The evaluator must first evaluate the `condition` part of the node.
+- If the result of the `condition` is not "0" and not an empty string, the `trueBranch` is evaluated and returned.
+- If the result of the `condition` is "0" or an empty string, the `falseBranch` is evaluated and returned.
+- The branches and condition themselves can contain nested expressions which must be evaluated correctly.
+- Unit tests must cover both the true and false paths, including with optional branches.
 
 ## Metrics for Success
 

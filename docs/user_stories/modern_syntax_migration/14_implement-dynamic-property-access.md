@@ -8,12 +8,12 @@
 
 ## Acceptance Criteria
 
--   The evaluator must be updated to support bracket notation (`[]`) for property access on `Map` objects.
--   The expression inside the brackets must be fully evaluated first to determine the key for the lookup.
--   This must work in combination with static dot notation. Given `{ user: { details: { name: 'Alice' } }, key: 'name' }`, the template `{{ user.details[key] }}` must produce `Alice`.
--   If the lookup fails (either the object or the key does not exist), the expression must evaluate to an empty string.
--   This syntax explicitly replaces the legacy `<##...##>` indirect lookup mechanism.
--   The implementation must have comprehensive unit tests for successful lookups, failed lookups, and nested lookups.
+- The evaluator must be updated to support bracket notation (`[]`) for property access on `Map` objects.
+- The expression inside the brackets must be fully evaluated first to determine the key for the lookup.
+- This must work in combination with static dot notation. Given `{ user: { details: { name: 'Alice' } }, key: 'name' }`, the template `{{ user.details[key] }}` must produce `Alice`.
+- If the lookup fails (either the object or the key does not exist), the expression must evaluate to an empty string.
+- This syntax explicitly replaces the legacy `<##...##>` indirect lookup mechanism.
+- The implementation must have comprehensive unit tests for successful lookups, failed lookups, and nested lookups.
 
 ## Metrics for Success
 

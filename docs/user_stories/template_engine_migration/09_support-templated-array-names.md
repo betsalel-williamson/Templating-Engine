@@ -7,11 +7,11 @@
 
 ## Acceptance Criteria
 
--   The grammar's `ArrayRule` must be updated to parse a full sub-template within the `<[...]>` brackets.
--   The evaluator, when processing a `CrossProductNode`, must first evaluate the template inside the `ArrayRule` to get the final array name as a string.
--   A template like `<~<...><*><[<#entity#>_list]>~>` with context `{ entity: 'users' }` must correctly resolve the array name to "users_list" and iterate over that array.
--   The implementation must be backward compatible with existing `Ident` and `Variable` array names.
--   Unit tests must validate this complex indirection capability.
+- The grammar's `ArrayRule` must be updated to parse a full sub-template within the `<[...]>` brackets.
+- The evaluator, when processing a `CrossProductNode`, must first evaluate the template inside the `ArrayRule` to get the final array name as a string.
+- A template like `<~<...><*><[<#entity#>_list]>~>` with context `{ entity: 'users' }` must correctly resolve the array name to "users_list" and iterate over that array.
+- The implementation must be backward compatible with existing `Ident` and `Variable` array names.
+- Unit tests must validate this complex indirection capability.
 
 ## Metrics for Success
 

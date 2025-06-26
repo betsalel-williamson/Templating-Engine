@@ -1,3 +1,5 @@
+# Templating Engine
+
 > **Note: This project is now a learning archive!**
 >
 > Thanks for checking out this project. It has been a fascinating journey porting the classic `mergeEngine` language to TypeScript and building a parser from scratch with Peggy.
@@ -8,9 +10,7 @@
 >
 > See the full rationale in **[ADR-001: Adopting Pkl for Future Work](docs/architecture/adr-001-adopt-pkl.md)**.
 
-# Templating Engine
-
-This project provides a flexible and powerful templating engine for dynamic content generation, built with a focus on robustness and maintainability. It allows developers to create reusable templates that are easily populated with data, enabling dynamic configuration, code generation, and content rendering.
+The Template Engine project provides a flexible and powerful templating engine for dynamic content generation, built with a focus on robustness and maintainability. It allows developers to create reusable templates that are easily populated with data, enabling dynamic configuration, code generation, and content rendering.
 
 <p align="center">
     <a href="https://github.com/betsalel-williamson/Templating-Engine/blob/main/LICENSE">

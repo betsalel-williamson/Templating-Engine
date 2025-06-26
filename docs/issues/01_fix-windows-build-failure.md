@@ -17,5 +17,5 @@ This is a critical bug that completely blocks our automated release process. We 
 
 We must replace the non-portable `mkdir -p` command with a guaranteed cross-platform equivalent from the Node.js ecosystem.
 
-1.  Add the `mkdirp` package as a `devDependency` to `package.json`.
-2.  Update the `build` script in `package.json` to use the `mkdirp lib` command instead of `mkdir -p lib`.
+1. Add the `mkdirp` package as a `devDependency` to `package.json`.
+2. Update the `build` script in `package.json` to use the `mkdirp lib` command instead of `mkdir -p lib`.

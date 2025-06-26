@@ -7,10 +7,10 @@
 
 ## Acceptance Criteria
 
--   A Homebrew formula for the CLI is created and published to a tap.
--   `brew install our-org/tap/template-engine` successfully installs the CLI.
--   Installation instructions for Homebrew are added to the `README.md`.
--   (Optional) A pipeline is created to automatically publish new versions to Homebrew on release.
+- A Homebrew formula for the CLI is created and published to a tap.
+- `brew install our-org/tap/template-engine` successfully installs the CLI.
+- Installation instructions for Homebrew are added to the `README.md`.
+- (Optional) A pipeline is created to automatically publish new versions to Homebrew on release.
 
 ## Metrics for Success
 

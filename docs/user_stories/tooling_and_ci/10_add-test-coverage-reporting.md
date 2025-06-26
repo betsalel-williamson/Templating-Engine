@@ -7,9 +7,9 @@
 
 ## Acceptance Criteria
 
--   The command `npm test -- --coverage` must run successfully and generate a coverage report.
--   An HTML report must be generated in a `coverage/` directory, which is added to `.gitignore`.
--   The summary report must show >95% statement, branch, and function coverage for all modules in `src/`.
+- The command `npm test -- --coverage` must run successfully and generate a coverage report.
+- An HTML report must be generated in a `coverage/` directory, which is added to `.gitignore`.
+- The summary report must show >95% statement, branch, and function coverage for all modules in `src/`.
 
 ## Metrics for Success
 

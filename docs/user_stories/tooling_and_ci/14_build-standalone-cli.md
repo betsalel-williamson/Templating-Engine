@@ -7,10 +7,10 @@
 
 ## Acceptance Criteria
 
--   The project includes a build script (e.g., `npm run build:standalone`) that produces a single executable file (e.g., `dist/template-engine-win.exe`, `dist/template-engine-linux`, `dist/template-engine-macos`).
--   The generated executable includes all necessary Node.js dependencies and the Node.js runtime.
--   The executable can be run directly (e.g., `./template-engine --help`) without `npm install` or `node`.
--   Instructions for building and using the standalone executable are added to the `README.md`.
+- The project includes a build script (e.g., `npm run build:standalone`) that produces a single executable file (e.g., `dist/template-engine-win.exe`, `dist/template-engine-linux`, `dist/template-engine-macos`).
+- The generated executable includes all necessary Node.js dependencies and the Node.js runtime.
+- The executable can be run directly (e.g., `./template-engine --help`) without `npm install` or `node`.
+- Instructions for building and using the standalone executable are added to the `README.md`.
 
 ## Metrics for Success
 
