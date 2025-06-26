@@ -1,0 +1,22 @@
+import "pkl:json"
+
+fileContents = read("modulepath:/03-generic-reporting.json").text
+data = new json.Parser {}.parse(fileContents)
+
+output {
+  text = """
+Report Type: \(data.report_title)
+Data Source Key: \(data.report_source)
+====================================
+
+
+\(data.getProperty(data.report_source).toList().mapIndexed((index, item) ->
+"""
+[\(index)] \(item.title)
+    - ID: \(item.id)
+    - Details: \(item.details)
+    - Timestamp: \(item.timestamp)
+""").join("\n\n"))
+
+"""
+}
