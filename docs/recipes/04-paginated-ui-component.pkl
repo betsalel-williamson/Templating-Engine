@@ -1,0 +1,30 @@
+import "pkl:json"
+
+fileContents = read("modulepath:/04-paginated-ui-component.json").text
+data = new json.Parser {}.parse(fileContents)
+
+zero_based_index = data.offset.toInt()-1
+max_index = zero_based_index + data.limit.toInt()
+
+output {
+  text = """
+<!-- Displaying page \(data.page) -->
+<p>Showing items \(data.offset) - \(data.end_item) of \(data.items.length) total.</p>
+<ul>
+
+\(data.items.toList().filterIndexed((index, element) -> index >= zero_based_index && index < max_index).map((item) ->
+"""
+  <li>
+    <strong>\(item.name)</strong> (User ID: \(item.id))
+    \(
+      if (data.show_admin_details == "1") """
+    <span class="admin-view"> - IP: \(item.last_ip)</span>
+    """
+    else "")
+  </li>
+"""
+).join("\n\n"))
+
+</ul>
+"""
+}
