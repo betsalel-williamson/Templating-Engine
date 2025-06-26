@@ -55,9 +55,9 @@ describe('Story 15: Modernize Iteration Variables', () => {
   });
 
   it('should correctly set new variables when slicing with offset is applied (0-based)', async () => {
-    // Slicing {1,1} means 1 element starting from original index 1 (Bob)
-    const template = '<~{1,1}<`<#users.index#> of <#users.length#>: <#name#>;`><*><[users]>~>';
+    // Slicing {1,1} means 1 element starting from original index 0 (Alice)
+    const template = '<~{1,1}<`<#users.elementindex#> of <#users.length#>: <#name#>;`><*><[users]>~>';
     const result = await evaluate(template, usersContext);
-    expect(result).toBe('1 of 3: Bob;'); // Index is 0-based
+    expect(result).toBe('1 of 3: Alice;'); // Index is 0-based
   });
 });

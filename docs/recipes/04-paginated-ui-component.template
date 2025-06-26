@@ -1,5 +1,5 @@
 <!-- Displaying page <#page#> -->
-<p>Showing items <#offset_plus_one#> - <#end_item#> of <#items.length#> total.</p>
+<p>Showing items <#offset#> - <#end_item#> of <#items.length#> total.</p>
 <ul>
 <~{<#offset#>,<#limit#>} <`
   <li>

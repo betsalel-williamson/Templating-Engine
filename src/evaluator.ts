@@ -138,20 +138,20 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           const sliceString = await evaluate(node.sliceTemplate, context, depth + 1);
           const parts = sliceString.split(',').map(s => s.trim());
 
-          let offset: number | undefined;
+          let offset = 1;
           let limit: number | undefined;
 
           if (parts.length === 1 && parts[0]) {
             limit = parseInt(parts[0], 10);
-            offset = 0;
           } else if (parts.length >= 2) {
-            offset = parts[0] ? parseInt(parts[0], 10) : 0;
+            offset = parts[0] ? parseInt(parts[0], 10) : 1;
             limit = parts[1] ? parseInt(parts[1], 10) : undefined;
           }
 
-          if (offset !== undefined && !isNaN(offset)) {
-            startIndex = Math.max(0, offset);
-          }
+          // Enforce 1-based logic for parity with original mergeEngine
+          if (isNaN(offset) || offset < 1) offset = 1;
+          startIndex = offset - 1; // Convert 1-based offset to 0-based index
+
           if (limit !== undefined && !isNaN(limit)) {
             endIndex = Math.min(rawArrayData.length, startIndex + limit);
           }

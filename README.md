@@ -1,3 +1,13 @@
+> **Note: This project is now a learning archive!**
+>
+> Thanks for checking out this project. It has been a fascinating journey porting the classic `mergeEngine` language to TypeScript and building a parser from scratch with Peggy.
+>
+> During this exploration, I discovered **[Pkl](https://pkl-lang.org/)**, Apple's new open-source configuration language. After a deep dive, it's clear that Pkl is an exceptionally well-designed tool that provides a much more robust, safe, and powerful solution for the kind of dynamic configuration this project aimed to solve.
+>
+> To avoid reinventing the wheel when such a great FOSS solution exists, I'm archiving this project. It remains a completed and successful learning exercise. For any actual configuration needs, I highly recommend checking out Pkl!
+>
+> See the full rationale in **[ADR-001: Adopting Pkl for Future Work](docs/architecture/adr-001-adopt-pkl.md)**.
+
 # Templating Engine
 
 This project provides a flexible and powerful templating engine for dynamic content generation, built with a focus on robustness and maintainability. It allows developers to create reusable templates that are easily populated with data, enabling dynamic configuration, code generation, and content rendering.
@@ -17,7 +27,7 @@ This project provides a flexible and powerful templating engine for dynamic cont
 
 The templating engine uses a unique syntax derived from the original `mergeEngine` (for historical context, see [jordanhenderson.com](https://jordanhenderson.com/)). It combines various tags and expressions to define dynamic content.
 
-> **WARNING** This version of the template language is not compatible with mergeEngine because slicing uses 0-based indexing, where it was previously 1-based indexing. To update legacy code, increment all slices `{X,Y}` by decrementing `X` by one.
+> **WARNING** This version of the template language uses 1-based indexing for array slicing (`{offset,limit}`), which matches the original `mergeEngine`.
 
 ### Language Keywords & Delimiters (Legacy Syntax)
 
@@ -94,7 +104,7 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
 
     ```
 
-- **Array Slicing**: Control which elements of an array are iterated over using `{offset,limit}` syntax (e.g., `{2}` for first 2, `{1,2}` for 2 elements starting at index 1).
+- **Array Slicing**: Control which elements of an array are iterated over using `{offset,limit}` syntax (e.g., `{2}` for first 2, `{2,2}` for 2 elements starting at element 2).
 
     ```txt
     Context: { numbers: [Map([['value', 'one']]), Map([['value', 'two']]), Map([['value', 'three']])] }
