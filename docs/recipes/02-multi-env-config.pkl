@@ -1,0 +1,21 @@
+import "pkl:json"
+
+fileContents = read("modulepath:/02-multi-env-config.json").text
+data = new json.Parser {}.parse(fileContents)
+
+output {
+  text = """
+# Generated Kubernetes ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: \(data.appName)-config-\(data.env)
+data:
+  # The template uses a single 'env' variable to select the correct values.
+  DB_HOST: "\(data.getProperty(data.env + "-db-host"))"
+  DB_USER: "\(data.getProperty("db-user"))" # This value is shared across all environments
+  API_URL: "\(data.getProperty(data.env + "-api-url"))"
+  LOG_LEVEL: "\(data.getProperty(data.env + "-log-level"))"
+  FEATURE_FLAG_X: "\(data.getProperty(data.env + "-feature-flag-x"))"
+"""
+}
