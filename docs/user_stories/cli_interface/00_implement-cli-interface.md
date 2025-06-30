@@ -1,17 +1,18 @@
 # Story 12: Implement CLI Interface
 
 - **Project**: `template-engine-ts`
+- **Status**: `verified completed`
 - **As a** DevOps Engineer,
 - **I want to** use a command-line interface (CLI) for the template engine,
 - **so that** I can leverage it in shell scripts and CI/CD pipelines to generate configuration files dynamically, without writing a custom Node.js wrapper.
 
 ## Acceptance Criteria
 
-- An executable binary is produced (e.g., `dist/cli.js`).
-- The package.json `bin` field is configured to create a `template-engine` command on `npm install -g`.
+- The system must produce an executable binary (e.g., `dist/cli.js`).
+- The package.json `bin` field must be configured to create a `template-engine` command on `npm install -g`.
 - The CLI must accept a template file path and a data file path (JSON) as arguments.
 - The CLI must print the rendered output to `stdout`.
-- The CLI must be able to accept streaming input from `stidin`.
+- The CLI must be able to accept streaming input from `stdin`.
 - The CLI must exit with a non-zero status code if rendering fails.
 - The CLI must include a `--help` flag that documents its usage.
 
