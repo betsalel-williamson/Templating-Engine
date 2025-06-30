@@ -8,10 +8,10 @@
 
 ## Acceptance Criteria
 
-- A new `src/filters/` directory is created to house all filter modules.
-- A new `src/filters/types.ts` file is created, defining the `Filter` function signature.
-- A new `src/filters/index.ts` file is created. It must import all individual filter modules and export them as a single `FilterRegistry` map (`Map<string, Filter>`).
-- As a proof of concept, a simple `upper` filter is implemented in `src/filters/upper.ts`.
+- A new `src/filters/` directory must be created to house all filter modules.
+- A new `src/filters/types.ts` file must be created, defining the `Filter` function signature.
+- A new `src/filters/index.ts` file must be created. It must import all individual filter modules and export them as a single `FilterRegistry` map (`Map<string, Filter>`).
+- As a proof of concept, a simple `upper` filter must be implemented in `src/filters/upper.ts`.
 - The `createSecureEvaluator` function in `src/evaluator.ts` must be updated to import the `builtInFilters` map from `src/filters/index.ts` to build its private registry, instead of defining them inline.
 - The process for adding a new filter must not require any modifications to `src/evaluator.ts`.
 
