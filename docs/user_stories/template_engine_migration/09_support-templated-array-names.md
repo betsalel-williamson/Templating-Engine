@@ -1,6 +1,7 @@
 # Story 9: Support Templated Array Names in Cross-Products
 
 - **Project**: `template-engine-ts`
+- **Status**: `verified completed`
 - **As a** Developer building highly generic templates,
 - **I want to** construct the name of an array to iterate over using a mix of variables and literals (e.g., `<[<#prefix#>-data]>`),
 - **so that** I can dynamically select data sources based on complex naming conventions without pre-computing the array name in the host application.
@@ -15,5 +16,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Rework Rate for this feature is 0%.
-- **Secondary Metrics**: This feature unlocks more advanced dynamic template patterns, reducing the logic required in the calling code.
+- **Primary Metric**: "Rework Rate for this feature is 0%."
+- **Secondary Metrics**: "This feature unlocks more advanced dynamic template patterns, reducing the logic required in the calling code."

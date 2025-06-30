@@ -1,6 +1,7 @@
 # Story 5: Implement Conditional Replacement
 
 - **Project**: `template-engine-ts`
+- **Status**: `verified completed`
 - **As a** Developer generating a user profile display,
 - **I want to** show an "Admin" badge using a conditional `<~<+Admin Badge<?<#isAdmin#>?>>~>` only if a user's `isAdmin` property is true,
 - **so that** I can render different UI components based on data without creating separate templates or writing complex display logic in the host language.
@@ -16,5 +17,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Rework Rate for this feature is 0%.
-- **Secondary Metrics**: This feature unlocks the ability to replicate more complex legacy templates, accelerating the migration.
+- **Primary Metric**: "Rework Rate for this feature is 0%."
+- **Secondary Metrics**: "This feature unlocks the ability to replicate more complex legacy templates, accelerating the migration."

@@ -1,6 +1,7 @@
 # Story 10: Add Test Coverage Reporting
 
 - **Project**: `template-engine-ts`
+- **Status**: `verified completed`
 - **As a** Developer,
 - **I want to** integrate test coverage reporting into our test suite,
 - **so that** I have a clear, objective measure of our test quality and can identify untested code paths, which is critical for maintaining software delivery stability.

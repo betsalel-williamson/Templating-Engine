@@ -1,7 +1,7 @@
 # Story 16: Support Templated Names in Indirect Variables
 
 - **Project**: `template-engine-ts`
-- **Status**: `todo`
+- **Status**: `verified completed`
 - **As a** DevOps Engineer,
 - **I want to** construct the key for an indirect variable lookup using a nested template (e.g., `<##<#env#>-db-host##>`),
 - **so that** I can create a single, highly reusable configuration template that dynamically selects values for different environments based on a single `env` variable.

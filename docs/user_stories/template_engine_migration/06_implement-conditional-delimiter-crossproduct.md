@@ -1,6 +1,7 @@
 # Story 6: Implement Cross-Product with Conditional Delimiter
 
 - **Project**: `template-engine-ts`
+- **Status**: `verified completed`
 - **As a** Developer generating a SQL `CREATE TABLE` statement,
 - **I want to** add a comma after each column definition except the last one using the `<~template<*?delimiter:terminator><[array]>~>` syntax,
 - **so that** I can generate syntactically correct code for lists without writing brittle post-processing logic to remove trailing delimiters.
@@ -15,5 +16,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Reduce the number of open legacy feature parity gaps by 1, as this is a major, complex feature.
-- **Secondary Metrics**: No new high-priority bugs are reported against the engine within one week of this feature's deployment.
+- **Primary Metric**: "Reduce the number of open legacy feature parity gaps by 1, as this is a major, complex feature."
+- **Secondary Metrics**: "No new high-priority bugs are reported against the engine within one week of this feature's deployment."
