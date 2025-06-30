@@ -1,7 +1,7 @@
 # Story 0: PoC - Validate Pkl Feature Parity for Critical Recipes
 
 - **Project**: `template-engine-ts` (transitional)
-- **Status**: `todo`
+- **Status**: `verified completed`
 - **As a** Principal Engineer,
 - **I want to** migrate our two most complex recipes (Dynamic SQL Generation, Multi-Env K8s Config) to Pkl,
 - **so that** we can validate that Pkl provides equivalent or superior functionality to our legacy engine's key features (conditional delimiters, deep indirection) before committing to a full migration.
