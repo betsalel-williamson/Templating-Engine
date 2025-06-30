@@ -1,6 +1,7 @@
 # Story 13: Add Markdown Code Block Syntax Highlighting
 
 - **Project**: `template-engine-ts`
+- **Status**: `todo`
 - **As a** Developer / Technical Writer,
 - **I want to** display code examples within markdown files (like `README.md` and `docs/`) with proper syntax highlighting,
 - **so that** code is easily readable, understood, and visually distinct from surrounding text, improving documentation quality and reducing cognitive load.

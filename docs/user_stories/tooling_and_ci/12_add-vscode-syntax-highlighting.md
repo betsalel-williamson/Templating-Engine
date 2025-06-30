@@ -1,6 +1,7 @@
 # Story 12: Add VS Code Syntax Highlighting
 
 - **Project**: `template-engine-ts`
+- **Status**: `todo`
 - **As a** Developer / Template Author,
 - **I want to** have syntax highlighting for our template files in VS Code,
 - **so that** I can write, read, and debug templates more easily and efficiently, reducing errors and improving productivity.
