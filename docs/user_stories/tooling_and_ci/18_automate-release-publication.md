@@ -1,7 +1,7 @@
 # Story 18: Automate Release Binary Publication to GitHub
 
 - **Project**: `template-engine-ts`
-- **Status**: `todo`
+- **Status**: `verified completed`
 - **As a** user of the template engine CLI,
 - **I want to** download versioned, pre-compiled executables for my operating system directly from a GitHub release,
 - **so that** I can easily use the tool in my projects and CI/CD pipelines without needing to build it from source.
@@ -9,7 +9,7 @@
 ## Acceptance Criteria
 
 - A new GitHub Actions workflow must be created specifically for releases (e.g., `release.yml`).
-- The release workflow must be triggered **only** when a new tag matching the pattern `v*.*.*` (e.g., `v1.0.0`) is pushed to the repository.
+- The release workflow must be triggered **only** when a new tag matching the pattern `v*.*.*` is pushed.
 - The workflow must automatically build the standalone executables for Linux, macOS, and Windows.
 - A new GitHub Release must be automatically created, with the title and tag matching the pushed Git tag.
 - The three generated executables must be attached as downloadable assets to the GitHub Release.
@@ -18,4 +18,4 @@
 ## Metrics for Success
 
 - **Primary Metric**: "Reduce the time for a new user to download and run the CLI to under 1 minute."
-- **Secondary Metrics**: "Automate 100% of the release artifact creation process, eliminating manual builds and uploads and establishing a clear version history."
+- **Secondary Metrics**: "Automate 100% of the release artifact creation process, eliminating manual builds and uploads."
