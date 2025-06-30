@@ -1,7 +1,7 @@
 # Story 0: Implement Modern Basic Variable Replacement
 
 - **Project**: `template-engine-ts`
-- **Status**: `todo`
+- **Status**: `verified completed`
 - **As a** Developer writing a configuration file,
 - **I want to** substitute a placeholder like `{{ hostname }}` with a value from a data context,
 - **so that** I can create a single template for multiple environments (e.g., dev, prod) and just change the data, applying the DRY principle to my configuration.
@@ -16,5 +16,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Achieve >95% unit test coverage for `VariableNode` and `LiteralNode` evaluation logic for the new syntax.
-- **Secondary Metrics**: Ease of use feedback from initial adopters is positive (e.g., "easy to understand").
+- **Primary Metric**: "Achieve >95% unit test coverage for `VariableNode` and `LiteralNode` evaluation logic for the new syntax."
+- **Secondary Metrics**: "Ease of use feedback from initial adopters is positive (e.g., 'easy to understand')."
