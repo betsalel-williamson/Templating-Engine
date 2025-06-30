@@ -15,5 +15,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Rework Rate for new templates using recursive variables is 0%.
-- **Secondary Metrics**: No degradation in test coverage for the evaluator module's core resolution logic.
+- **Primary Metric**: "Rework Rate for new templates using recursive variables is 0%."
+- **Secondary Metrics**: "No degradation in test coverage for the evaluator module's core resolution logic."
