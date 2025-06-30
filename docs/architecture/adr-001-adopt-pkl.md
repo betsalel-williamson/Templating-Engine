@@ -26,11 +26,11 @@ Recently, I discovered Apple's Pkl (<https://pkl-lang.org/>), a new open-source 
 
 **Chosen option: "Adopt Pkl"**.
 
-We will halt active feature development on `template-engine-ts` and adopt Pkl as our standard for configuration and templating.
+For now, we will halt active feature development on `template-engine-ts` and adopt Pkl as our standard for configuration and templating.
 
 ## Proof-of-Concept Analysis
 
-The decision was validated by migrating our most complex recipe (`01-dynamic-sql-generation`) to Pkl and comparing the two implementations. The Pkl version proved to be superior across all key engineering metrics.
+The decision was validated by migrating all four to Pkl and comparing the two implementations. The Pkl version proved to be superior across all key engineering metrics.
 
 | Criterion | Pkl Version | mergeEngine Version | Analysis & Recommendation |
 | :--- | :--- | :--- | :--- |
