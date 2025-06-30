@@ -17,5 +17,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Rework Rate for templates using conditional logic is 0%.
-- **Secondary Metrics**: This feature unlocks the ability to replicate more complex legacy templates, accelerating the migration.
+- **Primary Metric**: "Rework Rate for templates using conditional logic is 0%."
+- **Secondary Metrics**: "This feature unlocks the ability to replicate more complex legacy templates, accelerating the migration."

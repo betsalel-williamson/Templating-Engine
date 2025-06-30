@@ -15,5 +15,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Rework Rate for this feature is 0%.
-- **Secondary Metrics**: This feature unlocks more advanced dynamic template patterns, reducing the logic required in the calling code.
+- **Primary Metric**: "Rework Rate for this feature is 0%."
+- **Secondary Metrics**: "This feature unlocks more advanced dynamic template patterns, reducing the logic required in the calling code."

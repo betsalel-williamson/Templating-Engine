@@ -16,5 +16,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Change Failure Rate for this feature is 0%.
-- **Secondary Metrics**: Decommission the need for manual array pre-slicing in services that use the template engine, reducing boilerplate code.
+- **Primary Metric**: "Change Failure Rate for this feature is 0%."
+- **Secondary Metrics**: "Decommission the need for manual array pre-slicing in services that use the template engine, reducing boilerplate code."

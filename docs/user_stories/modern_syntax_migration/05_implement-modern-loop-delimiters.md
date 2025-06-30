@@ -15,5 +15,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Reduce the number of open legacy feature parity gaps by 1 (for conditional delimiters).
-- **Secondary Metrics**: No new high-priority bugs are reported against the engine within one week of this feature's deployment.
+- **Primary Metric**: "Reduce the number of open legacy feature parity gaps by 1 (for conditional delimiters)."
+- **Secondary Metrics**: "No new high-priority bugs are reported against the engine within one week of this feature's deployment."

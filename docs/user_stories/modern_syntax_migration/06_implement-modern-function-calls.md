@@ -17,5 +17,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Achieve feature parity with the legacy engine's function call capability, unblocking migration of templates that use this feature.
-- **Secondary Metrics**: Increase test coverage of the evaluator module by at least 5% (for new syntax paths), with specific tests covering the unregistered function error case.
+- **Primary Metric**: "Achieve feature parity with the legacy engine's function call capability, unblocking migration of templates that use this feature."
+- **Secondary Metrics**: "Increase test coverage of the evaluator module by at least 5% (for new syntax paths), with specific tests covering the unregistered function error case."
