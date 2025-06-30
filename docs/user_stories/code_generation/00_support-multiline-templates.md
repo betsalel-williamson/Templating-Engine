@@ -1,7 +1,7 @@
 # Story 19: Support Multi-line Templates for Complex Code Generation
 
 - **Project**: `template-engine-ts`
-- **Status**: `todo`
+- **Status**: `verified completed`
 - **As a** Developer generating a complex SQL script,
 - **I want to** define a multi-line template that generates a list of values with correct delimiters,
 - **so that** I can generate syntactically correct, human-readable code from a single template, adhering to the DRY principle.
