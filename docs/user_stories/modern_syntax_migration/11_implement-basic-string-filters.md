@@ -9,10 +9,10 @@
 ## Acceptance Criteria
 
 - Following the new pluggable architecture:
-  - An `upper.ts` file is created in `src/filters/`. `{{ "hello" | upper }}` must produce `HELLO`.
-  - A `lower.ts` file is created in `src/filters/`. `{{ "WORLD" | lower }}` must produce `world`.
-  - A `trim.ts` file is created in `src/filters/`. `{{ "  spaced  " | trim }}` must produce `spaced`.
-- Each new filter file is correctly registered in `src/filters/index.ts`.
+- An `upper.ts` file must be created in `src/filters/`. `{{ "hello" | upper }}` must produce `HELLO`.
+- A `lower.ts` file must be created in `src/filters/`. `{{ "WORLD" | lower }}` must produce `world`.
+- A `trim.ts` file must be created in `src/filters/`. `{{ "  spaced  " | trim }}` must produce `spaced`.
+- Each new filter file must be correctly registered in `src/filters/index.ts`.
 - Each filter must have dedicated unit tests covering its functionality.
 
 ## Metrics for Success

@@ -11,14 +11,9 @@
 - The system must provide a `reduce` filter that can be applied to an array.
 - The filter must accept two arguments: an `initial_value` for the reduction and a `reducer_template` provided as a string.
 - For each item in the input array, the filter must evaluate the `reducer_template`.
-- During the evaluation of the `reducer_template`, two special variables must be available in a temporary context:
-  - `accumulator`: The value returned from the previous iteration, or the `initial_value` on the first iteration.
-  - `current`: The current item being processed from the input array.
+- During the evaluation of the `reducer_template`, two special variables must be available in a temporary context: `accumulator` and `current`.
 - The final result of the last evaluation must be the output of the filter.
-- The filter's behavior must be verifiable against the following example:
-  - **Context:** `{ items: [ { price: 10 }, { price: 20 }, { price: 5 } ] }`
-  - **Template:** `{{ items | reduce:0:'{{ accumulator | add:current.price }}' }}`
-  - **Expected Output:** `35`
+- **Example**: `{{ items | reduce:0:'{{ accumulator | add:current.price }}' }}` with `{ items: [ { price: 10 }, { price: 20 } ] }` must produce `30`.
 - The implementation must include comprehensive unit tests covering the specified example and edge cases such as empty arrays.
 
 ## Metrics for Success

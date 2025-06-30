@@ -9,10 +9,10 @@
 ## Acceptance Criteria
 
 - Following the new pluggable architecture:
-  - A `length.ts` file is created in `src/filters/`. `{{ my_array | length }}` must produce the number of items. This explicitly replaces the legacy `.length` property access.
-  - A `first.ts` file is created in `src/filters/`. `{{ my_array | first }}` must return the first element.
-  - A `last.ts` file is created in `src/filters/`. `{{ my_array | last }}` must return the last element.
-- Each new filter file is correctly registered in `src/filters/index.ts`.
+- A `length.ts` file must be created in `src/filters/`. `{{ my_array | length }}` must produce the number of items. This explicitly replaces the legacy `.length` property access.
+- A `first.ts` file must be created in `src/filters/`. `{{ my_array | first }}` must return the first element.
+- A `last.ts` file must be created in `src/filters/`. `{{ my_array | last }}` must return the last element.
+- Each new filter file must be correctly registered in `src/filters/index.ts`.
 - The filters must handle empty or non-array inputs gracefully (e.g., return 0 for length, or an empty string).
 - Each filter must have dedicated unit tests.
 
