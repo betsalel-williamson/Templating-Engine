@@ -18,5 +18,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Achieve >90% adoption rate of `{% for %}` loops in new templates created after this feature's release within one month.
-- **Secondary Metrics**: Reduce average lines of boilerplate code for list rendering by 30%.
+- **Primary Metric**: "Achieve >90% adoption rate of `{% for %}` loops in new templates created after this feature's release within one month."
+- **Secondary Metrics**: "Reduce average lines of boilerplate code for list rendering by 30%."
