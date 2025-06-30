@@ -15,5 +15,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: 0% Change Failure Rate for deployments including this feature.
-- **Secondary Metrics**: Maintain >90% overall test coverage for the new parser and evaluator.
+- **Primary Metric**: "0% Change Failure Rate for deployments including this feature."
+- **Secondary Metrics**: "Maintain >90% overall test coverage for the new parser and evaluator."
