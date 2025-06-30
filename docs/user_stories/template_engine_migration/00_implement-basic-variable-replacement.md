@@ -1,6 +1,7 @@
 # Story 0: Implement Basic Variable Replacement
 
 - **Project**: `template-engine-ts`
+- **Status**: `verified completed`
 - **As a** Developer writing a configuration file,
 - **I want to** substitute a placeholder like `<#hostname#>` with a value from a data context,
 - **so that** I can create a single template for multiple environments (e.g., dev, prod) and just change the data, applying the DRY principle to my configuration.
@@ -15,5 +16,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Achieve >90% unit test coverage for `VariableNode` and `LiteralNode` evaluation logic.
-- **Secondary Metrics**: Establish a baseline for Change Lead Time for the new `template-engine-ts` project.
+- **Primary Metric**: "Achieve >90% unit test coverage for `VariableNode` and `LiteralNode` evaluation logic."
+- **Secondary Metrics**: "Establish a baseline for Change Lead Time for the new `template-engine-ts` project."

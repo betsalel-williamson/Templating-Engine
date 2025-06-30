@@ -1,6 +1,7 @@
 # Story 2: Implement Indirect Variable Replacement
 
 - **Project**: `template-engine-ts`
+- **Status**: `verified completed`
 - **As a** Developer generating code for multiple target languages (e.g., C#, Java),
 - **I want to** use a variable's *value* as the name of the next variable to look up (e.g., `lang = "java"`, `<##<#lang#>-for-loop-template##>`),
 - **so that** I can use a high-level configuration value to select from a wide range of code-generation snippets dynamically.
@@ -16,5 +17,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: A 5% decrease in the overall Rework Rate for the project, indicating increasing maturity.
-- **Secondary Metrics**: Test coverage for indirection logic is >95%.
+- **Primary Metric**: "A 5% decrease in the overall Rework Rate for the project, indicating increasing maturity."
+- **Secondary Metrics**: "Test coverage for indirection logic is >95%."

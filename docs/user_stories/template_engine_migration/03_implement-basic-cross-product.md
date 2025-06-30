@@ -1,6 +1,7 @@
 # Story 3: Generate Repeated Content from a List
 
 - **Project**: `template-engine-ts`
+- **Status**: `verified completed`
 - **As a** Developer generating an HTML list,
 - **I want to** apply a template snippet (e.g., `<li><#item.name#></li>`) to each item in a data array,
 - **so that** I can generate repetitive structures like `<li>` tags for any number of items without duplicating template code, adhering to the DRY principle.
@@ -16,5 +17,5 @@
 
 ## Metrics for Success
 
-- **Primary Metric**: Successful implementation allows for decommissioning of the corresponding TCL iteration logic, reducing project scope.
-- **Secondary Metrics**: Change Lead Time for this feature is under the team's established baseline.
+- **Primary Metric**: "Successful implementation allows for decommissioning of the corresponding TCL iteration logic, reducing project scope."
+- **Secondary Metrics**: "Change Lead Time for this feature is under the team's established baseline."
