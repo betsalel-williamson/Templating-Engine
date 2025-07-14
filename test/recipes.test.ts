@@ -30,7 +30,7 @@ function convertObjectToDataContext(obj: any): DataContext {
 }
 
 
-const recipesDir = path.join(process.cwd(), 'docs', 'recipes');
+const recipesDir = path.join(process.cwd(), 'recipes');
 const recipeTemplates = fs.readdirSync(recipesDir).filter(file => file.endsWith('.template'));
 
 describe('Recipe Golden File Tests', () => {

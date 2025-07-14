@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+env:
+  HUSKY: 0
+
 jobs:
   build-and-test:
     name: Build & Test

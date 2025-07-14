@@ -9,15 +9,17 @@
   },
   "scripts": {
     "start": "node dist/index.js",
-    "lint": "echo 'Linting not configured yet.'",
+    "lint:md": "markdownlint-cli2",
     "test": "npm run build && vitest run",
+    "format": "prettier --write . && markdownlint-cli2 --fix",
     "build:parsers": "mkdir -p lib && peggy --format es src/grammar.peggy -o lib/parser.js && peggy --format es src/grammar_new.peggy -o lib/parser_new.js",
     "build:bundle": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.bundle.js --format=cjs",
     "build": "npm run build:parsers && npm run build:bundle",
     "sea:blob": "node --experimental-sea-config sea-config.json",
     "build:standalone:linux": "npm run build && npm run sea:blob && ./scripts/build-sea-linux.sh",
     "build:standalone:macos": "npm run build && npm run sea:blob && ./scripts/build-sea-macos.sh",
-    "build:standalone:windows": "npm run build && npm run sea:blob && ./scripts/build-sea-windows.sh"
+    "build:standalone:windows": "npm run build && npm run sea:blob && ./scripts/build-sea-windows.sh",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
@@ -25,7 +27,10 @@
     "@vitest/coverage-v8": "^3.2.4",
     "esbuild": "^0.25.5",
     "glob": "^11.0.3",
+    "husky": "^9.1.7",
+    "markdownlint-cli2": "^0.18.1",
     "peggy": "^5.0.4",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
