@@ -8,6 +8,7 @@
     "template-engine": "dist/cli.bundle.js"
   },
   "scripts": {
+    "preflight": "husky",
     "start": "node dist/index.js",
     "lint:md": "markdownlint-cli2",
     "test": "npm run build && vitest run",

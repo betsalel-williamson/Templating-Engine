@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { createTestEvaluator } from './test-helper';
-import type { DataContext, DataContextValue } from '../src/types';
+import { createTestEvaluator } from './test-helper.js';
+import type { DataContext, DataContextValue } from '../src/types.js';
 
 /**
  * Converts a plain JavaScript object (from a JSON file) into a DataContext Map,
