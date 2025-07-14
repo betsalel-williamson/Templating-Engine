@@ -123,6 +123,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
-          name: "Release ${{ steps.get_tag.outputs.TAG_NAME }}"
+          name: 'Release ${{ steps.get_tag.outputs.TAG_NAME }}'
           generate_release_notes: true
           files: dist/*/*

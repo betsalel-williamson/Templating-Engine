@@ -13,7 +13,7 @@
 - **Parity Note**: The `offset` is **1-based**, aligning with the original `mergeEngine` language. The `limit` refers to the number of elements to take.
 - The evaluator must correctly slice the target array before starting iteration.
 - If the slice range is out of bounds, the evaluator should handle it gracefully (e.g., iterate over fewer items, or none).
-- The special iteration variables (`.length`, `.index`, etc.) must reflect the properties of the *original* array, not the slice.
+- The special iteration variables (`.length`, `.index`, etc.) must reflect the properties of the _original_ array, not the slice.
 - Unit tests must validate slicing with `{limit}`, `{offset,limit}`, and out-of-bounds cases, all using **1-based offsets**.
 
 ## Metrics for Success

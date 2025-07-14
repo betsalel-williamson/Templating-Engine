@@ -6,7 +6,7 @@ You need to manage configuration files (e.g., a Kubernetes `ConfigMap`) for mult
 
 ## Key Feature: Deep Indirection (`<##...##>`)
 
-Deep indirection allows a variable's *value* to become the *name* of the next variable to look up. By setting a single `env` variable, we can make the entire template pull from a different set of configuration values.
+Deep indirection allows a variable's _value_ to become the _name_ of the next variable to look up. By setting a single `env` variable, we can make the entire template pull from a different set of configuration values.
 
 This "data as metadata" approach is a powerful differentiator, enabling highly dynamic and generic templates that adapt based on a single high-level switch.
 

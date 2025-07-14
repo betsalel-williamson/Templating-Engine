@@ -48,30 +48,30 @@ The language is defined by the following set of special character sequences that
 Variables are used to inject data values into templates.
 
 - **Simple Variable Replacement**: `<#variableName#>`
-    The engine replaces placeholders with corresponding values from the data context. If a variable is not found, its tag is left unchanged.
+  The engine replaces placeholders with corresponding values from the data context. If a variable is not found, its tag is left unchanged.
 
-    ```txt
-    Template: Hello, <#name#>.
-    Context: { name: 'World' }
-    Output:   Hello, World.
-    ```
+  ```txt
+  Template: Hello, <#name#>.
+  Context: { name: 'World' }
+  Output:   Hello, World.
+  ```
 
 - **Recursive Variable Replacement**: If a variable's value is itself a variable tag, the engine will recursively resolve it until a non-variable value is found.
 
-    ```txt
-    Context: { recursive1: '<#recursive2#>', recursive2: 'Final Value' }
-    Template: <#recursive1#>
-    Output:   Final Value
-    ```
+  ```txt
+  Context: { recursive1: '<#recursive2#>', recursive2: 'Final Value' }
+  Template: <#recursive1#>
+  Output:   Final Value
+  ```
 
 - **Indirect Variable Replacement**: `<##variableName##>`
-    This allows a variable's *value* to be used as the *name* of the next variable to look up, enabling dynamic selection of data sources. The engine will follow a chain of indirection until a non-variable value or an undefined key is reached.
+  This allows a variable's _value_ to be used as the _name_ of the next variable to look up, enabling dynamic selection of data sources. The engine will follow a chain of indirection until a non-variable value or an undefined key is reached.
 
-    ```txt
-    Context: { indirection-0: 'indirection-1', indirection-1: 'The real value' }
-    Template: See Indirection -- <##indirection-0##>
-    Output:   See Indirection -- The real value
-    ```
+  ```txt
+  Context: { indirection-0: 'indirection-1', indirection-1: 'The real value' }
+  Template: See Indirection -- <##indirection-0##>
+  Output:   See Indirection -- The real value
+  ```
 
 ### Iteration (Cross-Product)
 
@@ -79,54 +79,54 @@ The `<~...<*>...~>` syntax allows iterating over arrays of data, applying a temp
 
 - **Basic Iteration**:
 
-    ```txt
-    Context: { users: [Map([['name', 'Alice']]), Map([['name', 'Bob']])] }
-    Template: <~<`- <#name#>`><*><[users]>~>
-    Output:   - Alice- Bob
-    ```
+  ```txt
+  Context: { users: [Map([['name', 'Alice']]), Map([['name', 'Bob']])] }
+  Template: <~<`- <#name#>`><*><[users]>~>
+  Output:   - Alice- Bob
+  ```
 
 - **Iteration Variables**: Within a loop, special variables are available, prefixed with the array name (e.g., `users.`).
 
 > **Preferred (Modern):**
 
-- `<#arrayName.index#>`: The **0-based** index of the current element in the *original* array.
-- `<#arrayName.length#>`: The total number of elements in the *original* array.
+- `<#arrayName.index#>`: The **0-based** index of the current element in the _original_ array.
+- `<#arrayName.length#>`: The total number of elements in the _original_ array.
 
 > **Legacy (Deprecated but Supported):**
 
-- `<#arrayName.elementindex#>`: (1-based index) The 1-based index of the current element in the *original* array.
-- `<#arrayName.numberofelements#>`: (total count) The total number of a elements in the *original* array.
+- `<#arrayName.elementindex#>`: (1-based index) The 1-based index of the current element in the _original_ array.
+- `<#arrayName.numberofelements#>`: (total count) The total number of a elements in the _original_ array.
 
-    ```txt
-    Context: { users: [Map([['name', 'Alice']])] } (array length 1)
-    Template: <~<`<#users.elementindex#> of <#users.numberofelements#>: <#name#>;`><*><[users]>~>
-    Output:   1 of 1: Alice;
+  ```txt
+  Context: { users: [Map([['name', 'Alice']])] } (array length 1)
+  Template: <~<`<#users.elementindex#> of <#users.numberofelements#>: <#name#>;`><*><[users]>~>
+  Output:   1 of 1: Alice;
 
-    ```
+  ```
 
 - **Array Slicing**: Control which elements of an array are iterated over using `{offset,limit}` syntax (e.g., `{2}` for first 2, `{2,2}` for 2 elements starting at element 2).
 
-    ```txt
-    Context: { numbers: [Map([['value', 'one']]), Map([['value', 'two']]), Map([['value', 'three']])] }
-    Template: <~{2}<`<#value#>`><*><[numbers]>~>
-    Output:   onetwo
-    ```
+  ```txt
+  Context: { numbers: [Map([['value', 'one']]), Map([['value', 'two']]), Map([['value', 'three']])] }
+  Template: <~{2}<`<#value#>`><*><[numbers]>~>
+  Output:   onetwo
+  ```
 
 - **Templated Array Names**: The name of the array to iterate can itself be a template, allowing for dynamic selection of data sources.
 
-    ```txt
-    Context: { entity: 'users', users_list: [Map([['name', 'Alice']]), Map([['name', 'Bob']])] }
-    Template: <~<`- <#name#>`><*><[<#entity#>_list]>~>
-    Output:   - Alice- Bob
-    ```
+  ```txt
+  Context: { entity: 'users', users_list: [Map([['name', 'Alice']]), Map([['name', 'Bob']])] }
+  Template: <~<`- <#name#>`><*><[<#entity#>_list]>~>
+  Output:   - Alice- Bob
+  ```
 
-- **Conditional Delimiters**: Define a delimiter that appears *between* items, and an optional terminator *after* the last item.
+- **Conditional Delimiters**: Define a delimiter that appears _between_ items, and an optional terminator _after_ the last item.
 
-    ```txt
-    Context: { attributes: [Map([['attribute', 'attr1']]), Map([['attribute', 'attr2']])] }
-    Template: <~<`<#attribute#>`><*?,\n:\n><[attributes]>~>
-    Output:   attr1,\nattr2\n
-    ```
+  ```txt
+  Context: { attributes: [Map([['attribute', 'attr1']]), Map([['attribute', 'attr2']])] }
+  Template: <~<`<#attribute#>`><*?,\n:\n><[attributes]>~>
+  Output:   attr1,\nattr2\n
+  ```
 
 ### Conditionals
 
@@ -135,11 +135,11 @@ The ``<~<+><`true_branch`><-><`false_branch`><?condition?>~>`` syntax allows ren
 - If `condition` evaluates to anything other than `"0"` or an empty string, the `true_branch` is rendered. Otherwise, the `false_branch` is rendered.
 - Both `true_branch` (`<+...`) and `false_branch` (`<->...`) are optional.
 
-    ```txt
-    Context: { isAdmin: '1' }
-    Template: <~<+><`User is Admin`><-><`User is not Admin`><?<#isAdmin#>?>~>
-    Output:   User is Admin
-    ```
+  ```txt
+  Context: { isAdmin: '1' }
+  Template: <~<+><`User is Admin`><-><`User is not Admin`><?<#isAdmin#>?>~>
+  Output:   User is Admin
+  ```
 
 ### Function Calls
 
@@ -148,12 +148,12 @@ The `<{functionName(arg1,arg2,...)}>` syntax allows calling pre-registered JavaS
 - Functions can return dynamically generated data (e.g., current timestamp) or perform simple data transformations.
 - **Security Note**: Functions must be explicitly registered by the host application. The engine itself does not include built-in functions for file system, network, or shell interaction, maintaining a secure transformation boundary.
 
-    ```txt
-    Context: { user: 'Alice' }
-    Registered Function: toUpperCase: (str) => str.toUpperCase()
-    Template: <{toUpperCase(<#user#>)}>
-    Output:   ALICE
-    ```
+  ```txt
+  Context: { user: 'Alice' }
+  Registered Function: toUpperCase: (str) => str.toUpperCase()
+  Template: <{toUpperCase(<#user#>)}>
+  Output:   ALICE
+  ```
 
 ## Why This Templating Engine?
 
@@ -161,7 +161,7 @@ While many templating solutions exist, this engine offers a distinct set of feat
 
 Unlike more common templating libraries that focus primarily on rendering web content and sometimes limit dynamic behavior, our engine emphasizes:
 
-1. **Deep Indirection as a First-Class Feature**: The `<##variableName##>` syntax is a powerful construct that allows the *value* of one variable to dynamically determine the *name* of the next variable to resolve. This "data as metadata" approach enables highly adaptive and generic templates, where a single configuration value can switch entire content structures or code generation patterns. Most other engines require complex helper functions or multi-step logic in the host application to achieve similar effects.
+1. **Deep Indirection as a First-Class Feature**: The `<##variableName##>` syntax is a powerful construct that allows the _value_ of one variable to dynamically determine the _name_ of the next variable to resolve. This "data as metadata" approach enables highly adaptive and generic templates, where a single configuration value can switch entire content structures or code generation patterns. Most other engines require complex helper functions or multi-step logic in the host application to achieve similar effects.
 
 2. **Robust Recursive Resolution**: Variables whose values are themselves template expressions are recursively evaluated until a final literal value is found. The engine includes explicit mechanisms for detecting circular references and preventing infinite loops, ensuring stability even with complex self-referential data.
 
@@ -177,31 +177,31 @@ To get started with this templating engine:
 
 1. **Clone the repository and install dependencies:**
 
-    ```bash
-    git clone [repository-url]
-    cd Templating-Engine
-    npm install
-    ```
+   ```bash
+   git clone [repository-url]
+   cd Templating-Engine
+   npm install
+   ```
 
 2. **Build the parsers and application code:**
 
-    ```bash
-    npm run build
-    ```
+   ```bash
+   npm run build
+   ```
 
 3. **Run the demo:**
-    See `src/index.ts` for a basic usage example.
+   See `src/index.ts` for a basic usage example.
 
-    ```bash
-    npm start
-    ```
+   ```bash
+   npm start
+   ```
 
 4. **Explore tests for more examples:**
-    The `test/` directory contains comprehensive examples for all syntax features.
+   The `test/` directory contains comprehensive examples for all syntax features.
 
-    ```bash
-    npm test
-    ```
+   ```bash
+   npm test
+   ```
 
 ## Building a Standalone CLI Executable
 
@@ -210,43 +210,42 @@ For environments where Node.js is not pre-installed, you can build a single, sel
 1. **Install Dependencies**: Make sure you have run `npm install`.
 
 2. **Build for your Platform**: Run the script corresponding to your operating system.
+   - **Linux**:
 
-    - **Linux**:
+     ```bash
+     npm run build:standalone:linux
+     ```
 
-        ```bash
-        npm run build:standalone:linux
-        ```
+     The output will be at `dist/template-engine-linux`.
 
-        The output will be at `dist/template-engine-linux`.
+   - **macOS**:
 
-    - **macOS**:
+     ```bash
+     npm run build:standalone:macos
+     ```
 
-        ```bash
-        npm run build:standalone:macos
-        ```
+     The output will be at `dist/template-engine-macos`.
 
-        The output will be at `dist/template-engine-macos`.
+   - **Windows (in Git Bash or WSL)**:
 
-    - **Windows (in Git Bash or WSL)**:
+     ```bash
+     npm run build:standalone:windows
+     ```
 
-        ```bash
-        npm run build:standalone:windows
-        ```
-
-        The output will be at `dist/template-engine-win.exe`.
+     The output will be at `dist/template-engine-win.exe`.
 
 3. **Run the Executable**:
-    You can now run the generated executable directly without Node.js.
+   You can now run the generated executable directly without Node.js.
 
-    ```bash
-    # On Linux/macOS:
-    ./dist/template-engine-linux --help
+   ```bash
+   # On Linux/macOS:
+   ./dist/template-engine-linux --help
 
-    # On Windows:
-    .\\dist\\template-engine-win.exe --help
-    ```
+   # On Windows:
+   .\\dist\\template-engine-win.exe --help
+   ```
 
-    These executables are self-contained and do not require Node.js or `npm install` on the target machine.
+   These executables are self-contained and do not require Node.js or `npm install` on the target machine.
 
 ## Advanced Topics & Behavioral Notes
 
@@ -265,8 +264,8 @@ When encountering such errors, review your template and data context to break th
 
 The `template-engine` CLI can accept template input via `stdin` (e.g., `cat template.txt | template-engine --data data.json`). It's important to understand how this input is processed:
 
-- **All-at-Once Parsing**: The CLI's parser is an "all-at-once" parser. It reads the *entire* `stdin` stream until the stream closes (e.g., `Ctrl+D` on Linux/macOS, `Ctrl+Z` on Windows, or the piping process finishes). Only then is the complete received content passed to the parser.
-- **No Incremental Processing**: The CLI will **not** pause and wait for more input if it encounters an incomplete template tag (e.g., `<#variable` without a closing `#>`) while the stream is still open. If the stream *closes* with an incomplete tag, the parser will immediately report a syntax error (e.g., `Expected "#" or ">"`) and the CLI will exit with a non-zero status code.
+- **All-at-Once Parsing**: The CLI's parser is an "all-at-once" parser. It reads the _entire_ `stdin` stream until the stream closes (e.g., `Ctrl+D` on Linux/macOS, `Ctrl+Z` on Windows, or the piping process finishes). Only then is the complete received content passed to the parser.
+- **No Incremental Processing**: The CLI will **not** pause and wait for more input if it encounters an incomplete template tag (e.g., `<#variable` without a closing `#>`) while the stream is still open. If the stream _closes_ with an incomplete tag, the parser will immediately report a syntax error (e.g., `Expected "#" or ">"`) and the CLI will exit with a non-zero status code.
 - **Error Handling**: If a parsing error occurs due to incomplete or malformed input, the CLI will output the error message to `stderr` and exit with status code `1`.
 
 ### Extending Functionality with a Host Application

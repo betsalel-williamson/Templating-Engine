@@ -7,13 +7,16 @@ describe('Template Evaluator', () => {
 
   describe('Story 8: Array Slicing for Cross-Products (1-based offset)', () => {
     const numbersContext: DataContext = new Map([
-      ['numbers', [
-        new Map([['value', 'one']]),
-        new Map([['value', 'two']]),
-        new Map([['value', 'three']]),
-        new Map([['value', 'four']]),
-        new Map([['value', 'five']]),
-      ]]
+      [
+        'numbers',
+        [
+          new Map([['value', 'one']]),
+          new Map([['value', 'two']]),
+          new Map([['value', 'three']]),
+          new Map([['value', 'four']]),
+          new Map([['value', 'five']]),
+        ],
+      ],
     ]);
 
     it('should slice with {limit} from the beginning of the array', async () => {
@@ -48,7 +51,8 @@ describe('Template Evaluator', () => {
 
     it('should correctly set numberofelements to the original array length', async () => {
       // Slice {2,2} -> elements at original 1-based index 2 (two) and 3 (three)
-      const template = '<~{2,2}<`<#numbers.elementindex#> of <#numbers.numberofelements#>: <#value#>;`><*><[numbers]>~>';
+      const template =
+        '<~{2,2}<`<#numbers.elementindex#> of <#numbers.numberofelements#>: <#value#>;`><*><[numbers]>~>';
       const result = await evaluate(template, numbersContext);
       expect(result).toBe('2 of 5: two;3 of 5: three;');
     });
@@ -62,7 +66,8 @@ describe('Template Evaluator', () => {
 
     it('should correctly set elementindex and numberofelements for a single-element slice', async () => {
       // Slice {1,1} -> element at original 1-based index 1 (one)
-      const template = '<~{1,1}<`<#numbers.elementindex#> of <#numbers.numberofelements#>: <#value#>;`><*><[numbers]>~>';
+      const template =
+        '<~{1,1}<`<#numbers.elementindex#> of <#numbers.numberofelements#>: <#value#>;`><*><[numbers]>~>';
       const result = await evaluate(template, numbersContext);
       expect(result).toBe('1 of 5: one;');
     });
@@ -71,18 +76,18 @@ describe('Template Evaluator', () => {
       const template = '<~{2,2}<`<#name#>;`><*><[<#arrayVar#>]>~>';
 
       const usersContext: DataContext = new Map([
-        ['users', [
-          new Map([['name', 'Alice']]),
-          new Map([['name', 'Bob']]),
-          new Map([['name', 'Charlie']]),
-          new Map([['name', 'David']]),
-        ]]
+        [
+          'users',
+          [
+            new Map([['name', 'Alice']]),
+            new Map([['name', 'Bob']]),
+            new Map([['name', 'Charlie']]),
+            new Map([['name', 'David']]),
+          ],
+        ],
       ]);
 
-      const context: DataContext = new Map([
-        ...usersContext,
-        ['arrayVar', 'users'],
-      ]);
+      const context: DataContext = new Map([...usersContext, ['arrayVar', 'users']]);
       // users: Alice (1), Bob (2), Charlie (3), David (4)
       // slice {2,2} -> Bob, Charlie
       const result = await evaluate(template, context);

@@ -29,7 +29,6 @@ function resolveDotNotation(context: DataContext, path: string[]): DataContextVa
   return current;
 }
 
-
 export function createSecureEvaluator(config: EvaluatorConfig) {
   const privateFunctions = new Map<string, RegisteredFunction>();
 
@@ -51,12 +50,16 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
     depth: number = 0
   ): Promise<string> {
     if (depth > MAX_EVAL_DEPTH) {
-      throw new Error("Max evaluation depth exceeded, possible infinite loop in template variables.");
+      throw new Error(
+        'Max evaluation depth exceeded, possible infinite loop in template variables.'
+      );
     }
     if (!node) return '';
     switch (node.type) {
       case 'Template':
-        return (await Promise.all(node.body.map(child => evaluate(child, context, depth + 1)))).join('');
+        return (
+          await Promise.all(node.body.map((child) => evaluate(child, context, depth + 1)))
+        ).join('');
       case 'Literal':
         return node.value;
       case 'Variable': {
@@ -97,7 +100,9 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
         while (typeof resolvedValue === 'string') {
           const nextKeyCandidate = resolvedValue;
           if (visitedKeysInChain.has(nextKeyCandidate)) {
-            throw new Error(`Circular indirect reference detected: ${[...Array.from(visitedKeysInChain), nextKeyCandidate].join(' -> ')}`);
+            throw new Error(
+              `Circular indirect reference detected: ${[...Array.from(visitedKeysInChain), nextKeyCandidate].join(' -> ')}`
+            );
           }
           visitedKeysInChain.add(nextKeyCandidate);
           let tempValue = resolveDotNotation(context, nextKeyCandidate.split('.'));
@@ -119,12 +124,16 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
         const { functionName, args } = node;
         const func = privateFunctions.get(functionName);
         if (!func) throw new Error(`Attempted to call unregistered function: "${functionName}"`);
-        const resolvedArgs = await Promise.all(args.map(arg => evaluate(arg, context, depth + 1)));
+        const resolvedArgs = await Promise.all(
+          args.map((arg) => evaluate(arg, context, depth + 1))
+        );
         const result = await func(...resolvedArgs);
         return String(result);
       }
       case 'Array':
-        throw new Error(`Invalid AST: Encountered a standalone ArrayNode. Should be nested in CrossProduct.`);
+        throw new Error(
+          `Invalid AST: Encountered a standalone ArrayNode. Should be nested in CrossProduct.`
+        );
       case 'CrossProduct': {
         const arrayName: string = await evaluate(node.iterator.name, context, depth + 1);
         const rawArrayData = resolveDotNotation(context, arrayName.split('.'));
@@ -136,7 +145,7 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
 
         if (node.sliceTemplate) {
           const sliceString = await evaluate(node.sliceTemplate, context, depth + 1);
-          const parts = sliceString.split(',').map(s => s.trim());
+          const parts = sliceString.split(',').map((s) => s.trim());
 
           let offset = 1;
           let limit: number | undefined;
@@ -159,17 +168,19 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
 
         const slicedArrayData = rawArrayData.slice(startIndex, endIndex);
 
-        const iterationResults = await Promise.all(slicedArrayData.map(async (item, index) => {
-          if (!(item instanceof Map)) return '';
-          const subContext = new Map([...context, ...item]);
-          const oneBasedIndex = startIndex + index + 1;
-          const zeroBasedIndex = startIndex + index;
-          subContext.set(`${arrayName}.elementindex`, String(oneBasedIndex));
-          subContext.set(`${arrayName}.numberofelements`, String(originalArrayLength));
-          subContext.set(`${arrayName}.index`, String(zeroBasedIndex));
-          subContext.set(`${arrayName}.length`, String(originalArrayLength));
-          return await evaluate(node.template, subContext, depth + 1);
-        }));
+        const iterationResults = await Promise.all(
+          slicedArrayData.map(async (item, index) => {
+            if (!(item instanceof Map)) return '';
+            const subContext = new Map([...context, ...item]);
+            const oneBasedIndex = startIndex + index + 1;
+            const zeroBasedIndex = startIndex + index;
+            subContext.set(`${arrayName}.elementindex`, String(oneBasedIndex));
+            subContext.set(`${arrayName}.numberofelements`, String(originalArrayLength));
+            subContext.set(`${arrayName}.index`, String(zeroBasedIndex));
+            subContext.set(`${arrayName}.length`, String(originalArrayLength));
+            return await evaluate(node.template, subContext, depth + 1);
+          })
+        );
         if (node.delimiter !== null && node.delimiter !== undefined) {
           return iterationResults.join(node.delimiter) + (node.terminator || '');
         }

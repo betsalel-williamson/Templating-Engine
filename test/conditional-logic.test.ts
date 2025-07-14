@@ -68,11 +68,17 @@ describe('Comprehensive Template Tests', () => {
 
     it('should evaluate nested expressions in branches', async () => {
       const template = '<~<+><`Hello <#name#>`><-><`Bye <#name#>`><?<#showHello#>?>~>';
-      const context = new Map([['name', 'World'], ['showHello', '1']]);
+      const context = new Map([
+        ['name', 'World'],
+        ['showHello', '1'],
+      ]);
       const result = await evaluate(template, context);
       expect(result).toBe('Hello World');
 
-      const context2 = new Map([['name', 'World'], ['showHello', '0']]);
+      const context2 = new Map([
+        ['name', 'World'],
+        ['showHello', '0'],
+      ]);
       const result2 = await evaluate(template, context2);
       expect(result2).toBe('Bye World');
     });

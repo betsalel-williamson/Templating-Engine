@@ -11,7 +11,7 @@
 - A new `scripts/create-issue.sh` script must be created.
 - The script must accept a single argument: the path to an issue markdown file.
 - The script must parse the file's YAML frontmatter to extract the `title` and `labels`.
-- The script must use the content of the file *after* the frontmatter as the issue body.
+- The script must use the content of the file _after_ the frontmatter as the issue body.
 - The script must use the GitHub CLI (`gh`) to create a new issue in the project's repository.
 - The script must output the URL of the newly created issue upon success.
 - If `gh` is not installed or authenticated, the script must fail with a clear error message.

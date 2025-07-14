@@ -1,5 +1,5 @@
 ---
-title: "CI/CD: Build fails on Windows runner due to non-portable `mkdir -p` command"
+title: 'CI/CD: Build fails on Windows runner due to non-portable `mkdir -p` command'
 labels: bug, ci/cd, chore
 ---
 

@@ -14,7 +14,9 @@ The ability to call functions from a template is powerful but introduces securit
 let config = { rate: 10 };
 
 // A function that is not pure
-async function calculate(val) { return val * config.rate; }
+async function calculate(val) {
+  return val * config.rate;
+}
 
 // Register the function. The engine now has a reference to `calculate`.
 const secureEvaluate = createSecureEvaluator({ functions: new Map([['calculate', calculate]]) });
@@ -36,7 +38,7 @@ By default, `createSecureEvaluator` creates a **private copy** of the function r
 - **`new Map(registry)`**
 - This creates a new, inaccessible map instance inside a closure.
 - **It completely defeats Registry Poisoning.**
-- It does *not* protect against the Insecure Closure attack. This is our baseline, "safe by default" behavior.
+- It does _not_ protect against the Insecure Closure attack. This is our baseline, "safe by default" behavior.
 
 ### Level 2 (Optional): Deep Cloning
 

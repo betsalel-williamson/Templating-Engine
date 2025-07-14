@@ -1,16 +1,8 @@
 #!/usr/bin/env ts-node
 //
 // This script is a complete utility for validating and managing user stories.
-//
-// Features:
-// - Validates story files for correct naming and headers.
-// - Uses Git history to determine the creation date of each story for stable, chronological sorting.
-// - Assigns a canonical, sequential 'new_id' to each story based on its creation date.
-// - Cross-references stories with their corresponding tests, ensuring IDs and titles match.
-// - `--fix`: Automatically renames files, updates headers, and synchronizes test descriptions.
-// - `-n, --dry-run`: (with --fix) Shows what changes would be made without executing them.
-// - `--json`: Outputs a structured JSON report of the final, canonical state.
-//
+// It uses Git history to determine the true creation date of a story based on
+// its title, making it resilient to file renames and deletions.
 
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -43,7 +35,7 @@ interface Options {
 }
 
 interface ValidationError {
-  type: 'ID Sync' | 'Title Sync' | 'Missing Story' | 'Duplicate ID';
+  type: 'ID Sync' | 'Title Sync' | 'Missing Story' | 'Duplicate ID' | 'Duplicate Title';
   message: string;
   details: Record<string, any>;
 }
@@ -93,15 +85,19 @@ function parseArguments(argv: string[]): Options {
   };
 }
 
-
 // --- Data Gathering Functions ---
 
-function getFileCreationTimestamp(filePath: string): number {
+function getStoryCreationTimestamp(storyTitle: string): number {
   try {
-    const stdout = execSync(`git log --follow --diff-filter=A --format=%ct -- "${filePath}"`).toString().trim();
+    // Use `git log -S` (pickaxe) to find the first commit that introduced this exact title string.
+    // This is the most reliable way to find a story's "creation date", as it is resilient
+    // to file renames, copies, or deletions/recreations.
+    const command = `git log --all --format=%ct -S"${storyTitle}"`;
+    const stdout = execSync(command).toString().trim();
     const timestamps = stdout.split('\n');
     return parseInt(timestamps[timestamps.length - 1], 10) || 0;
   } catch (e) {
+    // Fallback for stories not yet committed
     return Math.floor(Date.now() / 1000);
   }
 }
@@ -119,12 +115,14 @@ async function gatherStoryData(): Promise<StoryInfo[]> {
     const headerMatch = content.match(/^# Story (\d+): (.*)/m);
     if (!headerMatch) continue;
 
+    const title = headerMatch[2].trim();
+
     stories.push({
       filePath,
-      creationTimestamp: getFileCreationTimestamp(filePath),
+      creationTimestamp: getStoryCreationTimestamp(title),
       existingFilenameId: parseInt(fileMatch[1], 10),
       existingContentId: parseInt(headerMatch[1], 10),
-      existingContentTitle: headerMatch[2].trim(),
+      existingContentTitle: title,
       newId: -1, // Placeholder
     });
   }
@@ -153,7 +151,6 @@ async function gatherTestData(): Promise<TestInfo[]> {
   return allTestInfo;
 }
 
-
 // --- Processing and Validation ---
 
 function assignNewStoryIds(stories: StoryInfo[]) {
@@ -167,7 +164,7 @@ function runValidation(stories: StoryInfo[], tests: TestInfo[]): ValidationError
   const errors: ValidationError[] = [];
 
   const storyMapByExistingId = new Map<number, StoryInfo[]>();
-  stories.forEach(story => {
+  stories.forEach((story) => {
     if (!storyMapByExistingId.has(story.existingContentId)) {
       storyMapByExistingId.set(story.existingContentId, []);
     }
@@ -179,12 +176,30 @@ function runValidation(stories: StoryInfo[], tests: TestInfo[]): ValidationError
       errors.push({
         type: 'Duplicate ID',
         message: `Existing Story ID ${id} is used in multiple files. This must be fixed.`,
-        details: { files: storyList.map(s => s.filePath) },
+        details: { files: storyList.map((s) => s.filePath) },
       });
     }
   }
 
-  stories.forEach(story => {
+  const storyMapByTitle = new Map<string, StoryInfo[]>();
+  stories.forEach((story) => {
+    if (!storyMapByTitle.has(story.existingContentTitle)) {
+      storyMapByTitle.set(story.existingContentTitle, []);
+    }
+    storyMapByTitle.get(story.existingContentTitle)!.push(story);
+  });
+
+  for (const [title, storyList] of storyMapByTitle.entries()) {
+    if (storyList.length > 1) {
+      errors.push({
+        type: 'Duplicate Title',
+        message: `Story title "${title}" is used in multiple files.`,
+        details: { files: storyList.map((s) => s.filePath) },
+      });
+    }
+  }
+
+  stories.forEach((story) => {
     if (story.existingContentId !== story.newId || story.existingFilenameId !== story.newId) {
       errors.push({
         type: 'ID Sync',
@@ -194,25 +209,25 @@ function runValidation(stories: StoryInfo[], tests: TestInfo[]): ValidationError
     }
   });
 
-  tests.forEach(test => {
-    const matchingStories = storyMapByExistingId.get(test.storyId);
-    if (!matchingStories) {
+  tests.forEach((test) => {
+    const storyWithMatchingTitle = stories.find((s) => s.existingContentTitle === test.titleOnly);
+
+    if (!storyWithMatchingTitle) {
       errors.push({
         type: 'Missing Story',
-        message: `Test references non-existent Story ID ${test.storyId}.`,
-        details: { testFile: `${test.filePath}:${test.lineNumber}` },
+        message: `Test references a story title that no longer exists.`,
+        details: { testFile: `${test.filePath}:${test.lineNumber}`, title: test.titleOnly },
       });
     } else {
-      const isAnyTitleMatch = matchingStories.some(story => story.existingContentTitle === test.titleOnly);
-
-      if (!isAnyTitleMatch) {
+      const expectedDescription = `Story ${storyWithMatchingTitle.newId}: ${storyWithMatchingTitle.existingContentTitle}`;
+      if (test.description !== expectedDescription) {
         errors.push({
           type: 'Title Sync',
-          message: `Test title for Story ID ${test.storyId} does not match any existing story with that ID.`,
+          message: `Test description is out of sync for story "${test.titleOnly}".`,
           details: {
             testFile: `${test.filePath}:${test.lineNumber}`,
-            testTitle: test.titleOnly,
-            possibleStoryTitles: matchingStories.map(s => s.existingContentTitle),
+            testDescription: test.description,
+            expectedDescription,
           },
         });
       }
@@ -221,64 +236,60 @@ function runValidation(stories: StoryInfo[], tests: TestInfo[]): ValidationError
   return errors;
 }
 
-
 // --- Output and Fixing ---
 
 async function runFixes(stories: StoryInfo[], tests: TestInfo[], options: Options) {
-  console.log(options.dryRun ? `${C_YELLOW}DRY RUN: Calculating changes...${C_RESET}` : 'Applying fixes...');
+  console.log(
+    options.dryRun ? `${C_YELLOW}DRY RUN: Calculating changes...${C_RESET}` : 'Applying fixes...'
+  );
 
-  const storyMapByExistingId = new Map<number, StoryInfo[]>();
-  stories.forEach(story => {
-    // For fixing, we only map one-to-one based on the *first* match. Duplicates are a validation error to be fixed by renumbering.
-    if (!storyMapByExistingId.has(story.existingContentId)) {
-      storyMapByExistingId.set(story.existingContentId, [story]);
-    }
-  });
-
-  // 1. Update content of all test files first
-  const fileFixMap = new Map<string, { lineNumber: number, newContent: string }[]>();
-  tests.forEach(test => {
-    const matchingStories = storyMapByExistingId.get(test.storyId);
-    if (matchingStories) {
-      // Find the story that actually matches the test's title to get the right new ID
-      const correctStory = stories.find(s => s.existingContentTitle === test.titleOnly && s.existingContentId === test.storyId);
-      if (correctStory) {
-        const newDescription = `describe('Story ${correctStory.newId}: ${correctStory.existingContentTitle}')`;
-        const oldDescribeLine = `describe('${test.description}')`;
-
-        if (newDescription !== oldDescribeLine) {
-            if (!fileFixMap.has(test.filePath)) fileFixMap.set(test.filePath, []);
-            fileFixMap.get(test.filePath)!.push({ lineNumber: test.lineNumber, newContent: `  ${newDescription}` });
-        }
+  // Pass 1: Update test files to use the new canonical IDs and titles.
+  const testFixesByFile = new Map<string, { lineNumber: number; newContent: string }[]>();
+  tests.forEach((test) => {
+    const correctStory = stories.find((s) => s.existingContentTitle === test.titleOnly);
+    if (correctStory) {
+      const newDescription = `describe('Story ${correctStory.newId}: ${correctStory.existingContentTitle}')`;
+      const currentLine = `describe('Story ${test.storyId}: ${test.titleOnly}')`;
+      if (newDescription !== currentLine) {
+        if (!testFixesByFile.has(test.filePath)) testFixesByFile.set(test.filePath, []);
+        testFixesByFile
+          .get(test.filePath)!
+          .push({ lineNumber: test.lineNumber, newContent: `  ${newDescription}` });
       }
     }
   });
 
-  for (const [filePath, fixes] of fileFixMap.entries()) {
-    console.log(`🔧 ${C_BLUE}Updating test descriptions in:${C_RESET} ${C_GREEN}${filePath}${C_RESET}`);
-    const lines = (await fs.readFile(filePath, 'utf-8')).split('\n');
-    fixes.forEach(fix => {
-      console.log(`   - ${C_YELLOW}L${fix.lineNumber}:${C_RESET} Set description to "${fix.newContent.trim()}"`);
+  for (const [filePath, fixes] of testFixesByFile.entries()) {
+    console.log(
+      `🔧 ${C_BLUE}Updating test descriptions in:${C_RESET} ${C_GREEN}${filePath}${C_RESET}`
+    );
+    const lines = options.dryRun ? [] : (await fs.readFile(filePath, 'utf-8')).split('\n');
+    fixes.forEach((fix) => {
+      console.log(
+        `   - ${C_YELLOW}L${fix.lineNumber}:${C_RESET} Set description to "${fix.newContent.trim()}"`
+      );
       if (!options.dryRun) lines[fix.lineNumber - 1] = fix.newContent;
     });
     if (!options.dryRun) await fs.writeFile(filePath, lines.join('\n'), 'utf-8');
   }
 
-  // 2. Update content of all story files
+  // Pass 2: Update story file headers with new canonical IDs.
   for (const story of stories) {
     if (story.existingContentId === story.newId) continue;
     const newHeader = `# Story ${story.newId}: ${story.existingContentTitle}`;
-    console.log(`🔧 ${C_BLUE}Updating header for Story ${story.existingContentId} -> ${story.newId}${C_RESET} in ${C_GREEN}${story.filePath}${C_RESET}`);
+    console.log(
+      `🔧 ${C_BLUE}Updating header for Story ${story.existingContentId} -> ${story.newId}${C_RESET} in ${C_GREEN}${story.filePath}${C_RESET}`
+    );
     if (!options.dryRun) {
-        const oldContent = await fs.readFile(story.filePath, 'utf-8');
-        const newContent = oldContent.replace(/^# Story \d+: .*/m, newHeader);
-        await fs.writeFile(story.filePath, newContent, 'utf-8');
+      const oldContent = await fs.readFile(story.filePath, 'utf-8');
+      const newContent = oldContent.replace(/^# Story \d+: .*/m, newHeader);
+      await fs.writeFile(story.filePath, newContent, 'utf-8');
     }
   }
 
-  // 3. Rename story files using a two-pass approach to avoid collisions.
-  const renames: { from: string, to: string, temp: string }[] = [];
-  stories.forEach(story => {
+  // Pass 3: Rename story files (two-phase).
+  const renames: { from: string; to: string; temp: string }[] = [];
+  stories.forEach((story) => {
     const newFilename = `${String(story.newId).padStart(2, '0')}_${path.basename(story.filePath).split('_').slice(1).join('_')}`;
     const newFilepath = path.join(path.dirname(story.filePath), newFilename);
     if (story.filePath !== newFilepath) {
@@ -286,51 +297,57 @@ async function runFixes(stories: StoryInfo[], tests: TestInfo[], options: Option
     }
   });
 
-  // Pass 1: Rename to temporary names
   for (const rename of renames) {
-    console.log(`🔧 ${C_BLUE}Preparing rename:${C_RESET} ${rename.from} -> ${C_GREEN}${rename.to}${C_RESET}`);
+    console.log(
+      `🔧 ${C_BLUE}Preparing rename:${C_RESET} ${rename.from} -> ${C_GREEN}${rename.to}${C_RESET}`
+    );
     if (!options.dryRun) {
       await fs.rename(rename.from, rename.temp);
     }
   }
-  // Pass 2: Rename from temporary names to final names
   for (const rename of renames) {
     if (!options.dryRun) {
       await fs.rename(rename.temp, rename.to);
     }
   }
 
-  console.log(options.dryRun ? `\n${C_YELLOW}DRY RUN complete. No files were changed.${C_RESET}` : `\n${C_GREEN}✅ All files fixed.${C_RESET}`);
-  if (runValidation(stories, tests).length > 0) {
-      console.log("Run the validation script again without --fix to verify.");
-  }
+  console.log(
+    options.dryRun
+      ? `\n${C_YELLOW}DRY RUN complete. No files were changed.${C_RESET}`
+      : `\n${C_GREEN}✅ All files fixed.${C_RESET}`
+  );
+  console.log('Run the validation script again without --fix to verify.');
 }
 
-function generateJsonReport(stories: StoryInfo[], tests: TestInfo[], errors: ValidationError[]): string {
+function generateJsonReport(
+  stories: StoryInfo[],
+  tests: TestInfo[],
+  errors: ValidationError[]
+): string {
   if (errors.length > 0 && !process.argv.includes('--fix')) {
     return JSON.stringify({ status: 'error', errors }, null, 2);
   }
 
   const report: any = {};
-  const testMap = new Map<number, TestInfo[]>();
-  tests.forEach(t => {
-      if (!testMap.has(t.storyId)) testMap.set(t.storyId, []);
-      testMap.get(t.storyId)!.push(t);
+  const testMap = new Map<string, TestInfo[]>();
+  tests.forEach((t) => {
+    if (!testMap.has(t.titleOnly)) testMap.set(t.titleOnly, []);
+    testMap.get(t.titleOnly)!.push(t);
   });
 
-  stories.forEach(story => {
-      const storyTests = (testMap.get(story.existingContentId) || []);
-      report[story.filePath] = {
-          file_path: story.filePath,
-          existing_id: story.existingContentId,
-          new_id: story.newId,
-          story_title: story.existingContentTitle,
-          matching_tests: storyTests.map(t => ({
-              file_path: t.filePath,
-              line_number: t.lineNumber,
-              description: t.description
-          }))
-      };
+  stories.forEach((story) => {
+    const storyTests = testMap.get(story.existingContentTitle) || [];
+    report[story.filePath] = {
+      file_path: story.filePath,
+      existing_id: story.existingContentId,
+      new_id: story.newId,
+      story_title: story.existingContentTitle,
+      matching_tests: storyTests.map((t) => ({
+        file_path: t.filePath,
+        line_number: t.lineNumber,
+        description: t.description,
+      })),
+    };
   });
   return JSON.stringify(report, null, 2);
 }
@@ -338,13 +355,15 @@ function generateJsonReport(stories: StoryInfo[], tests: TestInfo[], errors: Val
 function printHumanReadableReport(errors: ValidationError[]) {
   if (errors.length > 0) {
     console.error(`\n${C_RED}❌ Validation failed with ${errors.length} issues:${C_RESET}`);
-    errors.forEach(err => {
+    errors.forEach((err) => {
       console.error(`\n[${C_YELLOW}${err.type}${C_RESET}] ${err.message}`);
       for (const [key, value] of Object.entries(err.details)) {
         console.error(`  - ${key}: ${JSON.stringify(value)}`);
       }
     });
-    console.error(`\n${C_YELLOW}Run with the "--fix" flag to attempt automatic correction.${C_RESET}`);
+    console.error(
+      `\n${C_YELLOW}Run with the "--fix" flag to attempt automatic correction.${C_RESET}`
+    );
   } else {
     console.log(`${C_GREEN}✅ All user stories and test references are consistent.${C_RESET}`);
   }
@@ -352,7 +371,7 @@ function printHumanReadableReport(errors: ValidationError[]) {
 
 // --- Script Entry Point ---
 
-main().catch(err => {
+main().catch((err) => {
   console.error('An unexpected fatal error occurred:', err);
   process.exit(1);
 });

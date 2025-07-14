@@ -24,15 +24,15 @@ describe('Template Evaluator', () => {
     });
   });
 
-    describe('Variable Replacement', () => {
+  describe('Variable Replacement', () => {
     it('should replace a simple variable', async () => {
       const result = await evaluate('Hi <#var3#>', comprehensiveContext);
       expect(result).toBe('Hi there');
     });
 
     it('should leave an unknown variable tag unchanged', async () => {
-        const result = await evaluate('This is an <#unknown_var#>', comprehensiveContext);
-        expect(result).toBe('This is an <#unknown_var#>');
+      const result = await evaluate('This is an <#unknown_var#>', comprehensiveContext);
+      expect(result).toBe('This is an <#unknown_var#>');
     });
 
     it('should handle recursive variable replacement via re-evaluation', async () => {
@@ -41,14 +41,12 @@ describe('Template Evaluator', () => {
     });
 
     it('should throw an error for circular variable references', async () => {
-        const context = new Map(comprehensiveContext);
-        context.set('cycleA', '<#cycleB#>');
-        context.set('cycleB', '<#cycleA#>');
-        const template = '<#cycleA#>';
+      const context = new Map(comprehensiveContext);
+      context.set('cycleA', '<#cycleB#>');
+      context.set('cycleB', '<#cycleA#>');
+      const template = '<#cycleA#>';
 
-        await expect(evaluate(template, context)).rejects.toThrow(
-            'Max evaluation depth exceeded'
-        );
+      await expect(evaluate(template, context)).rejects.toThrow('Max evaluation depth exceeded');
     });
   });
 });

@@ -7,7 +7,8 @@ describe('Regression Test Suite (Legacy Tests)', () => {
 
   describe('Legacy README Parity Tests', () => {
     it('README line 34: simple multiplication', async () => {
-      const template = 'Hi <#var3#> <~<`<#var1#> <#values.elementindex#> of <#values.numberofelements#> `><*><[values]>~>';
+      const template =
+        'Hi <#var3#> <~<`<#var1#> <#values.elementindex#> of <#values.numberofelements#> `><*><[values]>~>';
       const result = await evaluate(template, comprehensiveContext);
       // NOTE: The legacy README's expected output had a typo, joining with spaces.
       // Our implementation joins without a separator unless one is specified.
@@ -19,9 +20,8 @@ describe('Regression Test Suite (Legacy Tests)', () => {
       // NOTE: Legacy README output shows "Hi" only once, which is correct as it's outside the loop.
       const template = 'Hi <~<`<#var3#> <#xar1#> <#xar2#>\n`><*><[morevalues]>~>';
       const result = await evaluate(template, comprehensiveContext);
-      const expected = 'Hi there xalue1A xalue2A\n'
-        + 'there xalue1B xalue2B\n'
-        + 'there xalue1C xalue2C\n';
+      const expected =
+        'Hi there xalue1A xalue2A\n' + 'there xalue1B xalue2B\n' + 'there xalue1C xalue2C\n';
       expect(result).toBe(expected);
     });
 

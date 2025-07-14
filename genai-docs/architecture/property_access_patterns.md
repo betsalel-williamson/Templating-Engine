@@ -41,8 +41,8 @@ This is a more advanced feature for creating generic, reusable templates. It is 
 - **Meaning:** "First, evaluate the expression inside the brackets (`key_variable`) to get a string. Then, use that resulting string as the key to access a property on the `user` object."
 - **When to Use:** Use this **only** when the name of the property you need to access is not known when writing the template and is instead determined by runtime data. This is ideal for meta-programming or building highly generic components.
 - **Engine Implementation:** This is a two-step process:
-    1. **Resolve Key:** The evaluator must first fully evaluate the template inside the brackets to resolve it to a string (e.g., `'name'`).
-    2. **Perform Lookup:** It then uses that resulting string to perform the lookup on the data context map (e.g., `userMap.get('name')`).
+  1. **Resolve Key:** The evaluator must first fully evaluate the template inside the brackets to resolve it to a string (e.g., `'name'`).
+  2. **Perform Lookup:** It then uses that resulting string to perform the lookup on the data context map (e.g., `userMap.get('name')`).
 
 **Example:**
 

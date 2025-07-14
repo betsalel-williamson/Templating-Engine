@@ -4,24 +4,27 @@ import { parse } from '../lib/parser.js';
 import type { DataContext, DataContextValue } from './types.js';
 
 function convertObjectToDataContext(obj: any): DataContext {
-    const context = new Map<string, DataContextValue>();
-    for (const key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            const value = obj[key];
-            if (typeof value === 'object' && value !== null) {
-                if (Array.isArray(value)) {
-                    context.set(key, value.map(item =>
-                        typeof item === 'object' && item !== null ? convertObjectToDataContext(item) : item
-                    ));
-                } else {
-                    context.set(key, convertObjectToDataContext(value));
-                }
-            } else {
-                context.set(key, value);
-            }
+  const context = new Map<string, DataContextValue>();
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const value = obj[key];
+      if (typeof value === 'object' && value !== null) {
+        if (Array.isArray(value)) {
+          context.set(
+            key,
+            value.map((item) =>
+              typeof item === 'object' && item !== null ? convertObjectToDataContext(item) : item
+            )
+          );
+        } else {
+          context.set(key, convertObjectToDataContext(value));
         }
+      } else {
+        context.set(key, value);
+      }
     }
-    return context;
+  }
+  return context;
 }
 
 const USAGE = `
@@ -33,7 +36,12 @@ Options:
   --help             Show this help message.
 `;
 
-export async function runCli(argv: string[], stdinStream: NodeJS.ReadStream, stdoutStream: NodeJS.WriteStream, stderrStream: NodeJS.WriteStream): Promise<number> {
+export async function runCli(
+  argv: string[],
+  stdinStream: NodeJS.ReadStream,
+  stdoutStream: NodeJS.WriteStream,
+  stderrStream: NodeJS.WriteStream
+): Promise<number> {
   let templateFilePath: string | undefined;
   let dataFilePath: string | undefined;
   let showHelp = false;
@@ -87,7 +95,7 @@ export async function runCli(argv: string[], stdinStream: NodeJS.ReadStream, std
         ``,
         `  ${line} | ${errorLine}`,
         `    | ${pointer}`,
-        ``
+        ``,
       ].join('\n');
       stderrStream.write(formattedMessage);
     } else {
@@ -101,16 +109,18 @@ function readStream(stream: NodeJS.ReadStream): Promise<string> {
   return new Promise((resolve, reject) => {
     let data = '';
     stream.setEncoding('utf8');
-    stream.on('data', chunk => { data += chunk; });
+    stream.on('data', (chunk) => {
+      data += chunk;
+    });
     stream.on('end', () => resolve(data));
-    stream.on('error', err => reject(err));
+    stream.on('error', (err) => reject(err));
   });
 }
 
 if (require.main === module) {
   runCli(process.argv.slice(2), process.stdin, process.stdout, process.stderr)
-    .then(exitCode => process.exit(exitCode))
-    .catch(err => {
+    .then((exitCode) => process.exit(exitCode))
+    .catch((err) => {
       console.error(`Unhandled error: ${err.message}`);
       process.exit(1);
     });

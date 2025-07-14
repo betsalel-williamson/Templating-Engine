@@ -32,6 +32,7 @@ For now, we will halt active feature development on `template-engine-ts` and ado
 
 The decision was validated by migrating all four to Pkl and comparing the two implementations. The Pkl version proved to be superior across all key engineering metrics.
 
+<!-- prettier-ignore -->
 | Criterion | Pkl Version | mergeEngine Version | Analysis & Recommendation |
 | :--- | :--- | :--- | :--- |
 | **Readability & Maintainability** | ```pkl data.columns.toList().map(...)``` | ```tcl <~...<*?, :>...~>``` | **Pkl is vastly superior.** The Pkl code uses standard, well-understood functional concepts (`toList`, `map`). A new developer can immediately grasp the intent. The `mergeEngine` version is a dense, symbol-heavy DSL that requires specialized knowledge, making maintenance difficult and error-prone. |

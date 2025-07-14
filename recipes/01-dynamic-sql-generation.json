@@ -1,24 +1,12 @@
 {
   "tableName": "users",
-  "columns": [
-    { "column": "id" },
-    { "column": "name" },
-    { "column": "email" }
-  ],
+  "columns": [{ "column": "id" }, { "column": "name" }, { "column": "email" }],
   "rows": [
     {
-      "a_row": [
-        { "value": "1" },
-        { "value": "Alice" },
-        { "value": "alice@example.com" }
-      ]
+      "a_row": [{ "value": "1" }, { "value": "Alice" }, { "value": "alice@example.com" }]
     },
     {
-      "a_row": [
-        { "value": "2" },
-        { "value": "Bob" },
-        { "value": "bob@example.com" }
-      ]
+      "a_row": [{ "value": "2" }, { "value": "Bob" }, { "value": "bob@example.com" }]
     }
   ]
 }

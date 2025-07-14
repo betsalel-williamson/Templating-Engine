@@ -11,7 +11,7 @@
 - The new grammar must support applying a `slice` filter or function to an array within the `{% for ... in ... %}` declaration.
 - The `slice` functionality must accept 0-based offset and an optional limit, consistent with modern array indexing.
 - If the slice range is out of bounds, the evaluator should handle it gracefully (e.g., iterate over fewer items, or none).
-- The `loop.index` and `loop.length` variables within the loop context must reflect the properties of the *original* array, not the sliced array, for accurate pagination display.
+- The `loop.index` and `loop.length` variables within the loop context must reflect the properties of the _original_ array, not the sliced array, for accurate pagination display.
 - Unit tests must validate slicing with various offset/limit combinations and out-of-bounds cases, all using **0-based offsets**.
 
 ## Metrics for Success

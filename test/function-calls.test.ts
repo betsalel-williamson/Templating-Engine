@@ -4,14 +4,18 @@ import { FunctionRegistry } from '../src/types.js';
 
 describe('Story 7: Function Calls and Secure Factory', () => {
   it('should call a registered function (default copy-reference mode)', async () => {
-    const functions: FunctionRegistry = new Map([['toUpperCase', async (str: string) => str.toUpperCase()]]);
+    const functions: FunctionRegistry = new Map([
+      ['toUpperCase', async (str: string) => str.toUpperCase()],
+    ]);
     const evaluate = createTestEvaluator(functions);
     const result = await evaluate('<{toUpperCase(test)}>');
     expect(result).toBe('TEST');
   });
 
   it('should be immune to registry map mutation (default copy-reference mode)', async () => {
-    const originalFunctions: FunctionRegistry = new Map([['transform', async (str: string) => `original-${str}`]]);
+    const originalFunctions: FunctionRegistry = new Map([
+      ['transform', async (str: string) => `original-${str}`],
+    ]);
     const evaluate = createTestEvaluator(originalFunctions);
     originalFunctions.set('transform', async () => `mutated`);
     const result = await evaluate('<{transform(input)}>');

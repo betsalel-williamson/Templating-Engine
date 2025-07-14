@@ -6,8 +6,7 @@ describe('Story 16: Templated Indirect Variables', () => {
   const evaluate = createTestEvaluator();
 
   it('should evaluate the K8s ConfigMap recipe correctly for "prod" env', async () => {
-    const template =
-`# Generated Kubernetes ConfigMap
+    const template = `# Generated Kubernetes ConfigMap
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -38,8 +37,7 @@ data:
       ['prod-feature-flag-x', '1'],
     ]);
 
-    const expected =
-`# Generated Kubernetes ConfigMap
+    const expected = `# Generated Kubernetes ConfigMap
 apiVersion: v1
 kind: ConfigMap
 metadata:

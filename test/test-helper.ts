@@ -24,7 +24,7 @@ export function createTestEvaluator(
 
     // The options object is now empty as tracing is removed.
     const options = {
-      enablePeggyTracing: enableTracing
+      enablePeggyTracing: enableTracing,
     };
 
     const ast = parser(template, options) as AstNode;

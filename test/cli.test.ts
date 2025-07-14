@@ -32,13 +32,13 @@ const mockStdout = new Writable({
   write(chunk, encoding, callback) {
     stdoutOutput += chunk.toString();
     callback();
-  }
+  },
 });
 const mockStderr = new Writable({
   write(chunk, encoding, callback) {
     stderrOutput += chunk.toString();
     callback();
-  }
+  },
 });
 
 let mockStdinReadable: Readable;
@@ -67,7 +67,12 @@ describe('CLI Interface (Story 12)', () => {
   });
 
   it('should return 1 if --data is missing', async () => {
-    const exitCode = await runCli(['--template', 'template.txt'], mockStdinReadable, mockStdout, mockStderr);
+    const exitCode = await runCli(
+      ['--template', 'template.txt'],
+      mockStdinReadable,
+      mockStdout,
+      mockStderr
+    );
     expect(exitCode).toBe(1);
     expect(stderrOutput).toContain('Error: --data <file> is a required argument.');
     expect(stderrOutput).toContain('Usage: template-engine');
@@ -81,7 +86,12 @@ describe('CLI Interface (Story 12)', () => {
       return '';
     });
 
-    const exitCode = await runCli(['--template', 'template.txt', '--data', 'data.json'], mockStdinReadable, mockStdout, mockStderr);
+    const exitCode = await runCli(
+      ['--template', 'template.txt', '--data', 'data.json'],
+      mockStdinReadable,
+      mockStdout,
+      mockStderr
+    );
     expect(exitCode).toBe(0);
     expect(stdoutOutput).toBe('Hello, World!');
     expect(stderrOutput).toBe('');
@@ -97,7 +107,12 @@ describe('CLI Interface (Story 12)', () => {
     mockStdinReadable.push('Hello, <#name#> from stdin!');
     mockStdinReadable.push(null); // Signal end of stream
 
-    const exitCode = await runCli(['--data', 'data.json'], mockStdinReadable, mockStdout, mockStderr);
+    const exitCode = await runCli(
+      ['--data', 'data.json'],
+      mockStdinReadable,
+      mockStdout,
+      mockStderr
+    );
     expect(exitCode).toBe(0);
     expect(stdoutOutput).toBe('Hello, StreamUser from stdin!');
     expect(stderrOutput).toBe('');
@@ -110,7 +125,12 @@ describe('CLI Interface (Story 12)', () => {
       return '';
     });
 
-    const exitCode = await runCli(['--template', 'template.txt', '--data', 'data.json'], mockStdinReadable, mockStdout, mockStderr);
+    const exitCode = await runCli(
+      ['--template', 'template.txt', '--data', 'data.json'],
+      mockStdinReadable,
+      mockStdout,
+      mockStderr
+    );
     expect(exitCode).toBe(1);
     expect(stderrOutput).toContain('Error: Expected'); // Peggy parse error
     expect(stdoutOutput).toBe('');
@@ -123,10 +143,17 @@ describe('CLI Interface (Story 12)', () => {
       return '';
     });
 
-    const exitCode = await runCli(['--template', 'template.txt', '--data', 'data.json'], mockStdinReadable, mockStdout, mockStderr);
+    const exitCode = await runCli(
+      ['--template', 'template.txt', '--data', 'data.json'],
+      mockStdinReadable,
+      mockStdout,
+      mockStderr
+    );
     expect(exitCode).toBe(1);
     // Updated assertion to match the specific error message from Node.js's JSON.parse for this input.
-    expect(stderrOutput).toContain('Error: Expected double-quoted property name in JSON at position 17');
+    expect(stderrOutput).toContain(
+      'Error: Expected double-quoted property name in JSON at position 17'
+    );
     expect(stdoutOutput).toBe('');
   });
 
@@ -137,7 +164,12 @@ describe('CLI Interface (Story 12)', () => {
       return '';
     });
 
-    const exitCode = await runCli(['--template', 'template.txt', '--data', 'data.json'], mockStdinReadable, mockStdout, mockStderr);
+    const exitCode = await runCli(
+      ['--template', 'template.txt', '--data', 'data.json'],
+      mockStdinReadable,
+      mockStdout,
+      mockStderr
+    );
     expect(exitCode).toBe(1);
     expect(stderrOutput).toContain('Error: Max evaluation depth exceeded');
     expect(stdoutOutput).toBe('');
@@ -145,19 +177,28 @@ describe('CLI Interface (Story 12)', () => {
 
   it('should handle complex nested JSON data for context', async () => {
     mockReadFileSync.mockImplementation((filePath: fs.PathOrFileDescriptor) => {
-        if (filePath === 'template.txt') return '<~<`- <#name#> from <#details.city#> residing in <#details.address.street#>`><*><[users]>~>';
-        if (filePath === 'data.json') return JSON.stringify({
-            users: [
-                { name: 'Alice', details: { city: 'NY', address: { street: 'Main St' } } },
-                { name: 'Bob', details: { city: 'LA', address: { street: 'Elm St' } } },
-            ]
+      if (filePath === 'template.txt')
+        return '<~<`- <#name#> from <#details.city#> residing in <#details.address.street#>`><*><[users]>~>';
+      if (filePath === 'data.json')
+        return JSON.stringify({
+          users: [
+            { name: 'Alice', details: { city: 'NY', address: { street: 'Main St' } } },
+            { name: 'Bob', details: { city: 'LA', address: { street: 'Elm St' } } },
+          ],
         });
-        return '';
+      return '';
     });
 
-    const exitCode = await runCli(['--template', 'template.txt', '--data', 'data.json'], mockStdinReadable, mockStdout, mockStderr);
+    const exitCode = await runCli(
+      ['--template', 'template.txt', '--data', 'data.json'],
+      mockStdinReadable,
+      mockStdout,
+      mockStderr
+    );
     expect(exitCode).toBe(0);
-    expect(stdoutOutput).toBe('- Alice from NY residing in Main St- Bob from LA residing in Elm St');
+    expect(stdoutOutput).toBe(
+      '- Alice from NY residing in Main St- Bob from LA residing in Elm St'
+    );
     expect(stderrOutput).toBe('');
   });
 
@@ -169,7 +210,12 @@ describe('CLI Interface (Story 12)', () => {
       return '';
     });
 
-    const exitCode = await runCli(['--template', 'template.txt', '--data', 'data.json'], mockStdinReadable, mockStdout, mockStderr);
+    const exitCode = await runCli(
+      ['--template', 'template.txt', '--data', 'data.json'],
+      mockStdinReadable,
+      mockStdout,
+      mockStderr
+    );
 
     expect(exitCode).toBe(1);
     expect(stdoutOutput).toBe('');

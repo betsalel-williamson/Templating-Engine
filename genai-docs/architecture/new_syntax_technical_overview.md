@@ -25,9 +25,9 @@ The modern syntax is defined by the following keywords and delimiters.
 ### 2. Variable & Expression Syntax
 
 - **Output:** All expressions that produce output are enclosed in `{{ ... }}`.
-  - *Example:* `{{ user.name }}`, `{{ "hello world" | upper }}`, `{{ 5 + 3 }}`
+  - _Example:_ `{{ user.name }}`, `{{ "hello world" | upper }}`, `{{ 5 + 3 }}`
 - **Control Flow:** All control flow statements (e.g., loops, conditionals) are enclosed in `{% ... %}`.
-  - *Example:* `{% for user in users %}`, `{% if user.isAdmin %}`
+  - _Example:_ `{% for user in users %}`, `{% if user.isAdmin %}`
 
 ### 3. Unified Property Access (`.` notation)
 

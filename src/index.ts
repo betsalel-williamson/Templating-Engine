@@ -38,25 +38,16 @@ async function main() {
   };
 
   // 5. Run examples demonstrating various features.
-  await runExample(
-    'Standard Variable Replacement',
-    'Standard expansion: <#template_var#>'
-  );
+  await runExample('Standard Variable Replacement', 'Standard expansion: <#template_var#>');
 
   await runExample(
     'Function Call with Variable',
     'Function call with variable: <{toUpperCase(<#user#>)}>'
   );
 
-  await runExample(
-    'Function Call with Mixed Arguments',
-    'Mixed arguments: <{add(<#num#>, 10)}>'
-  );
+  await runExample('Function Call with Mixed Arguments', 'Mixed arguments: <{add(<#num#>, 10)}>');
 
-  await runExample(
-    'Unregistered Function (Error Case)',
-    'This will fail: <{nonExistentFunc()}>'
-  );
+  await runExample('Unregistered Function (Error Case)', 'This will fail: <{nonExistentFunc()}>');
 }
 
 main();

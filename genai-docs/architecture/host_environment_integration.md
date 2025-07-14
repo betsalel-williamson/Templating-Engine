@@ -14,7 +14,7 @@ This decoupling is our primary strategy for ensuring long-term maintainability a
 
 ### How We **DO** Leverage JavaScript/Node.js
 
-We use Node.js features to make the *implementation* of our abstract filters simple and performant.
+We use Node.js features to make the _implementation_ of our abstract filters simple and performant.
 
 - **Array Filters (`length`, `slice`, `reduce`):** Our filter implementations use `Array.prototype.length`, `.slice()`, and `.reduce()` internally. The template author only sees `| length`, `| slice:1:5`, etc.
 - **String Filters (`upper`, `trim`):** Our filter implementations use `String.prototype.toUpperCase()`, `.trim()`, etc. The template author only sees `| upper`.

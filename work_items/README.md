@@ -27,9 +27,9 @@ Each user story markdown file must contain the following sections:
 
 ## Acceptance Criteria
 
--   The system must {do something specific and verifiable}.
--   {Another specific, verifiable outcome}.
--   ...
+- The system must {do something specific and verifiable}.
+- {Another specific, verifiable outcome}.
+- ...
 
 ## Metrics for Success
 

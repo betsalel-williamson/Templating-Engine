@@ -6,14 +6,8 @@ describe('Story 9: Support Templated Array Names in Cross-Products', () => {
   const evaluate = createTestEvaluator();
 
   const baseContext: DataContext = new Map([
-    ['users_list', [
-      new Map([['name', 'Alice']]),
-      new Map([['name', 'Bob']]),
-    ]],
-    ['products_inventory', [
-      new Map([['item', 'Laptop']]),
-      new Map([['item', 'Keyboard']]),
-    ]],
+    ['users_list', [new Map([['name', 'Alice']]), new Map([['name', 'Bob']])]],
+    ['products_inventory', [new Map([['item', 'Laptop']]), new Map([['item', 'Keyboard']])]],
     ['entity', 'users'],
     ['prefix', 'products'],
     ['suffix', 'inventory'],
@@ -42,14 +36,15 @@ describe('Story 9: Support Templated Array Names in Cross-Products', () => {
     const template = '<~<`- <#name#>`><*><[<#entity#>list]>~>'; // "entity" + "list" should resolve to "userslist" if "userslist" existed
     const context = new Map([
       ['userslist', [new Map([['name', 'Alice']]), new Map([['name', 'Bob']])]],
-      ['entity', 'users']
+      ['entity', 'users'],
     ]);
     const result = await evaluate(template, context);
     expect(result).toBe('- Alice- Bob');
   });
 
   it('should correctly set iteration variables for templated array names', async () => {
-    const template = '<~<`<#users_list.elementindex#> of <#users_list.numberofelements#>: <#name#>;`><*><[<#entity#>_list]>~>';
+    const template =
+      '<~<`<#users_list.elementindex#> of <#users_list.numberofelements#>: <#name#>;`><*><[<#entity#>_list]>~>';
     const result = await evaluate(template, baseContext);
     expect(result).toBe('1 of 2: Alice;2 of 2: Bob;');
   });

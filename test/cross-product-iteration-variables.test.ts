@@ -6,11 +6,10 @@ describe('Story 15: Modernize Iteration Variables', () => {
   const evaluate = createTestEvaluator();
 
   const usersContext: DataContext = new Map([
-    ['users', [
-      new Map([['name', 'Alice']]),
-      new Map([['name', 'Bob']]),
-      new Map([['name', 'Charlie']]),
-    ]]
+    [
+      'users',
+      [new Map([['name', 'Alice']]), new Map([['name', 'Bob']]), new Map([['name', 'Charlie']])],
+    ],
   ]);
 
   it('should support the new .index variable (0-based)', async () => {
@@ -26,12 +25,13 @@ describe('Story 15: Modernize Iteration Variables', () => {
   });
 
   it('should support both new and legacy variables simultaneously', async () => {
-    const template = '<~<`Index: <#users.index#>, ElementIndex: <#users.elementindex#>, Length: <#users.length#>, NumberOfElements: <#users.numberofelements#> | `><*><[users]>~>';
+    const template =
+      '<~<`Index: <#users.index#>, ElementIndex: <#users.elementindex#>, Length: <#users.length#>, NumberOfElements: <#users.numberofelements#> | `><*><[users]>~>';
     const result = await evaluate(template, usersContext);
     expect(result).toBe(
       'Index: 0, ElementIndex: 1, Length: 3, NumberOfElements: 3 | ' + // Index is 0-based, ElementIndex 1-based
-      'Index: 1, ElementIndex: 2, Length: 3, NumberOfElements: 3 | ' +
-      'Index: 2, ElementIndex: 3, Length: 3, NumberOfElements: 3 | '
+        'Index: 1, ElementIndex: 2, Length: 3, NumberOfElements: 3 | ' +
+        'Index: 2, ElementIndex: 3, Length: 3, NumberOfElements: 3 | '
     );
   });
 
@@ -56,7 +56,8 @@ describe('Story 15: Modernize Iteration Variables', () => {
 
   it('should correctly set new variables when slicing with offset is applied (0-based)', async () => {
     // Slicing {1,1} means 1 element starting from original index 0 (Alice)
-    const template = '<~{1,1}<`<#users.elementindex#> of <#users.length#>: <#name#>;`><*><[users]>~>';
+    const template =
+      '<~{1,1}<`<#users.elementindex#> of <#users.length#>: <#name#>;`><*><[users]>~>';
     const result = await evaluate(template, usersContext);
     expect(result).toBe('1 of 3: Alice;'); // Index is 0-based
   });

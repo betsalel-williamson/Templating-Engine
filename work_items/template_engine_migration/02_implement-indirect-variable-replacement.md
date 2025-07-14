@@ -3,7 +3,7 @@
 - **Project**: `template-engine-ts`
 - **Status**: `verified completed`
 - **As a** Developer generating code for multiple target languages (e.g., C#, Java),
-- **I want to** use a variable's *value* as the name of the next variable to look up (e.g., `lang = "java"`, `<##<#lang#>-for-loop-template##>`),
+- **I want to** use a variable's _value_ as the name of the next variable to look up (e.g., `lang = "java"`, `<##<#lang#>-for-loop-template##>`),
 - **so that** I can use a high-level configuration value to select from a wide range of code-generation snippets dynamically.
 
 ## Acceptance Criteria

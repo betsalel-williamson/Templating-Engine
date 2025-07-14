@@ -31,6 +31,7 @@ We must provide clear instructions to the user. This involves updating the `READ
 When you first run the `template-engine-macos` executable, you may see a security warning from macOS stating that the developer cannot be verified. This is expected behavior for applications that are not notarized through the Apple App Store.
 
 To run the application, you must grant it a one-time security exception:
+
 1.  Right-click (or Ctrl-click) the `template-engine-macos` file and select "Open".
 2.  You will see the same warning, but this time it will include an "Open" button. Click "Open".
 
