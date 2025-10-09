@@ -42,6 +42,7 @@
 }
 
 // Top-level entry point.
+// Note: StringLiteral is NOT at top level - quotes are literal text unless in specific contexts
 Start "Template"
   = parts:(Tag / Literal)* { log("Start", text()); return buildTemplate(parts); }
 
@@ -72,11 +73,27 @@ ArgumentList
       return [head, ...tailArgs];
     }
 
+// Parse an argument as a template (can contain string literals, variables, function calls, etc.)
 Argument "Argument"
-  = value:BalancedArgumentText { log("Argument", value); return peg$parse(value.trim(), options); }
+  = ws parts:ArgumentPart* ws {
+      log("Argument", text());
+      return buildTemplate(parts);
+    }
 
-BalancedArgumentText "Argument Text"
-  = text:$([^,)]*) { log("BalancedArgumentText", text); return text; }
+// An argument part can be: a string literal, a tag (variable/function/etc), or plain text
+ArgumentPart
+  = StringLiteral
+  / Tag
+  / ArgumentLiteral
+
+// Literal text within an argument (non-whitespace content with possible internal whitespace)
+// This ensures we don't create literal nodes that are only whitespace
+ArgumentLiteral "Argument Literal"
+  = value:$( [^,)<"< \t\n\r] [^,)<"]* ) {
+      log("ArgumentLiteral", value);
+      // Trim trailing whitespace from the literal
+      return { type: 'Literal', value: value.trimEnd() };
+    }
 
 
 // --- Expression and Sub-Template ---
@@ -143,7 +160,7 @@ Condition "Condition"
   = "<?" body:ConditionBody "?>" { log("Condition", text()); return { kind: 'Condition', template: buildTemplate(body) }; }
 ConditionBody = parts:(Tag / ConditionLiteral)* { log("ConditionBody", text()); return parts; }
 
-ConditionLiteral = value:$( ( [^<?]+ / "<" !("{" / "~" / "#" / "`") / "?" !">" )+ ) { log("ConditionLiteral", value); return { type: 'Literal', value }; }
+ConditionLiteral = value:$( ( [^<?]+  / "<" !("{" / "~" / "#" / "`") / "?" !">" )+ ) { log("ConditionLiteral", value); return { type: 'Literal', value }; }
 
 
 // --- Variable, Indirect, and Array Rules (Now Fully Recursive) ---
@@ -168,5 +185,34 @@ ArrayLiteral = value:$( ( [^<\]]+ / "<" !("{" / "~" / "#" / "`") )+ ) { log("Arr
 
 
 // --- Primitives ---
+
+// StringLiteral: A quoted string that evaluates templates inside
+StringLiteral "String Literal"
+  = '"' parts:StringContent* '"' {
+      log("StringLiteral", text());
+      return buildTemplate(parts);
+    }
+
+// Content inside a string literal: escaped chars, tags, or literal text
+StringContent
+  = EscapedChar
+  / Tag
+  / StringLiteralText
+
+// Escaped character (e.g., \< becomes <, \" becomes ", \\ becomes \)
+EscapedChar
+  = "\\" char:. {
+      log("EscapedChar", char);
+      return { type: 'Literal', value: char };
+    }
+
+// Literal text inside a string (stops at quotes, escapes, or tag markers)
+// Allows < and > unless they start a tag
+StringLiteralText
+  = value:$( ( [^"\\<]+ / "<" !("{" / "~" / "#" / "`") )+ ) {
+      log("StringLiteralText", value);
+      return { type: 'Literal', value };
+    }
+
 Ident = ident:$( [a-zA-Z] [a-zA-Z_0-9.-]* ) { log("Ident", ident); return ident; }
 ws "optional whitespace" = ws:$[ \t\n\r]* { log("Whitespace", `"${ws}"`); return ws; }
