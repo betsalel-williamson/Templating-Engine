@@ -1,5 +1,11 @@
 # @bwilliamson/template-engine-core
 
+## 0.0.4
+
+### Patch Changes
+
+- Fix CI build failure under TypeScript 6 by silencing tsup's deprecated baseUrl injection during DTS generation.
+
 ## 0.0.3
 
 ### Patch Changes
