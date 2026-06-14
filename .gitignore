@@ -13,6 +13,7 @@ lib/
 coverage/
 test-results/*
 !test-results/.gitkeep
+**/junit.xml
 *.tsbuildinfo
 
 # Local IDE / indexing
