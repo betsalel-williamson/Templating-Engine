@@ -41,7 +41,7 @@
     "build:parsers": "mkdir -p lib && peggy --format es src/grammar.peggy -o lib/parser.js && peggy --format es src/grammar_new.peggy -o lib/parser_new.js && node scripts/write-parser-dts.mjs",
     "build": "pnpm run build:parsers && tsup src/index.ts --format esm --dts --clean",
     "test": "pnpm run build:parsers && vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "pnpm run build:parsers && tsc --noEmit",
     "prepublishOnly": "pnpm run build"
   },
   "devDependencies": {
