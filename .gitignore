@@ -23,3 +23,6 @@ junit.xml
 
 # OS
 .DS_Store
+
+# Legacy shell script archive
+archive/
