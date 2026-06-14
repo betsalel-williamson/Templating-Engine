@@ -2,3 +2,7 @@ node_modules/
 dist/
 coverage/
 lib/
+
+pnpm-lock.yaml
+.specstory/
+.cursor/
