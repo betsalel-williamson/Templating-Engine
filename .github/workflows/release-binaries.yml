@@ -59,18 +59,21 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           pnpm --filter @bwilliamson/template-engine-cli run build:standalone:linux
+          mkdir -p dist
           mv packages/template-engine-cli/dist/template-engine-linux dist/template-engine-${{ steps.get_version.outputs.VERSION }}-linux
 
       - name: Prepare Binary (macOS)
         if: runner.os == 'macOS'
         run: |
           pnpm --filter @bwilliamson/template-engine-cli run build:standalone:macos
+          mkdir -p dist
           mv packages/template-engine-cli/dist/template-engine-macos dist/template-engine-${{ steps.get_version.outputs.VERSION }}-macos
 
       - name: Prepare Binary (Windows)
         if: runner.os == 'Windows'
         run: |
           pnpm --filter @bwilliamson/template-engine-cli run build:standalone:windows
+          mkdir -p dist
           mv packages/template-engine-cli/dist/template-engine-win.exe dist/template-engine-${{ steps.get_version.outputs.VERSION }}-win.exe
 
       # CORRECTED: Use three separate, conditioned steps for uploading.
