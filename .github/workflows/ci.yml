@@ -54,7 +54,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload HTML coverage report artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         id: upload_html_coverage
         with:
           name: coverage-report-html
