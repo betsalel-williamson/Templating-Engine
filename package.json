@@ -1,52 +1,64 @@
 {
-  "name": "template-engine-ts",
-  "version": "0.0.2",
-  "description": "A flexible and powerful templating engine for dynamic content generation.",
-  "main": "dist/index.js",
-  "type": "module",
-  "bin": {
-    "template-engine": "dist/cli.bundle.js"
+  "name": "template-engine-monorepo",
+  "private": true,
+  "description": "Monorepo for the secure templating engine",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/betsalel-williamson/Templating-Engine.git"
   },
+  "packageManager": "pnpm@9.15.9",
   "scripts": {
-    "preflight": "husky",
-    "start": "node dist/index.js",
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "typecheck": "pnpm -r run typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint:md": "markdownlint-cli2",
-    "test": "npm run build && vitest run",
-    "format": "prettier --write . && markdownlint-cli2 --fix",
-    "build:parsers": "mkdir -p lib && peggy --format es src/grammar.peggy -o lib/parser.js && peggy --format es src/grammar_new.peggy -o lib/parser_new.js",
-    "build:bundle": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.bundle.js --format=cjs",
-    "build": "npm run build:parsers && npm run build:bundle",
-    "sea:blob": "node --experimental-sea-config sea-config.json",
-    "build:standalone:linux": "npm run build && npm run sea:blob && ./scripts/build-sea-linux.sh",
-    "build:standalone:macos": "npm run build && npm run sea:blob && ./scripts/build-sea-macos.sh",
-    "build:standalone:windows": "npm run build && npm run sea:blob && ./scripts/build-sea-windows.sh",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run build && pnpm run test",
+    "changeset": "changeset",
+    "changeset:status": "changeset status --since=origin/main",
+    "release:tag": "node scripts/release-tag.mjs",
+    "release:tag:push": "node scripts/release-tag.mjs --push",
     "prepare": "husky"
   },
-  "devDependencies": {
-    "@types/glob": "^8.1.0",
-    "@types/node": "^24.0.3",
-    "@vitest/coverage-v8": "^3.2.4",
-    "esbuild": "^0.25.5",
-    "glob": "^11.0.3",
-    "husky": "^9.1.7",
-    "markdownlint-cli2": "^0.18.1",
-    "peggy": "^5.0.4",
-    "prettier": "^3.6.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
-    "vitest": "^3.2.4"
+  "engines": {
+    "node": ">=22.12.0"
   },
-  "files": [
-    "dist/",
-    "lib/",
-    "src/",
-    "docs/",
-    "LICENSE",
-    "README.md"
-  ],
-  "keywords": [
-    "template",
-    "engine",
-    "codegen"
-  ]
+  "pnpm": {
+    "overrides": {
+      "esbuild": ">=0.28.1"
+    }
+  },
+  "lint-staged": {
+    "packages/**/*.{ts,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "scripts/**/*.{js,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,jsonc,md,yml,yaml}": [
+      "prettier --write"
+    ],
+    "eslint.config.mjs": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.2",
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "markdownlint-cli2": "^0.18.1",
+    "prettier": "^3.6.2",
+    "typescript-eslint": "^8.28.0"
+  }
 }
