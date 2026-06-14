@@ -33,7 +33,7 @@ jobs:
           fi
 
       - name: Checkout repository at specific tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ steps.set_ref.outputs.REF }}
 
