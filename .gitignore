@@ -11,7 +11,8 @@ lib/
 
 # Test / typecheck artifacts
 coverage/
-junit.xml
+test-results/*
+!test-results/.gitkeep
 *.tsbuildinfo
 
 # Local IDE / indexing

@@ -62,12 +62,16 @@ jobs:
           name: coverage-report-html
           path: packages/template-engine-core/coverage
 
+      - name: Stage JUnit reports for test-reporter
+        if: success() || failure()
+        run: git add -f test-results/*.xml
+
       - name: Report Test Results (JUnit)
         if: success() || failure()
         uses: dorny/test-reporter@v2
         with:
           name: Template Engine Test Results
-          path: packages/template-engine-core/junit.xml
+          path: test-results/*.xml
           reporter: jest-junit
           fail-on-error: true
 
