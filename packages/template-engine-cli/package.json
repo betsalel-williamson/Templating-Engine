@@ -1,6 +1,6 @@
 {
   "name": "@bwilliamson/template-engine-cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "CLI for the secure templating engine",
   "license": "MIT",
   "type": "module",
