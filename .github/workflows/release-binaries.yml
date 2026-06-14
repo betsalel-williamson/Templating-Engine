@@ -80,21 +80,21 @@ jobs:
       # This avoids complex, error-prone expressions and is unambiguously correct.
       - name: Upload Linux Artifact
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: binary-Linux
           path: dist/template-engine-${{ steps.get_version.outputs.VERSION }}-linux
 
       - name: Upload macOS Artifact
         if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: binary-macOS
           path: dist/template-engine-${{ steps.get_version.outputs.VERSION }}-macos
 
       - name: Upload Windows Artifact
         if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: binary-Windows
           path: dist/template-engine-${{ steps.get_version.outputs.VERSION }}-win.exe
