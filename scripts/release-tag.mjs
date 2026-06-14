@@ -176,7 +176,6 @@ function writeUnifiedChangeset(bumpType, summaries) {
     '---',
     `"@bwilliamson/template-engine-core": ${bumpType}`,
     `"@bwilliamson/template-engine-cli": ${bumpType}`,
-    `"@bwilliamson/template-engine-cli": ${bumpType}`,
     '---',
     '',
     summary,
