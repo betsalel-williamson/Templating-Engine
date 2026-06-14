@@ -1,9 +1,15 @@
-import { readFileSync } from 'fs';
-import { createSecureEvaluator } from './evaluator.js';
-import { parse } from '../lib/parser.js';
-import type { DataContext, DataContextValue } from './types.js';
+#!/usr/bin/env node
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
+import {
+  createSecureEvaluator,
+  parseLegacy as parse,
+  type DataContext,
+  type DataContextValue,
+} from '@bwilliamson/template-engine-core';
 
-function convertObjectToDataContext(obj: any): DataContext {
+function convertObjectToDataContext(obj: Record<string, unknown>): DataContext {
   const context = new Map<string, DataContextValue>();
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -13,14 +19,16 @@ function convertObjectToDataContext(obj: any): DataContext {
           context.set(
             key,
             value.map((item) =>
-              typeof item === 'object' && item !== null ? convertObjectToDataContext(item) : item
+              typeof item === 'object' && item !== null
+                ? convertObjectToDataContext(item as Record<string, unknown>)
+                : (item as DataContextValue)
             )
           );
         } else {
-          context.set(key, convertObjectToDataContext(value));
+          context.set(key, convertObjectToDataContext(value as Record<string, unknown>));
         }
       } else {
-        context.set(key, value);
+        context.set(key, value as DataContextValue);
       }
     }
   }
@@ -63,7 +71,7 @@ export async function runCli(
     return 1;
   }
 
-  let templateContent: string = '';
+  let templateContent = '';
 
   try {
     if (templateFilePath) {
@@ -73,7 +81,7 @@ export async function runCli(
     }
 
     const dataContent = readFileSync(dataFilePath, 'utf8');
-    const parsedJson = JSON.parse(dataContent);
+    const parsedJson = JSON.parse(dataContent) as Record<string, unknown>;
     const dataContext = convertObjectToDataContext(parsedJson);
 
     const secureEvaluate = createSecureEvaluator({ functions: new Map() });
@@ -81,16 +89,19 @@ export async function runCli(
     const output = await secureEvaluate(ast, dataContext);
     stdoutStream.write(output);
     return 0;
-  } catch (error: any) {
-    // This is where the new, robust error handling lives.
-    if (error.location && error.location.start && templateContent) {
-      const { line, column } = error.location.start;
+  } catch (error: unknown) {
+    const err = error as {
+      message?: string;
+      location?: { start: { line: number; column: number } };
+    };
+    if (err.location?.start && templateContent) {
+      const { line, column } = err.location.start;
       const sourcePath = templateFilePath || '<stdin>';
       const lines = templateContent.split('\n');
       const errorLine = lines[line - 1] || '';
       const pointer = ' '.repeat(column - 1) + '^';
       const formattedMessage = [
-        `\nSyntax Error: ${error.message}`,
+        `\nSyntax Error: ${err.message}`,
         ` at ${sourcePath}:${line}:${column}`,
         ``,
         `  ${line} | ${errorLine}`,
@@ -99,7 +110,7 @@ export async function runCli(
       ].join('\n');
       stderrStream.write(formattedMessage);
     } else {
-      stderrStream.write(`Error: ${error.message}\n`);
+      stderrStream.write(`Error: ${err.message ?? String(error)}\n`);
     }
     return 1;
   }
@@ -117,10 +128,14 @@ function readStream(stream: NodeJS.ReadStream): Promise<string> {
   });
 }
 
-if (require.main === module) {
+const isMainModule =
+  process.argv[1] !== undefined &&
+  resolve(fileURLToPath(import.meta.url)) === resolve(process.argv[1]);
+
+if (isMainModule) {
   runCli(process.argv.slice(2), process.stdin, process.stdout, process.stderr)
     .then((exitCode) => process.exit(exitCode))
-    .catch((err) => {
+    .catch((err: Error) => {
       console.error(`Unhandled error: ${err.message}`);
       process.exit(1);
     });
