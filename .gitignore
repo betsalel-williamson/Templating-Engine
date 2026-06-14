@@ -1,8 +1,30 @@
-node_modules
-dist
-lib
-*.log
-u*.sh
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+lib/
+
+# Tooling auto-save / local state
+.specstory/
+
+# Test / typecheck artifacts
 coverage/
-junit.xml
+test-results/*
+!test-results/.gitkeep
+**/junit.xml
+*.tsbuildinfo
+
+# Local IDE / indexing
+.cursorindexingignore
+
+# Logs / env
+*.log
 *.env
+
+# OS
+.DS_Store
+
+# Legacy shell script archive
+archive/

@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@bwilliamson/template-engine-core": ["../template-engine-core/src/index.ts"],
+      "@bwilliamson/template-engine-core/*": ["../template-engine-core/src/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}

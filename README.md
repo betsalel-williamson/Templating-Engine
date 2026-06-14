@@ -171,78 +171,101 @@ Unlike more common templating libraries that focus primarily on rendering web co
 
 This engine is built for scenarios where deep data-driven dynamism, fine-grained control over output, and a robust, secure execution environment are paramount. We are currently migrating its powerful features to a modern, more accessible syntax (like `{{ ... }}` and `{% ... %}`) to blend its unique capabilities with a developer-friendly experience.
 
-## Getting Started
+## Packages
 
-To get started with this templating engine:
+This repository is a pnpm monorepo with two publishable npm packages:
+
+| Package                             | Description                       |
+| ----------------------------------- | --------------------------------- |
+| `@bwilliamson/template-engine-core` | Library: parser, evaluator, types |
+| `@bwilliamson/template-engine-cli`  | CLI binary: `template-engine`     |
+
+### Install from npm
+
+```bash
+npm install @bwilliamson/template-engine-core
+npm install -g @bwilliamson/template-engine-cli
+```
+
+### Programmatic usage
+
+```typescript
+import { createSecureEvaluator, parseLegacy } from '@bwilliamson/template-engine-core';
+
+const evaluate = createSecureEvaluator({ functions: new Map() });
+const output = await evaluate(parseLegacy('Hello, <#name#>!'), new Map([['name', 'World']]));
+```
+
+## Getting Started (development)
 
 1. **Clone the repository and install dependencies:**
 
    ```bash
-   git clone [repository-url]
+   git clone https://github.com/betsalel-williamson/Templating-Engine.git
    cd Templating-Engine
-   npm install
+   pnpm install
    ```
 
-2. **Build the parsers and application code:**
+2. **Build all packages:**
 
    ```bash
-   npm run build
+   pnpm run build
    ```
 
-3. **Run the demo:**
-   See `src/index.ts` for a basic usage example.
+3. **Run tests:**
 
    ```bash
-   npm start
+   pnpm run test
    ```
 
-4. **Explore tests for more examples:**
-   The `test/` directory contains comprehensive examples for all syntax features.
+4. **Run the CLI locally:**
 
    ```bash
-   npm test
+   node packages/template-engine-cli/dist/cli.js --help
    ```
+
+See [DEVELOPERS.md](DEVELOPERS.md) for changesets, release flow, and pre-commit hooks.
 
 ## Building a Standalone CLI Executable
 
 For environments where Node.js is not pre-installed, you can build a single, self-contained executable using Node.js's native Single Executable Application (SEA) feature.
 
-1. **Install Dependencies**: Make sure you have run `npm install`.
+1. **Install Dependencies**: Make sure you have run `pnpm install`.
 
 2. **Build for your Platform**: Run the script corresponding to your operating system.
    - **Linux**:
 
      ```bash
-     npm run build:standalone:linux
+     pnpm --filter @bwilliamson/template-engine-cli run build:standalone:linux
      ```
 
-     The output will be at `dist/template-engine-linux`.
+     The output will be at `packages/template-engine-cli/dist/template-engine-linux`.
 
    - **macOS**:
 
      ```bash
-     npm run build:standalone:macos
+     pnpm --filter @bwilliamson/template-engine-cli run build:standalone:macos
      ```
 
-     The output will be at `dist/template-engine-macos`.
+     The output will be at `packages/template-engine-cli/dist/template-engine-macos`.
 
    - **Windows (in Git Bash or WSL)**:
 
      ```bash
-     npm run build:standalone:windows
+     pnpm --filter @bwilliamson/template-engine-cli run build:standalone:windows
      ```
 
-     The output will be at `dist/template-engine-win.exe`.
+     The output will be at `packages/template-engine-cli/dist/template-engine-win.exe`.
 
 3. **Run the Executable**:
    You can now run the generated executable directly without Node.js.
 
    ```bash
    # On Linux/macOS:
-   ./dist/template-engine-linux --help
+   ./packages/template-engine-cli/dist/template-engine-linux --help
 
    # On Windows:
-   .\\dist\\template-engine-win.exe --help
+   .\packages\template-engine-cli\dist\template-engine-win.exe --help
    ```
 
    These executables are self-contained and do not require Node.js or `npm install` on the target machine.

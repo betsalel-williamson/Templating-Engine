@@ -1,4 +1,2 @@
-npm run format
-npm run build
-npm test
-git update-index --again
+pnpm exec lint-staged
+node scripts/pre-commit-affected.mjs
