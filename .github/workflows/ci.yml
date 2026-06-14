@@ -66,7 +66,7 @@ jobs:
 
       - name: Report Test Results (JUnit)
         if: success() || failure()
-        uses: dorny/test-reporter@v2
+        uses: dorny/test-reporter@v3
         with:
           name: Template Engine Test Results
           path: test-results/*.xml
