@@ -47,11 +47,11 @@
     "@bwilliamson/template-engine-core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.0.0",
     "esbuild": "^0.25.5",
     "postject": "^1.0.0-alpha.6",
     "tsup": "^8.4.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.9"
   }
 }
