@@ -125,7 +125,7 @@ jobs:
         run: ls -R dist
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
           name: 'Release ${{ steps.get_tag.outputs.TAG_NAME }}'
