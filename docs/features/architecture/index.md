@@ -8,3 +8,4 @@ Design notes and ADRs for the templating engine.
 - [Modern syntax technical overview](./new_syntax_technical_overview.md)
 - [Property access patterns](./property_access_patterns.md)
 - [Secure templating guide](./secure_templating_guide.md)
+- [V2 mathematical design](./v2_mathematical_design.md)
