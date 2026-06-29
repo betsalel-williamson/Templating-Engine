@@ -42,6 +42,7 @@ By extending the mathematical metaphor, we can introduce advanced data transform
 - **Concept:** Multiplying two parallel vectors.
 - **V2 Design:** A `zip` filter that combines multiple arrays into an array of tuples, allowing simultaneous iteration without manual index lookups (`array[loop.index0]`).
 - **Modern Syntax:**
+
   ```liquid
   {% for col, val in columns | zip(values) %}
     {{ col }}: {{ val }}
