@@ -32,7 +32,7 @@ Context:  { "name": "World" }
 Output:   Hello, World!
 ```
 
-See **[Template Language Reference](docs/template-language.md)** for the full syntax guide, examples, and behavioral notes.
+See **[Template Language Reference](docs/client/template-language.md)** for the full syntax guide, examples, and behavioral notes.
 
 ## Quick start
 
@@ -66,8 +66,8 @@ pnpm run build
 pnpm run test
 ```
 
-See [DEVELOPERS.md](DEVELOPERS.md) for changesets, releases, and contributor workflow.
+See [DEVELOPERS.md](DEVELOPERS.md) for changesets, releases, contributor workflow, and the [mdcp](docs/mdcp.v0.4.llms.txt) documentation pipeline (`pnpm docs:compile`, `pnpm docs:check` — requires Node.js >= 24).
 
 ## Background
 
-This project started as a learning exercise porting `mergeEngine` to TypeScript with a Peggy parser. See [ADR-001](docs/architecture/adr-001-adopt-pkl.md) for notes on how it relates to [Pkl](https://pkl-lang.org/) and future direction.
+This project started as a learning exercise porting `mergeEngine` to TypeScript with a Peggy parser. See [ADR-001](docs/features/architecture/adr-001-adopt-pkl.md) for notes on how it relates to [Pkl](https://pkl-lang.org/) and future direction.

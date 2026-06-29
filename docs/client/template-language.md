@@ -1,8 +1,8 @@
-# Template Language Reference
+# Template language
 
-The templating engine uses a syntax derived from the original [`mergeEngine`](https://jordanhenderson.com/). Templates combine literal text with tags that read data, iterate, branch, and call registered functions.
+The templating engine uses [legacy syntax](../glossary/legacy-syntax.md) derived from the original [`mergeEngine`](https://jordanhenderson.com/). Templates combine literal text with tags that read [data context](../glossary/data-context.md), iterate, branch, and call registered functions.
 
-> **Indexing:** Array slicing uses **1-based** `{offset,limit}` notation, matching the original `mergeEngine`.
+> **Indexing:** Array slicing uses **1-based** `{offset,limit}` notation, matching the original mergeEngine.
 
 ## Delimiters
 
@@ -17,7 +17,7 @@ The templating engine uses a syntax derived from the original [`mergeEngine`](ht
 | Iteration              | `<*>`, `<[array]>`       | Loop over an array                         |
 | Array slice            | `{offset,limit}`         | Limit which elements are iterated          |
 
-Modern syntax (`{{ ... }}`, `{% ... %}`) is in development. The CLI and stable API currently use **legacy syntax** via `parseLegacy`.
+[Modern syntax](../glossary/modern-syntax.md) (`{{ ... }}`, `{% ... %}`) is in development. The CLI and stable API currently use legacy syntax via `parseLegacy`.
 
 ## Variables
 
@@ -88,11 +88,11 @@ If `condition` is anything other than `"0"` or an empty string, the true branch 
 Template: <{toUpperCase(<#user#>)}>
 ```
 
-Functions must be registered by the host application. The CLI ships with an empty registry for security. See [secure templating guide](architecture/secure_templating_guide.md) before registering functions that touch I/O or external state.
+Functions must be registered by the host application. The CLI ships with an empty registry for security. See [secure templating guide](../features/architecture/secure_templating_guide.md) before registering functions that touch I/O or external state.
 
 ## Orthogonality
 
-Any construct that expects a value can accept a template that resolves to that value — array names, slice bounds, property keys, function arguments, and conditions can all be dynamic. See [language orthogonality](architecture/language_orthogonality.md).
+Any construct that expects a value can accept a template that resolves to that value — array names, slice bounds, property keys, function arguments, and conditions can all be dynamic. See [language orthogonality](../features/architecture/language_orthogonality.md).
 
 ## Safety limits
 
@@ -101,6 +101,6 @@ Any construct that expects a value can accept a template that resolves to that v
 
 ## Further reading
 
-- [Modern syntax overview](architecture/new_syntax_technical_overview.md) (in progress)
-- [Property access patterns](architecture/property_access_patterns.md)
-- [Host environment integration](architecture/host_environment_integration.md)
+- [Modern syntax overview](../features/architecture/new_syntax_technical_overview.md) (in progress)
+- [Property access patterns](../features/architecture/property_access_patterns.md)
+- [Host environment integration](../features/architecture/host_environment_integration.md)

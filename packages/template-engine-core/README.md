@@ -60,13 +60,13 @@ Template: <~<`- <#name#>`><*><[users]>~>
 Output:   - Alice- Bob
 ```
 
-Full syntax, slicing rules, safety limits, and advanced patterns: **[Template Language Reference](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/template-language.md)**.
+Full syntax, slicing rules, safety limits, and advanced patterns: **[Template Language Reference](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/client/template-language.md)**.
 
 Modern `{{ ... }}` / `{% ... %}` syntax is available via `parseModern` but is not yet feature-complete.
 
 ## Security
 
-`createSecureEvaluator` uses a trusted-kernel pattern: the function registry is frozen at creation time. The library does not ship built-in functions for file, network, or shell access. See [secure templating guide](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/architecture/secure_templating_guide.md) before registering host functions.
+`createSecureEvaluator` uses a trusted-kernel pattern: the function registry is frozen at creation time. The library does not ship built-in functions for file, network, or shell access. See [secure templating guide](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/features/architecture/secure_templating_guide.md) before registering host functions.
 
 ## Links
 

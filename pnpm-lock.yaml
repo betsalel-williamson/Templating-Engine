@@ -11,6 +11,12 @@ importers:
 
   .:
     devDependencies:
+      '@bwilliamson/mdcp-cli':
+        specifier: 0.4.1
+        version: 0.4.1
+      '@bwilliamson/mdcp-presets':
+        specifier: 0.4.1
+        version: 0.4.1
       '@changesets/cli':
         specifier: ^2.29.2
         version: 2.31.0(@types/node@25.9.3)
@@ -118,6 +124,19 @@ packages:
   '@bcoe/v8-coverage@1.0.2':
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
+
+  '@bwilliamson/mdcp-cli@0.4.1':
+    resolution: {integrity: sha512-P49/p+u6QIrLIqz6rH5lKqu7kZ4F3vyuF0DjW/9aMsOqwHmdU8EZsTprv24MJQCjWCywTC4vhOJxfMYH/XtyoQ==}
+    engines: {node: '>=24.0.0'}
+    hasBin: true
+
+  '@bwilliamson/mdcp-core@0.4.1':
+    resolution: {integrity: sha512-Ji66aWUyQOJ3WNIcRZNa/xmZSsiT4qGjaf+sJeBGznPiqSIejgENkF2YlQReZLWO3mWFiQ5CL1xbelcODdZMhg==}
+    engines: {node: '>=24.0.0'}
+
+  '@bwilliamson/mdcp-presets@0.4.1':
+    resolution: {integrity: sha512-wK7lMC0aUR89zqLMx0Kjw1bossPURmvuz2Nfsdg2Ox0ap69ZT1yuWLw/DRtPinysFViCHecgSEse3jHFs9b4ZQ==}
+    engines: {node: '>=24.0.0'}
 
   '@changesets/apply-release-plan@7.1.1':
     resolution: {integrity: sha512-9qPCm/rLx/xoOFXIHGB229+4GOL76S4MC+7tyOuTsR6+1jYlfFDQORdvwR5hDA6y4FL2BPt3qpbcQIS+dW85LA==}
@@ -909,6 +928,10 @@ packages:
     resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
     engines: {node: '>=20'}
 
+  commander@15.0.0:
+    resolution: {integrity: sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg==}
+    engines: {node: '>=22.12.0'}
+
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
@@ -1182,6 +1205,9 @@ packages:
     resolution: {integrity: sha512-Y+csSm2GD/PCSh6Isd/WiMjNAydu0VBiG9J7EdQsNA5P9uXvLayqjmTsNlK5Gs9IhblFZqOU0yid5Il5JPoLiQ==}
     engines: {node: '>=18'}
     hasBin: true
+
+  github-slugger@2.0.0:
+    resolution: {integrity: sha512-IaOQ9puYtjrkq7Y0Ygl9KDZnrf/aiUJYUpVf89y8kyaxbRG7Y1SrX/jaumrv81vc61+kiMempujsM3Yw7w5qcw==}
 
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
@@ -2090,6 +2116,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+
 snapshots:
 
   '@babel/code-frame@7.29.7':
@@ -2114,6 +2143,19 @@ snapshots:
       '@babel/helper-validator-identifier': 7.29.7
 
   '@bcoe/v8-coverage@1.0.2': {}
+
+  '@bwilliamson/mdcp-cli@0.4.1':
+    dependencies:
+      '@bwilliamson/mdcp-core': 0.4.1
+      commander: 15.0.0
+
+  '@bwilliamson/mdcp-core@0.4.1':
+    dependencies:
+      github-slugger: 2.0.0
+      semver: 7.8.4
+      zod: 4.4.3
+
+  '@bwilliamson/mdcp-presets@0.4.1': {}
 
   '@changesets/apply-release-plan@7.1.1':
     dependencies:
@@ -2921,6 +2963,8 @@ snapshots:
 
   commander@14.0.3: {}
 
+  commander@15.0.0: {}
+
   commander@4.1.1: {}
 
   commander@8.3.0: {}
@@ -3212,6 +3256,8 @@ snapshots:
     transitivePeerDependencies:
       - conventional-commits-filter
       - conventional-commits-parser
+
+  github-slugger@2.0.0: {}
 
   glob-parent@5.1.2:
     dependencies:
@@ -4140,3 +4186,5 @@ snapshots:
       yargs-parser: 22.0.0
 
   yocto-queue@0.1.0: {}
+
+  zod@4.4.3: {}

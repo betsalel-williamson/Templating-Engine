@@ -1,0 +1,127 @@
+mdcp-llms-index: 0.4.0.0
+
+# Sharded docs agent index (v0.4)
+
+## This repository
+
+- **Index version:** 0.4.0.0
+- **Config:** `docs/mdcp.config.json`
+- **Docs root guides (`compileOrder`):** `features`, `developer`, `client`
+- **Glossary:** add `glossary/` to `compileOrder` when domain terms exist
+
+### npm scripts
+
+- `docs:context` — `mdcp export --llm --stdout --config docs/mdcp.config.json --docs-root docs`
+- `docs:check` — `mdcp check --config docs/mdcp.config.json --docs-root docs --require-lint --skip-vale`
+- `docs:compile` — `mdcp compile --config docs/mdcp.config.json --docs-root docs --warn-broken-links && mdcp export --llms-index --config docs/mdcp.config.json --docs-root docs`
+- `docs:refs` — `mdcp refs lookup --config docs/mdcp.config.json --docs-root docs`
+
+## Sharded documentation
+
+**MarkDown Context Protocol (MDCP)** keeps documentation in small **shard** files — one topic per `.md`. Guide manifests (`index.md` or `shards.md`) define compile order. Monoliths and publish outputs are **generated**; shards are the source of truth. Documentation holds context and plan; code holds implementation.
+
+## Getting started
+
+**Bootstrap (two phases until config exists):**
+
+1. **Day zero** — fetch agent index + default extension caches (no config yet):
+   ```bash
+   npx @bwilliamson/mdcp-cli export --llms-index --fetch --fetch-profile dev --docs-root <docs-root>
+   ```
+2. **Pin fetch** — add `mdcp.config.json` with the protocol profile and optional branch override:
+   ```json
+   {
+     "protocol": {
+       "profile": "alpha",
+       "ref": "feature/my-branch"
+     }
+   }
+   ```
+   `profile` selects `valpha` (`alpha`) or `vdev` (`dev`). Omit `ref` for `main` or a release tag (`v0.4.0`). Set `ref` only when the symlink is not on `main` yet (dogfood / pre-release). Protocol version is read from the fetched `mdcp-llms-index:` header — no separate pin needed.
+   ```bash
+   npx @bwilliamson/mdcp-cli export --llms-index --fetch --config docs/mdcp.config.json --docs-root docs
+   ```
+   Default repo is `betsalel-williamson/mdcp` — override only with care ([SECURITY.md](../../../spec/extensions/SECURITY.md)).
+
+Then:
+
+1. Keep this file in your docs root as the agent entrypoint.
+2. **Glossary first** — `docs/glossary/`, one term per shard; disambiguate legacy names before feature shards.
+3. **Shard your docs** — split monoliths into topic files; list them in each guide manifest.
+4. **Wire `mdcp.config.json`** — `compileOrder`, `extensions` packs, optional per-guide `compile.outputFile`.
+5. **Compile and validate** — `mdcp compile` then `mdcp check`.
+6. **Query on demand** — use the commands below; load one shard at a time, not entire guides.
+
+No tooling yet? Split manually or run `npx @bwilliamson/mdcp-cli shard` when a `source` monolith is configured.
+
+## Repo layout (template)
+
+```text
+docs/
+  mdcp.v0.4.llms.txt       # this file — agent entrypoint
+  mdcp.config.json         # compile wiring
+  glossary/
+    index.md               # term manifest
+    *.md                   # one term per shard
+  features/
+    index.md               # guide manifest
+    *.md                   # topic shards
+  client/                  # optional — end-user docs
+  developer/               # optional — repo workflow
+  extensions/              # optional — repo-specific agent rules
+```
+
+## Query context (prefer smallest unit)
+
+When `mdcp` is installed and configured:
+
+1. **Section lookup** — smallest useful hit:
+   ```bash
+   mdcp refs lookup "<topic>" --format json --config <config> --docs-root <docs-root>
+   ```
+2. **Read one shard** — open the `.md` path from lookup or the guide manifest; never read whole monoliths into context.
+3. **Broader export** (last resort):
+   ```bash
+   mdcp export --llm --stdout --config <config> --docs-root <docs-root>
+   ```
+4. **Refresh this index** after `compileOrder` or script changes:
+   ```bash
+   mdcp export --llms-index --config <config> --docs-root <docs-root>
+   ```
+
+Day zero (no local config): `npx @bwilliamson/mdcp-cli export --llms-index --fetch --fetch-profile dev --docs-root <docs-root>` — caches default extension packs. After `mdcp.config.json` exists, set `protocol.profile` (and `protocol.ref` when not on `main`), then re-fetch (see **Bootstrap** above).
+
+## Glossary
+
+Maintain `docs/glossary/` for shared vocabulary — one term per shard, grouped by `index.md`. Link `../glossary/index.md` from guide manifests so terms compile into the guides that need them. When a term meant different things in legacy systems, add a disambiguation shard and link it on first use in feature docs.
+
+## Validation
+
+Run `mdcp check` before trusting compiled output. Do not hand-edit generated compile output — fix shards and recompile.
+
+## Task prompts
+
+Versioned **meta-level** authoring instructions (feature, doc-only, design, UX, review, bootstrap). Host agent systems **MAY** replace them with local prompts; written shards **SHOULD** still follow the layout and validation in this index.
+
+After fetch, enabled extension packs from `mdcp.config.json` are cached under each pack's `cacheDir` (default `prompts-mdcp-defaults` → `.caches/mdcp/prompts/`). Default fetch follows `protocol.profile` + optional `protocol.ref`; individual packs **MAY** override `source` — treat third-party repos as untrusted ([SECURITY.md](../../../spec/extensions/SECURITY.md)).
+
+Set `WORK_ITEM` and `WORK_ITEM_LOOKUP` in each prompt header before sending.
+
+| Task | Cached path |
+| ---- | ----------- |
+| Bootstrap sharded docs | `.caches/mdcp/prompts/getting-started-with-mdcp.prompt.md` |
+| Feature (docs + code) | `.caches/mdcp/prompts/feature-level-task.prompt.md` |
+| Documentation only | `.caches/mdcp/prompts/doc-only-task.prompt.md` |
+| Architecture / ADR | `.caches/mdcp/prompts/design-architecture-task.prompt.md` |
+| End-user UX | `.caches/mdcp/prompts/ux-task.prompt.md` |
+| Review | `.caches/mdcp/prompts/review-task.prompt.md` |
+
+Typical flow: read this index → load cached prompt → `refs lookup` for `WORK_ITEM` scope → edit shards under `features/`, `client/`, `developer/`, or `review/` → `mdcp check`.
+
+## Repo-specific guidance
+
+Rules that apply only to your project (formatting quirks, review gates, pointer-shard conventions) belong in `docs/extensions/` shards — not in this bootstrap file.
+
+## Downstream publish
+
+Shards are **GFM**. Compiled output can feed MkDocs, Docusaurus, Pandoc, or other site generators. Keep separate guides when agent-only context and public-site content differ in scope.

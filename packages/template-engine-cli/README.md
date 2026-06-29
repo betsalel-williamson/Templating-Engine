@@ -60,7 +60,7 @@ The CLI uses **legacy syntax** — the same language parsed by `parseLegacy` in 
 | Conditional   | `<~<+> ... <?cond?> ~>`   | Render one branch                         |
 | Function call | `<{fn(...)}>`             | Not available in the CLI (empty registry) |
 
-See the **[Template Language Reference](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/template-language.md)** for the complete guide.
+See the **[Template Language Reference](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/client/template-language.md)** for the complete guide.
 
 ## Behavior notes
 
