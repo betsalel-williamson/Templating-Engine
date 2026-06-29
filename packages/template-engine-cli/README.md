@@ -4,7 +4,7 @@ Command-line tool for rendering mergeEngine-style templates with JSON data.
 
 > **Pre-1.0:** Expect breaking changes in CLI flags and template syntax until `1.0.0`. Pin exact versions and check release notes before upgrading.
 
-Requires Node.js >= 22.12.
+Requires Node.js >= 24.0.
 
 ## Install
 
