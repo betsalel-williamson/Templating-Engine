@@ -1,0 +1,54 @@
+name: Epic
+description: Group related issues under a parent epic
+title: '[Epic]: '
+labels:
+  - enhancement
+projects:
+  - betsalel-williamson/5
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Epics track a body of work that spans multiple issues. Child issues link to this epic via GitHub sub-issues and appear on the [Templating Engine project board](https://github.com/users/betsalel-williamson/projects/5).
+
+  - type: input
+    id: epic-name
+    attributes:
+      label: Epic name
+      description: Short name for this initiative (also used in the issue title).
+      placeholder: Modern Syntax Migration
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: One-sentence goal for this epic.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What work belongs under this epic? Link related issues after creation.
+      placeholder: |
+        - #16 Recursive variable replacement
+        - #17 Basic iteration
+    validations:
+      required: true
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: What this epic explicitly does not cover.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and epics and did not find a duplicate.
+          required: true

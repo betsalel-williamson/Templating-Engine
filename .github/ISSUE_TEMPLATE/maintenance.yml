@@ -1,6 +1,8 @@
 name: Maintenance / CI
 description: Tooling, build, release, or repository hygiene work
 title: '[Chore]: '
+projects:
+  - betsalel-williamson/5
 body:
   - type: markdown
     attributes:

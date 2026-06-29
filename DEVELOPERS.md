@@ -46,9 +46,63 @@ docs/
   client/                 end-user guide
 ```
 
-Open work is tracked in [GitHub Issues](https://github.com/betsalel-williamson/Templating-Engine/issues). See [work-items migration](#work-items-migration-to-github-issues) for the mapping from former `.work-items/` files.
+Open work is tracked in [GitHub Issues](https://github.com/betsalel-williamson/Templating-Engine/issues) on the [Templating Engine project board](https://github.com/users/betsalel-williamson/projects/5). See [project management](#project-management) and [work-items migration](#work-items-migration-to-github-issues).
 
 Sharded documentation is configured in [`docs/mdcp.config.json`](docs/mdcp.config.json).
+
+## Project management
+
+Planning work for this repository is tracked on the [Templating Engine project board](https://github.com/users/betsalel-williamson/projects/5).
+
+### Board
+
+| Setting       | Value                                                                        |
+| ------------- | ---------------------------------------------------------------------------- |
+| Project       | [Templating Engine](https://github.com/users/betsalel-williamson/projects/5) |
+| Owner         | `betsalel-williamson`                                                        |
+| Status values | Todo, In Progress, Done                                                      |
+| Epics         | Parent issues with linked sub-issues                                         |
+
+### Epics
+
+| Epic                    | Issue                                                                     | Child issues |
+| ----------------------- | ------------------------------------------------------------------------- | ------------ |
+| Modern Syntax Migration | [#40](https://github.com/betsalel-williamson/Templating-Engine/issues/40) | #16–#30      |
+| CLI Interface           | [#41](https://github.com/betsalel-williamson/Templating-Engine/issues/41) | #31          |
+| Tooling and CI          | [#42](https://github.com/betsalel-williamson/Templating-Engine/issues/42) | #32–#38      |
+
+Epic issues were created by `scripts/configure-project-management.sh`. Re-run the script safely if you need to backfill a fresh board; it skips existing epics.
+
+### Adding issues to the board
+
+- **Issue templates** — `.github/ISSUE_TEMPLATE/*.yml` include `projects: [betsalel-williamson/5]` so template-created issues land on the board immediately.
+- **Epics** — use the **Epic** issue template, then link child issues via **Set parent issue** in the GitHub UI or `gh` sub-issue APIs.
+- **Backfill** — run `scripts/configure-project-management.sh` to add existing open issues to the board ([one-time setup](#one-time-setup)).
+
+### One-time setup
+
+After cloning or when bootstrapping a fresh project board:
+
+```bash
+chmod +x scripts/configure-project-management.sh
+./scripts/configure-project-management.sh
+```
+
+This script:
+
+1. Creates epic issues (if missing)
+2. Links migrated work items as sub-issues under the correct epic
+3. Adds all open repository issues to the project board
+4. Sets #34 (parser error messages) to **In Progress**
+
+Requires `gh` authenticated with `project`, `read:project`, and `repo` scopes.
+
+### Working conventions
+
+- File work as issues; use epics for multi-issue initiatives.
+- Keep one feature branch and PR per issue (see [agent work-item tracking](#agent-work-item-tracking)).
+- Move project **Status** when starting or completing work.
+- Reference issues in PRs with `Closes #N`.
 
 ## Work items migration to GitHub Issues
 
@@ -81,6 +135,8 @@ On 2026-06-29, open items from `.work-items/` were migrated to GitHub Issues and
 | `tasks/tooling_and_ci/23_macos-gatekeeper-warning.md`                                        | [#38](https://github.com/betsalel-williamson/Templating-Engine/issues/38) |
 
 The modern syntax migration plan was preserved at [migration-plan.md](#migration-plan-adopting-a-modern-templating-syntax-jinja2handlebars-like).
+
+Epics and project board setup are documented in [project-management.md](#project-management).
 
 ## Migration Plan: Adopting a Modern Templating Syntax (Jinja2/Handlebars-like)
 
@@ -274,7 +330,8 @@ How coding agents load tracker issues and delivery conventions **for this reposi
 ```text
 Host=GitHub (betsalel-williamson/Templating-Engine)
 Issue base URL=https://github.com/betsalel-williamson/Templating-Engine/issues/
-Issue templates=.github/ISSUE_TEMPLATE/ (bug, feature, docs, maintenance)
+Issue templates=.github/ISSUE_TEMPLATE/ (bug, feature, docs, maintenance, epic)
+Project board=https://github.com/users/betsalel-williamson/projects/5
 WORK_ITEM=issue number (e.g. 42) or full issue URL
 ```
 

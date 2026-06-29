@@ -3,6 +3,8 @@ description: Report incorrect behavior in the template engine, CLI, or CI
 title: '[Bug]: '
 labels:
   - bug
+projects:
+  - betsalel-williamson/5
 body:
   - type: markdown
     attributes:
