@@ -28,7 +28,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -42,6 +42,9 @@ jobs:
 
       - name: Format check
         run: pnpm run format:check
+
+      - name: Documentation check
+        run: pnpm run docs:check
 
       - name: Build
         run: pnpm run build
@@ -128,7 +131,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
