@@ -4,9 +4,14 @@ import {
   FunctionRegistry,
   RegisteredFunction,
   DataContextValue,
+  ParseFunction,
 } from './types.js';
 import { parse } from '../lib/parser.js';
-import type { ParseFunction } from './types.js';
+import {
+  evaluateExpression,
+  evaluateIfCondition,
+  stringifyExpressionValue,
+} from './modern/expression-evaluator.js';
 
 const MAX_EVAL_DEPTH = 50;
 
@@ -228,6 +233,56 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
       case 'Conditional': {
         const conditionResult = await evaluate(node.condition, context, depth + 1);
         return conditionResult !== '0' && conditionResult !== ''
+          ? await evaluate(node.trueBranch, context, depth + 1)
+          : await evaluate(node.falseBranch, context, depth + 1);
+      }
+      case 'OutputExpression': {
+        const expressionConfig = { resolveAliases: config.resolveAliases };
+        const value = await evaluateExpression(node.expression, context, expressionConfig);
+        if (value === undefined) return node.raw;
+        if (typeof value === 'string' && (value.includes('{{') || value.includes('{%'))) {
+          return await evaluate(parseTemplate(value), context, depth + 1);
+        }
+        return stringifyExpressionValue(value);
+      }
+      case 'ForBlock': {
+        const collectionValue = await evaluateExpression(node.collection, context, {
+          resolveAliases: config.resolveAliases,
+        });
+        if (!Array.isArray(collectionValue) || collectionValue.length === 0) {
+          return '';
+        }
+
+        const iterationResults = await Promise.all(
+          collectionValue.map(async (item, index) => {
+            const loopContext = new Map(context);
+            if (item instanceof Map) {
+              loopContext.set(node.item, item);
+            } else {
+              loopContext.set(node.item, item);
+            }
+
+            loopContext.set(
+              'loop',
+              new Map<string, DataContextValue>([
+                ['index', String(index + 1)],
+                ['index0', String(index)],
+                ['first', index === 0 ? '1' : '0'],
+                ['last', index === collectionValue.length - 1 ? '1' : '0'],
+              ])
+            );
+
+            return await evaluate(node.body, loopContext, depth + 1);
+          })
+        );
+
+        return iterationResults.join('');
+      }
+      case 'IfBlock': {
+        const conditionResult = await evaluateIfCondition(node.condition, context, {
+          resolveAliases: config.resolveAliases,
+        });
+        return conditionResult
           ? await evaluate(node.trueBranch, context, depth + 1)
           : await evaluate(node.falseBranch, context, depth + 1);
       }
