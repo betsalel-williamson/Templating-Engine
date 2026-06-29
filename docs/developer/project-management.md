@@ -25,7 +25,7 @@ Epic issues were created by `scripts/configure-project-management.sh`. Re-run th
 
 - **Issue templates** — `.github/ISSUE_TEMPLATE/*.yml` include `projects: [betsalel-williamson/5]` so template-created issues land on the board immediately.
 - **Epics** — use the **Epic** issue template, then link child issues via **Set parent issue** in the GitHub UI or `gh` sub-issue APIs.
-- **Backfill** — run `scripts/configure-project-management.sh` to add existing open issues to the board (see below).
+- **Backfill** — run `scripts/configure-project-management.sh` to add existing open issues to the board ([one-time setup](#one-time-setup)).
 
 ## One-time setup
 
