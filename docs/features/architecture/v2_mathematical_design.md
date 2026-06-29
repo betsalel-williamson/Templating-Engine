@@ -8,6 +8,8 @@ In a procedural engine, users write code (loops, variables, breaks). In a mathem
 
 This document outlines how V2 preserves the mathematical elegance of the legacy engine while leveraging the readability and composability of modern template syntax.
 
+For reviewability, conciseness, and JS/TS-first conventions that guide syntax choices, see [V2 design goals](./v2_design_goals.md).
+
 ## 1. The Core Operators (The Foundation)
 
 In V2, we shift from cryptic symbols (`<*>`, `<+>`) to semantic blocks and filters, but the underlying mathematical behavior remains identical.
