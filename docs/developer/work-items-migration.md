@@ -29,3 +29,5 @@ On 2026-06-29, open items from `.work-items/` were migrated to GitHub Issues and
 | `tasks/tooling_and_ci/23_macos-gatekeeper-warning.md`                                        | [#38](https://github.com/betsalel-williamson/Templating-Engine/issues/38) |
 
 The modern syntax migration plan was preserved at [migration-plan.md](migration-plan.md).
+
+Epics and project board setup are documented in [project-management.md](project-management.md).

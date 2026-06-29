@@ -3,6 +3,8 @@ description: Propose a new capability or improvement
 title: '[Feature]: '
 labels:
   - enhancement
+projects:
+  - betsalel-williamson/5
 body:
   - type: markdown
     attributes:

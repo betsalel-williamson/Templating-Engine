@@ -3,6 +3,8 @@ description: Improve or correct project documentation
 title: '[Docs]: '
 labels:
   - documentation
+projects:
+  - betsalel-williamson/5
 body:
   - type: markdown
     attributes:

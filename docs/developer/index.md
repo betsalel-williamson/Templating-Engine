@@ -5,6 +5,7 @@
   - [Glossary](../glossary/index.md)
   - [Local setup](./local-setup.md)
   - [Repository layout](./repository-layout.md)
+  - [Project management](./project-management.md)
   - [Work items migration](./work-items-migration.md)
   - [Modern syntax migration plan](./migration-plan.md)
   - [Common commands](./common-commands.md)

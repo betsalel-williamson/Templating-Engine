@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Project board
+    url: https://github.com/users/betsalel-williamson/projects/5
+    about: Templating Engine planning board (issues, epics, status)
   - name: Developer guide
     url: https://github.com/betsalel-williamson/Templating-Engine/blob/main/DEVELOPERS.md
     about: Setup, commands, releases, and contributor conventions

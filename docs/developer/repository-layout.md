@@ -11,6 +11,6 @@ docs/
   client/                 end-user guide
 ```
 
-Open work is tracked in [GitHub Issues](https://github.com/betsalel-williamson/Templating-Engine/issues). See [work-items migration](work-items-migration.md) for the mapping from former `.work-items/` files.
+Open work is tracked in [GitHub Issues](https://github.com/betsalel-williamson/Templating-Engine/issues) on the [Templating Engine project board](https://github.com/users/betsalel-williamson/projects/5). See [project management](project-management.md) and [work-items migration](work-items-migration.md).
 
 Sharded documentation is configured in [`docs/mdcp.config.json`](../mdcp.config.json).
