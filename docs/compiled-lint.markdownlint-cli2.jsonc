@@ -1,0 +1,11 @@
+{
+  "globs": ["_build/guides.md", "_build/client.md", "../DEVELOPERS.md"],
+  "config": {
+    "MD012": false,
+    "MD013": false,
+    "MD024": false,
+    "MD051": false,
+    "MD052": true,
+    "MD053": true,
+  },
+}

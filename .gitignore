@@ -28,3 +28,7 @@ test-results/*
 
 # Legacy shell script archive
 archive/
+
+# mdcp generated docs (shards are source of truth)
+docs/_build/
+docs/.caches/

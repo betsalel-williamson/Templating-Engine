@@ -17,6 +17,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint:md": "markdownlint-cli2",
+    "docs:compile": "mdcp compile --config docs/mdcp.config.json --docs-root docs --warn-broken-links && mdcp export --llms-index --config docs/mdcp.config.json --docs-root docs",
+    "docs:check": "mdcp check --config docs/mdcp.config.json --docs-root docs --require-lint --skip-vale",
+    "docs:context": "mdcp export --llm --stdout --config docs/mdcp.config.json --docs-root docs",
+    "docs:refs": "mdcp refs lookup --config docs/mdcp.config.json --docs-root docs",
     "check": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run build && pnpm run test",
     "changeset": "changeset",
     "changeset:status": "changeset status --since=origin/main",
@@ -50,6 +54,8 @@
     ]
   },
   "devDependencies": {
+    "@bwilliamson/mdcp-cli": "0.4.1",
+    "@bwilliamson/mdcp-presets": "0.4.1",
     "@changesets/cli": "^2.29.2",
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
