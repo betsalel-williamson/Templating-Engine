@@ -65,3 +65,8 @@ export type DataContext = Map<string, DataContextValue>;
 
 export type RegisteredFunction = (...args: any[]) => Promise<string | number>;
 export type FunctionRegistry = Map<string, RegisteredFunction>;
+
+export type ParseFunction = (
+  template: string,
+  options?: { enablePeggyTracing?: boolean }
+) => AstNode;

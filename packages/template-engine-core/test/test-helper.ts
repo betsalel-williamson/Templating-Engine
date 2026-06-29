@@ -12,7 +12,12 @@ export function createTestEvaluator(
   parserType: 'legacy' | 'new' = 'legacy', // Default to legacy parser
   enableTracing: boolean = true // New flag for conditional logging
 ) {
-  const secureEvaluate = createSecureEvaluator({ functions, cloneFunctions });
+  const secureEvaluate = createSecureEvaluator({
+    functions,
+    cloneFunctions,
+    resolveAliases: parserType === 'new',
+    parseTemplate: parserType === 'new' ? parseNew : parseLegacy,
+  });
 
   return async (template: string, context: DataContext = new Map()) => {
     let parser;

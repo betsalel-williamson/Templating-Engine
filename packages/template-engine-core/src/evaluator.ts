@@ -6,12 +6,44 @@ import {
   DataContextValue,
 } from './types.js';
 import { parse } from '../lib/parser.js';
+import type { ParseFunction } from './types.js';
 
 const MAX_EVAL_DEPTH = 50;
 
 interface EvaluatorConfig {
   functions: FunctionRegistry;
   cloneFunctions?: boolean;
+  resolveAliases?: boolean;
+  parseTemplate?: ParseFunction;
+}
+
+function resolveAliasChain(
+  context: DataContext,
+  startKey: string,
+  visited: Set<string> = new Set()
+): DataContextValue | undefined {
+  let currentKey = startKey;
+
+  while (true) {
+    if (visited.has(currentKey)) {
+      throw new Error(
+        `Circular alias reference detected: ${[...Array.from(visited), currentKey].join(' -> ')}`
+      );
+    }
+    visited.add(currentKey);
+
+    const value = context.get(currentKey);
+    if (value === undefined) {
+      return undefined;
+    }
+
+    if (typeof value === 'string' && value.length > 0 && context.has(value)) {
+      currentKey = value;
+      continue;
+    }
+
+    return value;
+  }
 }
 
 // Helper function to resolve dot-separated variable names in a DataContext Map
@@ -31,6 +63,7 @@ function resolveDotNotation(context: DataContext, path: string[]): DataContextVa
 
 export function createSecureEvaluator(config: EvaluatorConfig) {
   const privateFunctions = new Map<string, RegisteredFunction>();
+  const parseTemplate = config.parseTemplate ?? parse;
 
   for (const [name, func] of config.functions.entries()) {
     if (config.cloneFunctions) {
@@ -74,14 +107,20 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           }
         }
 
-        let value = context.get(resolvedVarName);
-        if (value === undefined && resolvedVarName.includes('.')) {
-          const pathSegments = resolvedVarName.split('.');
-          value = resolveDotNotation(context, pathSegments);
+        let value: DataContextValue | undefined;
+        if (config.resolveAliases && !resolvedVarName.includes('.')) {
+          value = resolveAliasChain(context, resolvedVarName);
+        } else {
+          value = context.get(resolvedVarName);
+          if (value === undefined && resolvedVarName.includes('.')) {
+            const pathSegments = resolvedVarName.split('.');
+            value = resolveDotNotation(context, pathSegments);
+          }
         }
 
         if (value === undefined) return node.raw;
-        return await evaluate(parse(String(value)), context, depth + 1);
+
+        return await evaluate(parseTemplate(String(value)), context, depth + 1);
       }
       case 'IndirectVariable': {
         const firstKeyToLookup = await evaluate(node.name, context, depth + 1);
