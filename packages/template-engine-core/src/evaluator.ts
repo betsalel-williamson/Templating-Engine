@@ -43,8 +43,11 @@ function resolveAliasChain(
     }
 
     if (typeof value === 'string' && value.length > 0 && context.has(value)) {
-      currentKey = value;
-      continue;
+      const nextValue = context.get(value);
+      if (typeof nextValue === 'string') {
+        currentKey = value;
+        continue;
+      }
     }
 
     return value;
@@ -239,7 +242,9 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
       case 'OutputExpression': {
         const expressionConfig = { resolveAliases: config.resolveAliases };
         const value = await evaluateExpression(node.expression, context, expressionConfig);
-        if (value === undefined) return node.raw;
+        if (value === undefined) {
+          return node.expression.type === 'Identifier' ? node.raw : '';
+        }
         if (typeof value === 'string' && (value.includes('{{') || value.includes('{%'))) {
           return await evaluate(parseTemplate(value), context, depth + 1);
         }
