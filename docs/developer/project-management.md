@@ -23,9 +23,25 @@ Epic issues were created by `scripts/configure-project-management.sh`. Re-run th
 
 ## Automation
 
-- **New issues and pull requests** — `.github/workflows/project-automation.yml` adds items from this repository to the project board.
+- **New issues and pull requests** — `.github/workflows/project-automation.yml` adds items from this repository to the project board when the `GH_PROJECT_TOKEN` secret is configured (see below).
 - **Issue templates** — `.github/ISSUE_TEMPLATE/*.yml` include `projects: [betsalel-williamson/5]` so template-created issues land on the board immediately.
 - **Epics** — use the **Epic** issue template, then link child issues via **Set parent issue** in the GitHub UI or `gh` sub-issue APIs.
+
+## GitHub Actions secret
+
+User-owned Projects cannot be updated with the default `GITHUB_TOKEN`. The project automation workflow requires a repository secret:
+
+| Secret                       | Scopes                         | Purpose                                              |
+| ---------------------------- | ------------------------------ | ---------------------------------------------------- |
+| `GH_PROJECT_TOKEN`           | Classic PAT: `project`, `repo` | Add issues and PRs to the project board from Actions |
+| `PROJECT_AUTOMATION_ENABLED` | Repository variable: `true`    | Opt in to the project automation workflow            |
+
+Create the token at [github.com/settings/tokens](https://github.com/settings/tokens), then:
+
+1. Add `GH_PROJECT_TOKEN` under **Repository → Settings → Secrets and variables → Actions**.
+2. Set repository variable `PROJECT_AUTOMATION_ENABLED` to `true` under **Settings → Secrets and variables → Actions → Variables**.
+
+Until both are configured, the workflow is skipped. Issue templates still add new issues to the board.
 
 ## One-time setup
 
