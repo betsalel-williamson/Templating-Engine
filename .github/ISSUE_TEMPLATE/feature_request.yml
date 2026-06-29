@@ -1,0 +1,58 @@
+name: Feature request
+description: Propose a new capability or improvement
+title: '[Feature]: '
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the user value of this change. Focus on observable outcomes, not implementation details.
+
+        For large syntax or architecture changes, see the [modern syntax migration plan](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/developer/migration-plan.md).
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User story
+      description: Who benefits, what they need, and why.
+      value: |
+        - **As a** ...
+        - **I want to** ...
+        - **so that** ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: Verifiable outcomes. Prefer EARS-style phrasing (WHEN ... THEN ... SHALL ...).
+      placeholder: |
+        - WHEN I render a template with ... THEN I SHALL see ...
+        - IF ... THEN the CLI SHALL exit with a non-zero status code.
+    validations:
+      required: true
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: What this issue explicitly does not cover.
+      placeholder: Not addressing legacy syntax support in this change.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you considered and why this one is preferred.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: Acceptance criteria describe user-observable outcomes, not implementation steps.
+          required: true

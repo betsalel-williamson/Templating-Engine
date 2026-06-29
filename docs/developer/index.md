@@ -5,6 +5,8 @@
   - [Glossary](../glossary/index.md)
   - [Local setup](./local-setup.md)
   - [Repository layout](./repository-layout.md)
+  - [Work items migration](./work-items-migration.md)
+  - [Modern syntax migration plan](./migration-plan.md)
   - [Common commands](./common-commands.md)
   - [Changesets and releases](./changesets-and-releases.md)
   - [Pre-commit hooks](./pre-commit-hooks.md)
