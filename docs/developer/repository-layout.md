@@ -1,0 +1,15 @@
+# Repository layout
+
+```text
+packages/
+  template-engine-core/   @bwilliamson/template-engine-core
+  template-engine-cli/    @bwilliamson/template-engine-cli
+docs/
+  glossary/               shared terms (one shard per term)
+  features/               product capabilities and architecture
+  developer/              this guide (compiles to DEVELOPERS.md)
+  client/                 end-user guide
+.work-items/              planning artifacts (not compiled by mdcp)
+```
+
+Sharded documentation is configured in [`docs/mdcp.config.json`](../mdcp.config.json).
