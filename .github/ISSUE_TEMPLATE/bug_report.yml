@@ -1,0 +1,83 @@
+name: Bug report
+description: Report incorrect behavior in the template engine, CLI, or CI
+title: '[Bug]: '
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Include enough detail that someone can reproduce the problem without guessing.
+
+        Search [existing issues](https://github.com/betsalel-williamson/Templating-Engine/issues) first to avoid duplicates.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Template engine (core)
+        - CLI
+        - Documentation
+        - CI / release pipeline
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the incorrect behavior you observed.
+      placeholder: The CLI exits with code 0 when a template fails to parse.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: Describe the correct or desired behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps, template input, and data context if applicable.
+      placeholder: |
+        1. Create `example.tmpl` with ...
+        2. Run `template-engine render example.tmpl --data '{}'
+        3. Observe ...
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: version
+    attributes:
+      label: Version and environment
+      description: Package or release version, OS, and Node.js version when relevant.
+      placeholder: |
+        - @bwilliamson/template-engine-cli 1.2.3
+        - macOS 15.5, Node.js 22.12.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste relevant stderr output, stack traces, or CI log excerpts.
+      render: shell
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: I can reproduce this on the latest release or `main`.
+          required: true

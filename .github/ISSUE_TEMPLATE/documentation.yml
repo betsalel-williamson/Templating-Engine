@@ -1,0 +1,53 @@
+name: Documentation
+description: Improve or correct project documentation
+title: '[Docs]: '
+labels:
+  - documentation
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Documentation lives in `docs/` and compiles to `DEVELOPERS.md`, `docs/_build/*`, and package READMEs. See [docs dogfooding](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/developer/docs-dogfooding.md).
+
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Audience
+      options:
+        - End users (client docs)
+        - Contributors (developer docs)
+        - Package README / changelog
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is unclear or missing?
+      description: Describe the gap, inaccuracy, or confusion.
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Affected pages or paths
+      description: Link or path to the doc shard(s) that need updating.
+      placeholder: docs/client/getting-started.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Proposed change
+      description: What should readers see instead?
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true

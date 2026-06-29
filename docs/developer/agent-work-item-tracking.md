@@ -7,6 +7,7 @@ How coding agents load tracker issues and delivery conventions **for this reposi
 ```text
 Host=GitHub (betsalel-williamson/Templating-Engine)
 Issue base URL=https://github.com/betsalel-williamson/Templating-Engine/issues/
+Issue templates=.github/ISSUE_TEMPLATE/ (bug, feature, docs, maintenance)
 WORK_ITEM=issue number (e.g. 42) or full issue URL
 ```
 

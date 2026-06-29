@@ -1,0 +1,58 @@
+name: Maintenance / CI
+description: Tooling, build, release, or repository hygiene work
+title: '[Chore]: '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for CI/CD, build scripts, dependency updates, release automation, and other non-feature maintenance work.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - CI / GitHub Actions
+        - Build or release pipeline
+        - Dependencies
+        - Repository hygiene
+        - Developer experience
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What needs to change and why now?
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: How will we know this is done?
+      placeholder: |
+        - [ ] `pnpm run build` succeeds on Windows, macOS, and Linux runners
+        - [ ] README documents the new workflow
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / links
+      description: Related issues, workflow runs, logs, or docs.
+      placeholder: |
+        - Failing workflow: https://github.com/.../actions/runs/...
+        - Related issue: #37
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true

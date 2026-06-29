@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Developer guide
+    url: https://github.com/betsalel-williamson/Templating-Engine/blob/main/DEVELOPERS.md
+    about: Setup, commands, releases, and contributor conventions
+  - name: Existing issues
+    url: https://github.com/betsalel-williamson/Templating-Engine/issues
+    about: Search open and closed issues before filing a duplicate
