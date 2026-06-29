@@ -31,8 +31,11 @@ function resolveAliasChain(
     }
 
     if (typeof value === 'string' && value.length > 0 && context.has(value)) {
-      currentKey = value;
-      continue;
+      const nextValue = context.get(value);
+      if (typeof nextValue === 'string') {
+        currentKey = value;
+        continue;
+      }
     }
 
     return value;
@@ -80,7 +83,10 @@ export async function evaluateExpression(
     case 'PropertyAccess':
       return resolvePropertyPath(context, expression.path, resolveAliases);
     case 'BracketLookup': {
-      const keyValue = await evaluateExpression(expression.key, context, config);
+      const keyValue = await evaluateExpression(expression.key, context, {
+        ...config,
+        resolveAliases: false,
+      });
       if (keyValue === undefined) return undefined;
       return context.get(String(keyValue));
     }
