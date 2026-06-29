@@ -11,9 +11,14 @@ export type {
   CrossProductNode,
   ConditionalNode,
   FunctionCallNode,
+  OutputExpressionNode,
+  ForBlockNode,
+  IfBlockNode,
+  ExpressionNode,
   DataContextValue,
   DataContext,
   RegisteredFunction,
   FunctionRegistry,
+  ParseFunction,
 } from './types.js';
 export type { Filter, FilterRegistry } from './filters/types.js';
