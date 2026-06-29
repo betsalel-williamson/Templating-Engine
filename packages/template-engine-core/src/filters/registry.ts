@@ -44,12 +44,7 @@ export function createDefaultFilterRegistry(): FilterRegistry {
 
   registry.set('join', (input, _context, delimiter = ', ') => {
     const items = asArray(input);
-    return items
-      .map((item) => {
-        if (item instanceof Map) return '';
-        return String(item ?? '');
-      })
-      .join(delimiter);
+    return items.map((item) => String(item ?? '')).join(delimiter);
   });
 
   registry.set('map', (input, _context, propertyName) => {

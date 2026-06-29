@@ -72,13 +72,18 @@ Expression
 
 FilterPipeline
   = input:PrimaryExpression filters:(ws "|" ws filter:FilterCall)* {
-      const filterNodes = filters.map((entry) => entry[2]);
+      const filterNodes = filters.map((entry) => entry[3]);
       return buildFilterPipeline(input, filterNodes);
     }
 
 FilterCall
-  = name:Ident args:(ws ":" ws arg:FilterArg)* {
-      return { name, args: args.map((entry) => entry[3]) };
+  = name:Ident args:("(" ws args:FilterArgList? ws ")")? {
+      return { name, args: args && args[2] ? args[2] : [] };
+    }
+
+FilterArgList
+  = head:FilterArg tail:(ws "," ws arg:FilterArg)* {
+      return [head, ...tail.map((entry) => entry[3])];
     }
 
 FilterArg
@@ -107,16 +112,16 @@ Identifier
     }
 
 ConcatExpression
-  = parts:ConcatPart (ws "~" ws part:ConcatPart)* {
-      if (!parts[1] || parts[1].length === 0) {
-        return parts[0];
+  = head:ConcatPart tail:(ws "~" ws part:ConcatPart)* {
+      if (!tail || tail.length === 0) {
+        return head;
       }
-      return { type: 'Concat', parts: [parts[0], ...parts[1].map((entry) => entry[3])] };
+      return { type: 'Concat', parts: [head, ...tail.map((entry) => entry[3])] };
     }
 
 ConcatPart
   = StringLiteral
-  / Ident
+  / name:Ident { return { type: 'Identifier', name }; }
 
 StringLiteral
   = '"' value:DoubleStringContent '"' {
