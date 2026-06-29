@@ -8,7 +8,13 @@ describe('New Syntax: Dot Notation and Bracket Property Access', () => {
   describe('dot notation', () => {
     it('should resolve nested map properties', async () => {
       const context: DataContext = new Map([
-        ['user', new Map([['name', 'Alice'], ['address', new Map([['city', 'Portland']])]])],
+        [
+          'user',
+          new Map([
+            ['name', 'Alice'],
+            ['address', new Map([['city', 'Portland']])],
+          ]),
+        ],
       ]);
       const result = await evaluate('{{ user.address.city }}', context);
       expect(result).toBe('Portland');

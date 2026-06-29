@@ -1,9 +1,4 @@
-import {
-  DataContext,
-  DataContextValue,
-  ExpressionNode,
-  IfConditionNode,
-} from '../types.js';
+import { DataContext, DataContextValue, ExpressionNode, IfConditionNode } from '../types.js';
 import { createDefaultFilterRegistry } from '../filters/registry.js';
 
 export interface ExpressionEvaluatorConfig {

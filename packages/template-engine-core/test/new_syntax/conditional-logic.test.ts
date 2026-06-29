@@ -8,19 +8,13 @@ describe('New Syntax: Conditional Logic ({% if %})', () => {
   describe('basic conditionals', () => {
     it('should render the true branch when the condition is truthy', async () => {
       const context: DataContext = new Map([['isAdmin', '1']]);
-      const result = await evaluate(
-        '{% if isAdmin %}Admin{% else %}User{% endif %}',
-        context
-      );
+      const result = await evaluate('{% if isAdmin %}Admin{% else %}User{% endif %}', context);
       expect(result).toBe('Admin');
     });
 
     it('should render the false branch when the condition is falsy', async () => {
       const context: DataContext = new Map([['isAdmin', '0']]);
-      const result = await evaluate(
-        '{% if isAdmin %}Admin{% else %}User{% endif %}',
-        context
-      );
+      const result = await evaluate('{% if isAdmin %}Admin{% else %}User{% endif %}', context);
       expect(result).toBe('User');
     });
 
@@ -34,10 +28,7 @@ describe('New Syntax: Conditional Logic ({% if %})', () => {
   describe('not conditions', () => {
     it('should support not loop.last inside a for loop', async () => {
       const context: DataContext = new Map([
-        [
-          'items',
-          [new Map([['name', 'a']]), new Map([['name', 'b']]), new Map([['name', 'c']])],
-        ],
+        ['items', [new Map([['name', 'a']]), new Map([['name', 'b']]), new Map([['name', 'c']])]],
       ]);
       const template =
         '{% for item in items %}{{ item.name }}{% if not loop.last %},{% endif %}{% endfor %}';

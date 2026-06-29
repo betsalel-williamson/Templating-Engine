@@ -8,11 +8,7 @@ describe('New Syntax: Basic Iteration ({% for ... %})', () => {
   const numbersContext: DataContext = new Map([
     [
       'numbers',
-      [
-        new Map([['value', 'one']]),
-        new Map([['value', 'two']]),
-        new Map([['value', 'three']]),
-      ],
+      [new Map([['value', 'one']]), new Map([['value', 'two']]), new Map([['value', 'three']])],
     ],
   ]);
 
@@ -24,8 +20,7 @@ describe('New Syntax: Basic Iteration ({% for ... %})', () => {
     });
 
     it('should expose loop metadata variables', async () => {
-      const template =
-        '{% for item in numbers %}{{ loop.index0 }}:{{ item.value }};{% endfor %}';
+      const template = '{% for item in numbers %}{{ loop.index0 }}:{{ item.value }};{% endfor %}';
       const result = await evaluate(template, numbersContext);
       expect(result).toBe('0:one;1:two;2:three;');
     });
