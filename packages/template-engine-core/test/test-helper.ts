@@ -2,8 +2,7 @@ import { createSecureEvaluator } from '../src/evaluator.js';
 import { AstNode, DataContext, FunctionRegistry } from '../src/types.js';
 
 // Import both parsers
-import { parse as parseLegacy } from '../lib/parser.js';
-import { parse as parseNew } from '../lib/parser_new.js';
+import { parseLegacy, parseModern } from '../src/parse.js';
 
 // The factory now only accepts the cloneFunctions flag and a parser choice.
 export function createTestEvaluator(
@@ -16,13 +15,13 @@ export function createTestEvaluator(
     functions,
     cloneFunctions,
     resolveAliases: parserType === 'new',
-    parseTemplate: parserType === 'new' ? parseNew : parseLegacy,
+    parseTemplate: parserType === 'new' ? parseModern : parseLegacy,
   });
 
   return async (template: string, context: DataContext = new Map()) => {
     let parser;
     if (parserType === 'new') {
-      parser = parseNew;
+      parser = parseModern;
     } else {
       parser = parseLegacy;
     }

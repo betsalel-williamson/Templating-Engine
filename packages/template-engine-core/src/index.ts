@@ -1,6 +1,13 @@
 export { createSecureEvaluator } from './evaluator.js';
-export { parse as parseLegacy } from '../lib/parser.js';
-export { parse as parseModern } from '../lib/parser_new.js';
+export { parseLegacy, parseModern, type ParseOptions } from './parse.js';
+export {
+  formatTemplateParseError,
+  isTemplateSyntaxError,
+  type FormatParseErrorOptions,
+  type SourceLocation,
+  type SourcePosition,
+  type TemplateSyntaxError,
+} from './errors/format-parse-error.js';
 export type {
   AstNode,
   TemplateNode,

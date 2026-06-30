@@ -139,5 +139,5 @@ export type FunctionRegistry = Map<string, RegisteredFunction>;
 
 export type ParseFunction = (
   template: string,
-  options?: { enablePeggyTracing?: boolean }
+  options?: { enablePeggyTracing?: boolean; sourcePath?: string }
 ) => AstNode;
