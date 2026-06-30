@@ -84,7 +84,7 @@ Inherent to block structure. Performance scales with template size and nesting d
 
 ## Readability vs optimization policy
 
-```
+```text
 IF measured_speedup > 2.0 OR measured_memory_reduction > 2.0:
   consider optimization
 ELSE:
@@ -99,7 +99,7 @@ Readability signals for this project (aligned with [V2 design goals](./v2_design
 
 ## grammar_new.peggy structure reference
 
-```
+```text
 Start → TemplateParts*
 TemplateParts → OutputTag | ControlTag | Literal
 ControlTag → ForBlock | IfBlock
