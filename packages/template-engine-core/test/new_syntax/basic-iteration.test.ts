@@ -51,6 +51,72 @@ describe('New Syntax: Basic Iteration ({% for ... %})', () => {
     });
   });
 
+  describe('out-of-bounds access', () => {
+    const itemsContext: DataContext = new Map([
+      ['items', [new Map([['n', '1']]), new Map([['n', '2']]), new Map([['n', '3']])]],
+    ]);
+
+    it('should render empty string when a loop item property is missing', async () => {
+      const template = '{% for item in items %}{{ item.missing }}|{% endfor %}';
+      expect(await evaluate(template, itemsContext)).toBe('|||');
+    });
+
+    it('should render empty string when a nested property path is missing on loop items', async () => {
+      const template = '{% for item in items %}{{ item.address.city }}|{% endfor %}';
+      expect(await evaluate(template, itemsContext)).toBe('|||');
+    });
+
+    it('should render empty string when an inner loop collection is missing on the item', async () => {
+      const context: DataContext = new Map([
+        ['rows', [new Map([['cells', [new Map([['v', 'a']])]]]), new Map([['label', 'no-cells']])]],
+      ]);
+      const template =
+        '{% for row in rows %}{% for cell in row.cells %}{{ cell.v }}{% endfor %};{% endfor %}';
+      expect(await evaluate(template, context)).toBe('a;;');
+    });
+
+    it('should render empty string when an inner loop collection is an empty array', async () => {
+      const context: DataContext = new Map([
+        ['rows', [new Map([['cells', []]]), new Map([['cells', [new Map([['v', 'b']])]]])]],
+      ]);
+      const template =
+        '{% for row in rows %}{% for cell in row.cells %}{{ cell.v }}{% endfor %};{% endfor %}';
+      expect(await evaluate(template, context)).toBe(';b;');
+    });
+
+    it('should produce empty output when slice offset is beyond array length', async () => {
+      const context: DataContext = new Map([['highOffset', 10], ['takeOne', 1], ...itemsContext]);
+      const template =
+        '{% for item in items | slice(highOffset, takeOne) %}{{ item.n }}{% endfor %}';
+      expect(await evaluate(template, context)).toBe('');
+    });
+
+    it('should clamp slice limit to remaining elements instead of failing', async () => {
+      const context: DataContext = new Map([
+        ['startOffset', 2],
+        ['largeLimit', 100],
+        ...itemsContext,
+      ]);
+      const template =
+        '{% for item in items | slice(startOffset, largeLimit) %}{{ item.n }}{% endfor %}';
+      expect(await evaluate(template, context)).toBe('23');
+    });
+
+    it('should produce empty output when slice limit is zero', async () => {
+      const context: DataContext = new Map([['startOffset', 1], ['zeroLimit', 0], ...itemsContext]);
+      const template =
+        '{% for item in items | slice(startOffset, zeroLimit) %}{{ item.n }}{% endfor %}';
+      expect(await evaluate(template, context)).toBe('');
+    });
+
+    it('should mark loop.first and loop.last on the only item in a single-element array', async () => {
+      const context: DataContext = new Map([['items', [new Map([['n', '1']])]]]);
+      const template =
+        '{% for item in items %}{{ loop.first }}-{{ loop.last }}-{{ item.n }}{% endfor %}';
+      expect(await evaluate(template, context)).toBe('1-1-1');
+    });
+  });
+
   describe('stress cases', () => {
     it('should iterate over a large array', async () => {
       const size = 100;

@@ -20,16 +20,6 @@ describe('New Syntax: Collection and Filter Boundary Contracts', () => {
     expect(await evaluate('{% for tag in tags %}{{ tag }}{% endfor %}', context)).toBe('abc');
   });
 
-  it('should produce empty output when slice offset is beyond array length', async () => {
-    const context: DataContext = new Map([
-      ['highOffset', 99],
-      ['takeOne', 1],
-      ['items', [new Map([['n', '1']]), new Map([['n', '2']])]],
-    ]);
-    const template = '{% for item in items | slice(highOffset, takeOne) %}{{ item.n }}{% endfor %}';
-    expect(await evaluate(template, context)).toBe('');
-  });
-
   it('should return empty string when joining a non-array through the join filter', async () => {
     const context: DataContext = new Map([['label', 'not-an-array']]);
     expect(await evaluate(`{{ label | join(', ') }}`, context)).toBe('');
