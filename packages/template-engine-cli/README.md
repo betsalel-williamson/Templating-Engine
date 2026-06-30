@@ -28,7 +28,7 @@ template-engine --help
 | `--template <file>` | No       | Template file; reads from stdin when omitted |
 | `--help`            | No       | Show usage                                   |
 
-Rendered output is written to stdout. Errors (including parse failures with source location) go to stderr.
+Rendered output is written to stdout. Parse and evaluation errors go to stderr with compiler-style line/column diagnostics when syntax is invalid. See [Parse diagnostics](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/features/architecture/parse_diagnostics.md).
 
 ### Example
 

@@ -21,7 +21,7 @@ const evaluate = createSecureEvaluator({
   functions: new Map([['toUpperCase', (str: string) => str.toUpperCase()]]),
 });
 
-const ast = parseLegacy('Hello, <#name#>!');
+const ast = parseLegacy('Hello, <#name#>!', { sourcePath: 'greeting.template' });
 const context = new Map([['name', 'World']]);
 const output = await evaluate(ast, context);
 // => "Hello, World!"
@@ -31,9 +31,13 @@ const output = await evaluate(ast, context);
 
 | Export                                 | Description                                        |
 | -------------------------------------- | -------------------------------------------------- |
-| `parseLegacy(template)`                | Parse legacy-syntax templates (stable)             |
-| `parseModern(template)`                | Parse modern-syntax templates (experimental)       |
+| `parseLegacy(template, options?)`      | Parse legacy-syntax templates (stable)             |
+| `parseModern(template, options?)`      | Parse modern-syntax templates (experimental)       |
 | `createSecureEvaluator({ functions })` | Build an evaluator with a frozen function registry |
+| `formatTemplateParseError`             | Format syntax errors with line, column, and caret  |
+| `isTemplateSyntaxError`                | Type guard for parse errors with `location`        |
+
+Pass `sourcePath` when parsing so errors identify the template file. See [Parse diagnostics](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/features/architecture/parse_diagnostics.md).
 
 Data context values are `Map`-based. Nested objects from JSON should be converted to nested `Map` instances (see the CLI package for a reference implementation).
 
