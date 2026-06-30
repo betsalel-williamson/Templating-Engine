@@ -10,5 +10,6 @@ Design notes and ADRs for the templating engine.
 - [Parser performance (Peggy)](./parser_performance.md)
 - [Property access patterns](./property_access_patterns.md)
 - [Secure templating guide](./secure_templating_guide.md)
+- [Templating evolution and tool landscape](./templating_evolution.md)
 - [V2 design goals](./v2_design_goals.md)
 - [V2 mathematical design](./v2_mathematical_design.md)
