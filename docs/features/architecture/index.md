@@ -10,6 +10,7 @@ Design notes and ADRs for the templating engine.
 
 - [V2 design goals](./v2_design_goals.md)
 - [V2 mathematical design](./v2_mathematical_design.md)
+- [Templating evolution and tool landscape](./templating_evolution.md)
 
 ## Language design
 
