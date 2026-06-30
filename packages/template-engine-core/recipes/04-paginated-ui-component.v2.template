@@ -1,0 +1,12 @@
+<!-- Displaying page {{ page }} -->
+<p>Showing items {{ offset }} - {{ end_item }} of {{ items | length }} total.</p>
+<ul>
+
+{% for item in items | slice(offset, limit) %}  <li>
+    <strong>{{ item.name }}</strong> (User ID: {{ item.id }})
+    {% if show_admin_details %}<span class="admin-view"> - IP: {{ item.last_ip }}</span>{% endif %}
+  </li>{% if not loop.last %}
+
+{% endif %}{% endfor %}
+
+</ul>

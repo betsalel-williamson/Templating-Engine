@@ -4,6 +4,10 @@
 
 This document defines the core technical concepts for the new, modern templating syntax. It serves as the architectural source of truth, codifying lessons learned from the legacy engine to ensure the new implementation is more robust, intuitive, and maintainable.
 
+Broader V2 goals—concise expressiveness, reviewability for humans and LLMs, orthogonality, and JS/TS-first conventions—are in [V2 design goals](./v2_design_goals.md).
+
+Parse errors use compiler-style line/column diagnostics; see [Parse diagnostics](./parse_diagnostics.md).
+
 ## Key Concepts
 
 ### 1. Keywords & Delimiters

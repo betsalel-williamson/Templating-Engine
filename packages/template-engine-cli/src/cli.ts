@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import {
   createSecureEvaluator,
+  formatTemplateParseError,
   parseLegacy as parse,
   type DataContext,
   type DataContextValue,
@@ -85,32 +86,21 @@ export async function runCli(
     const dataContext = convertObjectToDataContext(parsedJson);
 
     const secureEvaluate = createSecureEvaluator({ functions: new Map() });
-    const ast = parse(templateContent);
+    const sourcePath = templateFilePath ?? '<stdin>';
+    const ast = parse(templateContent, { sourcePath });
     const output = await secureEvaluate(ast, dataContext);
     stdoutStream.write(output);
     return 0;
   } catch (error: unknown) {
-    const err = error as {
-      message?: string;
-      location?: { start: { line: number; column: number } };
-    };
-    if (err.location?.start && templateContent) {
-      const { line, column } = err.location.start;
-      const sourcePath = templateFilePath || '<stdin>';
-      const lines = templateContent.split('\n');
-      const errorLine = lines[line - 1] || '';
-      const pointer = ' '.repeat(column - 1) + '^';
-      const formattedMessage = [
-        `\nSyntax Error: ${err.message}`,
-        ` at ${sourcePath}:${line}:${column}`,
-        ``,
-        `  ${line} | ${errorLine}`,
-        `    | ${pointer}`,
-        ``,
-      ].join('\n');
-      stderrStream.write(formattedMessage);
+    if (templateContent) {
+      stderrStream.write(
+        `${formatTemplateParseError(error, {
+          sourcePath: templateFilePath ?? '<stdin>',
+          sourceText: templateContent,
+        })}\n`
+      );
     } else {
-      stderrStream.write(`Error: ${err.message ?? String(error)}\n`);
+      stderrStream.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
     }
     return 1;
   }
