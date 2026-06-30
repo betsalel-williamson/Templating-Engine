@@ -66,7 +66,7 @@ pnpm run build
 pnpm run test
 ```
 
-See [DEVELOPERS.md](DEVELOPERS.md) for changesets, releases, contributor workflow, and the [mdcp](docs/mdcp.v0.4.llms.txt) documentation pipeline (`pnpm docs:compile`, `pnpm docs:check` — requires Node.js >= 24).
+See [DEVELOPERS.md](DEVELOPERS.md) for changesets, releases, contributor workflow, and the [mdcp](docs/mdcp.v0.4.llms.txt) documentation pipeline (`pnpm docs:compile`, `pnpm docs:check`). Requires Node.js >= 24.0.0 (see `.nvmrc`).
 
 ## Background
 

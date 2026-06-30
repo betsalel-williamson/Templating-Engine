@@ -1,0 +1,11 @@
+Report Type: {{ report_title }}
+Data Source Key: {{ report_source }}
+====================================
+
+
+{% for entry in [report_source] %}[{{ loop.index0 }}] {{ entry.title }}
+    - ID: {{ entry.id }}
+    - Details: {{ entry.details }}
+    - Timestamp: {{ entry.timestamp }}
+{% if not loop.last %}
+{% endif %}{% endfor %}

@@ -63,7 +63,7 @@ body:
       description: Package or release version, OS, and Node.js version when relevant.
       placeholder: |
         - @bwilliamson/template-engine-cli 1.2.3
-        - macOS 15.5, Node.js 22.12.0
+        - macOS 15.5, Node.js 24.0.0
     validations:
       required: true
 

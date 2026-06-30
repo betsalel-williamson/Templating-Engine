@@ -8,7 +8,78 @@ export type AstNode =
   | ArrayNode
   | CrossProductNode
   | ConditionalNode
-  | FunctionCallNode;
+  | FunctionCallNode
+  | OutputExpressionNode
+  | ForBlockNode
+  | IfBlockNode;
+
+export type ExpressionNode =
+  | IdentifierExpression
+  | PropertyAccessExpression
+  | BracketLookupExpression
+  | ConcatExpression
+  | StringLiteralExpression
+  | FilterPipelineExpression;
+
+export interface OutputExpressionNode {
+  type: 'OutputExpression';
+  expression: ExpressionNode;
+  raw: string;
+}
+
+export interface ForBlockNode {
+  type: 'ForBlock';
+  item: string;
+  collection: ExpressionNode;
+  body: TemplateNode;
+}
+
+export interface IfBlockNode {
+  type: 'IfBlock';
+  condition: IfConditionNode;
+  trueBranch: TemplateNode;
+  falseBranch: TemplateNode;
+}
+
+export type IfConditionNode =
+  | { type: 'NotCondition'; operand: IfConditionNode }
+  | { type: 'ExpressionCondition'; expression: ExpressionNode };
+
+export interface IdentifierExpression {
+  type: 'Identifier';
+  name: string;
+}
+
+export interface PropertyAccessExpression {
+  type: 'PropertyAccess';
+  path: string[];
+}
+
+export interface BracketLookupExpression {
+  type: 'BracketLookup';
+  key: ExpressionNode;
+}
+
+export interface ConcatExpression {
+  type: 'Concat';
+  parts: ExpressionNode[];
+}
+
+export interface StringLiteralExpression {
+  type: 'StringLiteral';
+  value: string;
+}
+
+export interface FilterPipelineExpression {
+  type: 'FilterPipeline';
+  input: ExpressionNode;
+  filters: FilterCallNode[];
+}
+
+export interface FilterCallNode {
+  name: string;
+  args: ExpressionNode[];
+}
 
 export interface TemplateNode {
   type: 'Template';
@@ -65,3 +136,8 @@ export type DataContext = Map<string, DataContextValue>;
 
 export type RegisteredFunction = (...args: any[]) => Promise<string | number>;
 export type FunctionRegistry = Map<string, RegisteredFunction>;
+
+export type ParseFunction = (
+  template: string,
+  options?: { enablePeggyTracing?: boolean; sourcePath?: string }
+) => AstNode;

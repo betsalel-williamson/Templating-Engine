@@ -4,14 +4,54 @@ import {
   FunctionRegistry,
   RegisteredFunction,
   DataContextValue,
+  ParseFunction,
 } from './types.js';
 import { parse } from '../lib/parser.js';
+import {
+  evaluateExpression,
+  evaluateIfCondition,
+  stringifyExpressionValue,
+} from './modern/expression-evaluator.js';
 
 const MAX_EVAL_DEPTH = 50;
 
 interface EvaluatorConfig {
   functions: FunctionRegistry;
   cloneFunctions?: boolean;
+  resolveAliases?: boolean;
+  parseTemplate?: ParseFunction;
+}
+
+function resolveAliasChain(
+  context: DataContext,
+  startKey: string,
+  visited: Set<string> = new Set()
+): DataContextValue | undefined {
+  let currentKey = startKey;
+
+  while (true) {
+    if (visited.has(currentKey)) {
+      throw new Error(
+        `Circular alias reference detected: ${[...Array.from(visited), currentKey].join(' -> ')}`
+      );
+    }
+    visited.add(currentKey);
+
+    const value = context.get(currentKey);
+    if (value === undefined) {
+      return undefined;
+    }
+
+    if (typeof value === 'string' && value.length > 0 && context.has(value)) {
+      const nextValue = context.get(value);
+      if (typeof nextValue === 'string') {
+        currentKey = value;
+        continue;
+      }
+    }
+
+    return value;
+  }
 }
 
 // Helper function to resolve dot-separated variable names in a DataContext Map
@@ -31,6 +71,7 @@ function resolveDotNotation(context: DataContext, path: string[]): DataContextVa
 
 export function createSecureEvaluator(config: EvaluatorConfig) {
   const privateFunctions = new Map<string, RegisteredFunction>();
+  const parseTemplate = config.parseTemplate ?? parse;
 
   for (const [name, func] of config.functions.entries()) {
     if (config.cloneFunctions) {
@@ -74,14 +115,20 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           }
         }
 
-        let value = context.get(resolvedVarName);
-        if (value === undefined && resolvedVarName.includes('.')) {
-          const pathSegments = resolvedVarName.split('.');
-          value = resolveDotNotation(context, pathSegments);
+        let value: DataContextValue | undefined;
+        if (config.resolveAliases && !resolvedVarName.includes('.')) {
+          value = resolveAliasChain(context, resolvedVarName);
+        } else {
+          value = context.get(resolvedVarName);
+          if (value === undefined && resolvedVarName.includes('.')) {
+            const pathSegments = resolvedVarName.split('.');
+            value = resolveDotNotation(context, pathSegments);
+          }
         }
 
         if (value === undefined) return node.raw;
-        return await evaluate(parse(String(value)), context, depth + 1);
+
+        return await evaluate(parseTemplate(String(value)), context, depth + 1);
       }
       case 'IndirectVariable': {
         const firstKeyToLookup = await evaluate(node.name, context, depth + 1);
@@ -189,6 +236,58 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
       case 'Conditional': {
         const conditionResult = await evaluate(node.condition, context, depth + 1);
         return conditionResult !== '0' && conditionResult !== ''
+          ? await evaluate(node.trueBranch, context, depth + 1)
+          : await evaluate(node.falseBranch, context, depth + 1);
+      }
+      case 'OutputExpression': {
+        const expressionConfig = { resolveAliases: config.resolveAliases };
+        const value = await evaluateExpression(node.expression, context, expressionConfig);
+        if (value === undefined) {
+          return node.expression.type === 'Identifier' ? node.raw : '';
+        }
+        if (typeof value === 'string' && (value.includes('{{') || value.includes('{%'))) {
+          return await evaluate(parseTemplate(value), context, depth + 1);
+        }
+        return stringifyExpressionValue(value);
+      }
+      case 'ForBlock': {
+        const collectionValue = await evaluateExpression(node.collection, context, {
+          resolveAliases: config.resolveAliases,
+        });
+        if (!Array.isArray(collectionValue) || collectionValue.length === 0) {
+          return '';
+        }
+
+        const iterationResults = await Promise.all(
+          collectionValue.map(async (item, index) => {
+            const loopContext = new Map(context);
+            if (item instanceof Map) {
+              loopContext.set(node.item, item);
+            } else {
+              loopContext.set(node.item, item);
+            }
+
+            loopContext.set(
+              'loop',
+              new Map<string, DataContextValue>([
+                ['index', String(index + 1)],
+                ['index0', String(index)],
+                ['first', index === 0 ? '1' : '0'],
+                ['last', index === collectionValue.length - 1 ? '1' : '0'],
+              ])
+            );
+
+            return await evaluate(node.body, loopContext, depth + 1);
+          })
+        );
+
+        return iterationResults.join('');
+      }
+      case 'IfBlock': {
+        const conditionResult = await evaluateIfCondition(node.condition, context, {
+          resolveAliases: config.resolveAliases,
+        });
+        return conditionResult
           ? await evaluate(node.trueBranch, context, depth + 1)
           : await evaluate(node.falseBranch, context, depth + 1);
       }

@@ -1,0 +1,6 @@
+-- Generated SQL for batch inserting user data
+
+INSERT INTO {{ tableName }} ({% for col in columns %}{{ col.column }}{% if not loop.last %}, {% endif %}{% endfor %})
+VALUES
+{% for row in rows %}{% if not loop.first %},
+{% endif %}  ({% for cell in row.a_row %}'{{ cell.value }}'{% if not loop.last %}, {% endif %}{% endfor %}){% endfor %};

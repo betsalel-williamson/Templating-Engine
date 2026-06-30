@@ -8,7 +8,7 @@
 npm install @bwilliamson/template-engine-core
 ```
 
-Requires Node.js >= 22.12.
+Requires Node.js >= 24.0.
 
 ## Usage
 

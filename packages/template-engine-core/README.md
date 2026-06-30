@@ -4,7 +4,7 @@ Parser and secure evaluator for the mergeEngine-derived template language.
 
 > **Pre-1.0:** Expect breaking changes in APIs and syntax until `1.0.0`. Pin exact versions and check release notes before upgrading.
 
-Requires Node.js >= 22.12.
+Requires Node.js >= 24.0.
 
 ## Install
 

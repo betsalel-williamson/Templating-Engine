@@ -21,7 +21,7 @@
     "codegen"
   ],
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=24.0.0"
   },
   "publishConfig": {
     "access": "public",
@@ -40,6 +40,10 @@
   "scripts": {
     "build:parsers": "node scripts/ensure-lib-dir.mjs && peggy --format es src/grammar.peggy -o lib/parser.js && peggy --format es src/grammar_new.peggy -o lib/parser_new.js && node scripts/write-parser-dts.mjs",
     "build": "pnpm run build:parsers && tsup src/index.ts --format esm --dts --clean",
+    "benchmark:parser": "pnpm run build:parsers && node scripts/benchmark-parser.mjs",
+    "benchmark:parser:json": "pnpm run build:parsers && node scripts/benchmark-parser.mjs --json",
+    "benchmark:parser:gc": "pnpm run build:parsers && node --expose-gc scripts/benchmark-parser.mjs",
+    "bench": "pnpm run build:parsers && vitest bench",
     "test": "pnpm run build:parsers && vitest run",
     "typecheck": "pnpm run build:parsers && tsc --noEmit",
     "prepublishOnly": "pnpm run build"
