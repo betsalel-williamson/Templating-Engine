@@ -6,6 +6,7 @@ Design notes and ADRs for the templating engine.
 - [Host environment integration](./host_environment_integration.md)
 - [Language orthogonality](./language_orthogonality.md)
 - [Modern syntax technical overview](./new_syntax_technical_overview.md)
+- [Parse diagnostics](./parse_diagnostics.md)
 - [Parser performance (Peggy)](./parser_performance.md)
 - [Property access patterns](./property_access_patterns.md)
 - [Secure templating guide](./secure_templating_guide.md)

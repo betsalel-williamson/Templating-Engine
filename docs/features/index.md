@@ -15,5 +15,6 @@ Product documentation for **what the templating engine does**: syntax surfaces, 
     - [Host environment integration](./architecture/host_environment_integration.md)
     - [Language orthogonality](./architecture/language_orthogonality.md)
     - [Modern syntax technical overview](./architecture/new_syntax_technical_overview.md)
+    - [Parse diagnostics](./architecture/parse_diagnostics.md)
     - [Property access patterns](./architecture/property_access_patterns.md)
     - [Secure templating guide](./architecture/secure_templating_guide.md)

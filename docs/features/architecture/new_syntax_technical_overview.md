@@ -6,6 +6,8 @@ This document defines the core technical concepts for the new, modern templating
 
 Broader V2 goals—concise expressiveness, reviewability for humans and LLMs, orthogonality, and JS/TS-first conventions—are in [V2 design goals](./v2_design_goals.md).
 
+Parse errors use compiler-style line/column diagnostics; see [Parse diagnostics](./parse_diagnostics.md).
+
 ## Key Concepts
 
 ### 1. Keywords & Delimiters

@@ -50,6 +50,7 @@ Templates are reviewed often—in PRs, in recipes, and in agent-generated output
 - Consistent delimiter pairing (`{% for %}` … `{% endfor %}`, `{% if %}` … `{% endif %}`)
 - Predictable naming (`loop.index`, `loop.last`) instead of magic iteration variables
 - Golden-file recipes that show canonical patterns for real workloads
+- Self-contained parse diagnostics that can be pasted directly into LLM prompts for automated fixes
 
 Reviewers (human or LLM) should be able to answer quickly: _what data is read, what transforms run, and what text is emitted._
 
