@@ -47,7 +47,7 @@
     "@bwilliamson/template-engine-core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^26.0.1",
+    "@types/node": "^26.1.0",
     "esbuild": "^0.25.5",
     "postject": "^1.0.0-alpha.6",
     "tsup": "^8.4.0",

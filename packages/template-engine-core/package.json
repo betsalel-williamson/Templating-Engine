@@ -49,7 +49,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "devDependencies": {
-    "@types/node": "^26.0.1",
+    "@types/node": "^26.1.0",
     "@vitest/coverage-v8": "^4.1.9",
     "peggy": "^5.0.4",
     "tsup": "^8.4.0",
