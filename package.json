@@ -57,14 +57,14 @@
     "@bwilliamson/mdcp-cli": "0.4.1",
     "@bwilliamson/mdcp-presets": "0.4.1",
     "@changesets/cli": "^2.29.2",
-    "@commitlint/cli": "^21.1.0",
-    "@commitlint/config-conventional": "^21.1.0",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.6.0",
+    "eslint": "^10.7.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.8",
-    "markdownlint-cli2": "^0.22.1",
-    "prettier": "^3.9.1",
-    "typescript-eslint": "^8.62.0"
+    "markdownlint-cli2": "^0.23.0",
+    "prettier": "^3.9.5",
+    "typescript-eslint": "^8.63.0"
   }
 }
