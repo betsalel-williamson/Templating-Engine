@@ -8,6 +8,7 @@ lib/
 
 # Tooling auto-save / local state
 .specstory/
+.cursor/plans/
 
 # Test / typecheck artifacts
 coverage/

@@ -4,12 +4,14 @@ Design notes and ADRs for the templating engine.
 
 ## Decision records
 
+- [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md) — **current north star**
 - [ADR-001: Pkl adoption (superseded)](./adr-001-adopt-pkl.md)
 
 ## V2 direction
 
 - [V2 design goals](./v2_design_goals.md)
 - [V2 mathematical design](./v2_mathematical_design.md)
+- [Templating evolution and tool landscape](./templating_evolution.md)
 
 ## Language design
 

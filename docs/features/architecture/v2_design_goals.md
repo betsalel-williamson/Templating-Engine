@@ -6,7 +6,7 @@ Define the human- and machine-review goals that guide Version 2 syntax and API d
 
 ## Status
 
-V2 is **in active design**. [ADR-001](./adr-001-adopt-pkl.md) (Pkl adoption) is **fully superseded** — Pkl is not a parallel or recommended path. The normative decision record for template language direction is **ADR-002** — Mustache logic-less + JS/TS-first for **code generation** (forthcoming; issue #76).
+V2 is **in active design**. [ADR-001](./adr-001-adopt-pkl.md) (Pkl adoption) is **fully superseded** — Pkl is not a parallel or recommended path. The normative decision record is [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md).
 
 The current parser and recipe implementations are exploratory. Goals here steer decisions; they do not freeze syntax that is not yet shipped. Where the codebase still exposes exploratory control-flow delimiters, treat that as implementation in flux—not the long-term destination.
 
@@ -88,6 +88,7 @@ When proposing or reviewing a V2 language feature, ask:
 
 ## Related Documents
 
+- [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md) — normative architecture decision
 - [V2 mathematical design](./v2_mathematical_design.md) — operator metaphor and pipeline principles
 - [Modern syntax technical overview](./new_syntax_technical_overview.md) — current exploratory delimiters, filters, and grammar direction
 - [Language orthogonality](./language_orthogonality.md) — composability and dynamic value rules

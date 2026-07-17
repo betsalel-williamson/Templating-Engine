@@ -1,87 +1,98 @@
-# V2 Mathematical Design
+# V2 Mathematical Design (v2.1 Rev: Mustache/m4 Hybrid)
+
+Normative direction: [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md).
 
 The original `mergeEngine` language (written in TCL) was designed around a **transformational, mathematical metaphor** rather than an imperative programming metaphor. Instead of using procedural programming constructs like `for` loops or `if/else` statements, the language treated templates and data as operands, using mathematical operators to define how they should be combined.
 
-To take a **design-first approach** for Version 2, we translate this profound insight—that **templating is fundamentally mathematical data transformation**—into the modern, Jinja-like syntax (`{{ ... }}`, `{% ... %}`) that the project is migrating toward.
+To take a **design-first approach** for Version 2, we translate this profound insight—that **templating is fundamentally mathematical data transformation**—into a highly secure, logic-less modern syntax.
 
-In a procedural engine, users write code (loops, variables, breaks). In a mathematical engine, users write **equations** (projections, filters, combinations).
+In a procedural engine (like Jinja or Twig), users write code (loops, variables, breaks). In a mathematical engine, users write **equations** (projections, filters, combinations).
 
-This document outlines how V2 preserves the mathematical elegance of the legacy engine while leveraging the readability and composability of modern template syntax.
+This document outlines how V2.1 preserves the mathematical elegance of the legacy engine while leveraging the readability of Mustache, the recursive expansion power of `m4`, and the execution safety of TypeScript.
 
 For reviewability, conciseness, and JS/TS-first conventions that guide syntax choices, see [V2 design goals](./v2_design_goals.md).
 
-## 1. The Core Operators (The Foundation)
+## 1. The Core Paradigm: Mustache + m4 + TypeScript
 
-In V2, we shift from cryptic symbols (`<*>`, `<+>`) to semantic blocks and filters, but the underlying mathematical behavior remains identical.
+We are building an engine that achieves Jinja/Liquid-level output complexity (advanced text formatting, structured data mapping, config generation) but is driven by m4/Mustache's execution mechanics (recursive macro expansion and logic-less, host-driven context).
+
+1. **Drop procedural block tags:** We move away from `{% for %}` or `{% if %}`.
+2. **Embrace logic-less sections:** We use `{{# ... }}` (Sections) and `{{^ ... }}` (Inverted Sections) for all logic (loops, conditionals, and context scoping).
+3. **Use TS Lambdas for transformations:** If we need a custom mathematical transform (like joining, formatting, or filtering), we use Mustache lambdas or m4-style TS macros: `{{#formatDate}}{{createdAt}}{{/formatDate}}` or `{{ paginate(users, 3) }}`.
+
+By stripping complex parsing (operator precedence, iterators, conditional ASTs) out of the templating language itself and deferring it to TypeScript, we get an engine that is smaller, faster, less error-prone, and deeply integrated with modern JS/TS runtimes.
+
+## 2. The Core Operators (The Foundation)
+
+In V2.1, we shift from cryptic symbols (`<*>`, `<+>`) to semantic sections and macros. The underlying mathematical behavior remains identical, but execution is pushed to the TypeScript runtime context.
 
 ### Multiplication (Projection / Map)
 
 - **Concept:** Multiplying a template block by a data array.
 - **Legacy Operator:** `<*>`
-- **V2 Design:** While `{% for item in array %}` is the standard, a true mathematical approach also emphasizes the `map` filter for inline transformations.
-- **Modern Syntax:** `{{ array | map('attribute') }}` or `{% for item in array %}...{% endfor %}`
+- **V2.1 Design:** Mustache sections over array context properties. The iteration is handled by TypeScript returning an Array to the engine.
+- **Modern Syntax:**
+
+  ```mustache
+  {{#activeUsers}}
+    {{name}}
+  {{/activeUsers}}
+  ```
 
 ### Cross Product (Delimited Combinatorics)
 
 - **Concept:** Iterating with boundary awareness (separators, terminators) without manual index tracking.
 - **Legacy Operator:** `<*? ... >`
-- **V2 Design:** The `join` filter acts as the cross-product operator, elegantly handling the "trailing comma" problem natively.
-- **Modern Syntax:** `{{ array | map('name') | join(', ') }}`
+- **V2.1 Design:** TypeScript-driven array manipulation using m4-style macros or custom lambdas to handle trailing commas natively.
+- **Modern Syntax:** `{{ join(pluck(users, "name"), ", ") }}`
 
 ### Sum & Subtraction (Conditional Branching)
 
 - **Concept:** Adding or omitting template blocks based on boolean vectors.
 - **Legacy Operator:** `<+>` and `<->`
-- **V2 Design:** Standard `{% if %}` blocks, but heavily favoring inline ternary operators for simple algebraic expressions.
-- **Modern Syntax:** `{{ isAdmin ? "Admin" : "User" }}`
-
-## 2. The Extended Operators (The V2 Additions)
-
-By extending the mathematical metaphor, we can introduce advanced data transformations that are typically painful to write in standard template languages.
-
-### Dot Product (Zipping / Parallel Projection)
-
-- **Concept:** Multiplying two parallel vectors.
-- **V2 Design:** A `zip` filter that combines multiple arrays into an array of tuples, allowing simultaneous iteration without manual index lookups (`array[loop.index0]`).
+- **V2.1 Design:** Standard Mustache sections evaluating boolean context properties.
 - **Modern Syntax:**
 
-  ```liquid
-  {% for col, val in columns | zip(values) %}
-    {{ col }}: {{ val }}
-  {% endfor %}
+  ```mustache
+  {{#isAdmin}}Admin{{/isAdmin}}
+  {{^isAdmin}}User{{/isAdmin}}
   ```
 
-### Convolution (Reduction / Folding)
+## 3. The Power of "Logic-less" in a TypeScript World
 
-- **Concept:** Applying a sliding window or accumulating a state across a vector.
-- **V2 Design:** A `reduce` filter for scalar accumulation, and a `batch` or `window` filter for matrix reshaping.
-- **Modern Syntax (Scalar):** `{{ items | map('price') | reduce('a + b', 0) }}`
-- **Modern Syntax (Matrix/Window):** `{% for row in items | batch(3) %}` (convolves a 1D array into a 2D grid of 3 columns).
+Instead of building a massive standard library of filters inside the template engine (like `unique`, `sort`, `batch`), you rely on standard TypeScript.
 
-## 3. Function Composition (The Pipe `|` as $f(g(x))$)
+The template is just a projection layer. It uses tags like `{{#section}}` which are polymorphic. The magic happens because of how TypeScript evaluates the context object:
 
-The most powerful aspect of modern syntax is the pipe operator (`|`). Mathematically, this is **function composition**. Instead of deeply nested function calls `h(g(f(x)))`, the pipe allows a linear flow of transformations: $x \rightarrow f \rightarrow g \rightarrow h$.
+- **If TS provides an Array:** The engine loops over it.
+- **If TS provides a Boolean:** The engine treats it as an `if/else` block.
+- **If TS provides a Getter/Proxy:** The engine triggers a live read from your runtime state.
+- **If TS provides a Function (Lambda/Macro):** The engine executes the TS function, dropping the result into the buffer.
 
-**V2 Design Principle:** Every operation should be chainable. Data flows from left to right, being mathematically transformed at each step before finally being rendered as a string.
+### Pulling from "Live Runtimes"
 
-_Example of a complex mathematical pipeline:_
+Because the engine just asks the TS context for a key, you can hook it directly into live paradigms:
 
-```liquid
-{{
-  users
-  | filter('isActive')           {# 1. Subset (Filter) #}
-  | sort('createdAt')            {# 2. Order (Vector sort) #}
-  | map('roles')                 {# 3. Multiply (Extract roles) #}
-  | flatten                      {# 4. Flatten matrix to 1D vector #}
-  | unique                       {# 5. Set theory (Distinct elements) #}
-  | join(', ')                   {# 6. Cross Product (Stringify) #}
-}}
-```
+- **JS Proxies:** Pass a `Proxy` as the template context. Asking for `{{systemMetrics}}` intercepts the `get` trap, performs a live API fetch, and returns real-time data.
+- **Async/Promises:** If enabled, `{{#liveDatabaseQuery}}` awaits the TS function.
+- **Signals/Observables:** Context properties can read from reactive signals.
 
-## 4. Design-First Principles for V2
+## 4. Security Architecture
 
-To ensure the new engine remains as robust as the original TCL `mergeEngine`, V2 enforces these architectural rules:
+Because m4-style macro expansion can introduce Server-Side Template Injection (SSTI) and Domain Injection (SQLi/XSS), V2.1 strictly enforces boundaries at the architecture level.
 
-1. **Immutability (No Side Effects):** Templates should never mutate the underlying data context. Operations like `reduce` or `map` return _new_ virtual arrays. There should be no `{% set array[0] = 'new' %}`.
-2. **Orthogonality:** Every filter and operator should do exactly one thing and be perfectly composable with any other filter. If `zip` works on arrays, it should work on the output of `map` or `filter`.
-3. **Late Stringification:** Keep data as rich objects/arrays for as long as possible in the pipeline. Only convert to a string at the very end of the pipe (e.g., via `join` or implicit rendering). This prevents the classic templating bug of accidentally printing `[object Object]`.
+1. **Implicit Escaping:** `{{ data }}` is ALWAYS escaped by default.
+2. **Explicit Execution:** The engine only executes macros that exist in the predefined TS `context`. Unrecognized macros return empty strings.
+3. **Data / Template Segregation via Types:** Output from TS functions is NEVER rescanned for new macros unless it is wrapped in an explicit `TrustedTemplate` type.
+   - **String Returns:** Treated as pure data. Escaped and dumped to buffer. No rescan.
+   - **TrustedTemplate Returns:** If a TS macro (e.g., `paginate`) generates safe template syntax intentionally, it returns `new Engine.TrustedTemplate('{{#batch}}...{{/batch}}')`. Only developers control instantiation.
+4. **Context-Aware Escaping & Parameterization:** Instead of string-concatenating SQL, the TS context acts as a parameter builder (e.g., `AND {{column}} = {{bind value}}` yielding parameterized queries like `$1`).
+5. **Call Stack Limits:** The engine maintains a `depth` counter on the context stack. If `depth > 100`, it throws a `RecursionDepthError` to prevent "Billion Laughs" infinite loops.
+
+## 5. Design-First Principles for V2.1
+
+To ensure the new engine remains robust:
+
+1. **Immutability (No Side Effects in Template):** Templates should never mutate the underlying data context. All data transformation logic lives in the TypeScript context getters/lambdas.
+2. **Orthogonality:** Every macro and section should do exactly one thing and perfectly compose.
+3. **Late Stringification:** Keep data as rich objects/arrays for as long as possible in the TS context pipeline. Only convert to a string at the very end of the evaluation.
