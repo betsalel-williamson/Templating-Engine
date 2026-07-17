@@ -1,4 +1,5 @@
 import { DataContext, DataContextValue, ExpressionNode, IfConditionNode } from '../types.js';
+import type { SourceLocation } from '../source-location.js';
 import { createDefaultFilterRegistry } from '../filters/registry.js';
 import { createTemplateEvaluationError } from '../errors/template-evaluation-error.js';
 
@@ -9,14 +10,16 @@ export interface ExpressionEvaluatorConfig {
 function resolveAliasChain(
   context: DataContext,
   startKey: string,
+  location?: SourceLocation,
   visited: Set<string> = new Set()
 ): DataContextValue | undefined {
   let currentKey = startKey;
 
   while (true) {
     if (visited.has(currentKey)) {
-      throw new Error(
-        `Circular alias reference detected: ${[...Array.from(visited), currentKey].join(' -> ')}`
+      throw createTemplateEvaluationError(
+        `Circular alias reference detected: ${[...Array.from(visited), currentKey].join(' -> ')}`,
+        location
       );
     }
     visited.add(currentKey);
@@ -41,13 +44,14 @@ function resolveAliasChain(
 function resolvePropertyPath(
   context: DataContext,
   path: string[],
-  resolveAliases: boolean
+  resolveAliases: boolean,
+  location?: SourceLocation
 ): DataContextValue | undefined {
   if (path.length === 0) return undefined;
 
   let current: DataContextValue | undefined;
   if (resolveAliases && path.length === 1) {
-    current = resolveAliasChain(context, path[0]);
+    current = resolveAliasChain(context, path[0], location);
   } else {
     current = context.get(path[0]);
   }
@@ -72,12 +76,12 @@ export async function evaluateExpression(
   switch (expression.type) {
     case 'Identifier': {
       if (resolveAliases) {
-        return resolveAliasChain(context, expression.name);
+        return resolveAliasChain(context, expression.name, expression.location);
       }
       return context.get(expression.name);
     }
     case 'PropertyAccess':
-      return resolvePropertyPath(context, expression.path, resolveAliases);
+      return resolvePropertyPath(context, expression.path, resolveAliases, expression.location);
     case 'BracketLookup': {
       const keyValue = await evaluateExpression(expression.key, context, {
         ...config,
