@@ -27,6 +27,9 @@ test-results/*
 # OS
 .DS_Store
 
+# Local agent worktrees (isolated checkouts)
+.worktrees/
+
 # Legacy shell script archive
 archive/
 

@@ -24,5 +24,7 @@
       "allowed_elements": ["p", "a", "h1", "img"]
     }
   },
-  "diffEditor.ignoreTrimWhitespace": true
+  "diffEditor.ignoreTrimWhitespace": true,
+  "specstory.cloudSync.enabled": "never",
+  "snyk.advanced.autoSelectOrganization": true
 }
