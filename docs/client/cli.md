@@ -1,6 +1,6 @@
 # CLI
 
-`@bwilliamson/template-engine-cli` renders [legacy syntax](../glossary/legacy-syntax.md) templates with JSON [data context](../glossary/data-context.md).
+`@bwilliamson/template-engine-cli` renders [legacy syntax](../glossary/legacy-syntax.md) templates with JSON [data context](../glossary/data-context.md). Prepare data in the JSON file before render — the CLI does not run host JavaScript/TypeScript or register template functions.
 
 ## Install
 
