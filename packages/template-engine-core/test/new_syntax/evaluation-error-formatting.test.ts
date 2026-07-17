@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { DataContext } from '../../src/types.js';
-import { parseModern } from '../../src/parse.js';
+import { parseLegacy, parseModern } from '../../src/parse.js';
 import { createSecureEvaluator } from '../../src/evaluator.js';
 import { formatTemplateEvaluationError } from '../../src/errors/format-parse-error.js';
 import { isTemplateEvaluationError } from '../../src/errors/template-evaluation-error.js';
@@ -101,6 +101,38 @@ describe('Template evaluation error formatting', () => {
       expect(formatted).toContain('Max evaluation depth exceeded');
       expect(formatted).toContain('depth.template:2:');
       expect(formatted).toContain('{{ v0 }}');
+      expect(formatted).toContain('^');
+    }
+  });
+
+  it('should format unregistered function errors with file path, line, column, and caret', async () => {
+    const sourcePath = 'functions.template';
+    const sourceText = 'line1\n<{nonExistentFunc()}>';
+    const ast = parseLegacy(sourceText, { sourcePath });
+    const evaluate = createSecureEvaluator({
+      functions: new Map(),
+      resolveAliases: false,
+      parseTemplate: parseLegacy,
+    });
+
+    try {
+      await evaluate(ast, new Map());
+      expect.fail('expected evaluation to throw');
+    } catch (error) {
+      expect(isTemplateEvaluationError(error)).toBe(true);
+      expect(error.message).toBe('Attempted to call unregistered function: "nonExistentFunc"');
+      expect(error.location?.source).toBe(sourcePath);
+      expect(error.location?.start.line).toBe(2);
+      expect(error.location?.start.column).toBeGreaterThan(0);
+
+      const formatted = formatTemplateEvaluationError(error, {
+        sourcePath,
+        sourceText,
+      });
+
+      expect(formatted).toContain('Attempted to call unregistered function: "nonExistentFunc"');
+      expect(formatted).toContain('functions.template:2:');
+      expect(formatted).toContain('<{nonExistentFunc()}>');
       expect(formatted).toContain('^');
     }
   });
