@@ -1,10 +1,10 @@
 # ADR-001: Adopting Pkl for Future Work
 
 - **Status**: Superseded
-- **Superseded by**: ADR-002 — Mustache logic-less + JS/TS-first template language (forthcoming; tracked in issue #76)
+- **Superseded by**: [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md)
 - **Date**: 2025-06-25
 
-> **Supersession:** This ADR is **fully dropped**. Pkl is **not** a recommended path for configuration, templating, or anything else in this project. Early exploration found Pkl helpful for templates/configs; the current north star is **code generation** with Mustache logic-less presentation and a JS/TS-first host layer. Active development continues on this TypeScript templating engine. ADR-002 will record the superseding decision.
+> **Supersession:** This ADR is **fully dropped**. Pkl is **not** a recommended path for configuration, templating, or anything else in this project. The current north star is **code generation** with Mustache logic-less presentation and a JS/TS-first host layer, recorded in [ADR-002](./adr-002-mustache-js-first-code-generation.md). Active development continues on this TypeScript templating engine.
 
 ## Historical context (archived)
 

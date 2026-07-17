@@ -2,9 +2,9 @@
 
 This document captures research into macro processors, template languages, and configuration systems. It explains why tools like `mergeEngine` (the legacy RPL-style engine this project ports) were invented independently, why the industry never consolidated on a single solution, and what that means for how we move forward.
 
-This research **complements** [ADR-001: Pkl adoption](./adr-001-adopt-pkl.md). ADR-001 remains valid for configuration workloads where a typed, standalone language and mature ecosystem are the right fit. Additional study of Mustache, `m4`, and related tools clarifies where a host-integrated template engine still earns its place.
+**North star for this repository:** [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md). Historical notes on Pkl and other tools appear below for context only — [ADR-001](./adr-001-adopt-pkl.md) is fully superseded.
 
-For the current V2.1 design direction, see [V2 mathematical design](./v2_mathematical_design.md).
+For the current V2.1 design direction, see [V2 mathematical design](./v2_mathematical_design.md) and [V2 design goals](./v2_design_goals.md).
 
 ## 1. A Spectrum of Text Transformation Tools
 
@@ -151,7 +151,7 @@ Mature systems do not pick "the best template language." They **separate concern
 
 ### Separation of orchestration and presentation
 
-- **Orchestration** (fetch data, validate, paginate) lives in the host or a typed config layer (Pkl, application code).
+- **Orchestration** (fetch data, validate, paginate) lives in the host application layer (TypeScript for this project).
 - **Presentation** (layout, field order, labels) lives in templates.
 - Violating this boundary produces "template programs" that are harder to test than the code they replaced.
 
@@ -166,46 +166,36 @@ Mature systems do not pick "the best template language." They **separate concern
 
 ## 7. Relating the Research to This Project
 
-### ADR-001 (Pkl) — still valid for its lane
+### ADR-002 — current direction
 
-[Pkl](https://pkl-lang.org/) is a strong fit when:
+This repository serves **code generation** workloads: SQL, configs, reports, and batch artifacts driven by live or prepared data. [ADR-002](./adr-002-mustache-js-first-code-generation.md) records the normative architecture:
 
-- Configuration is the **primary artifact** (not a view over live runtime state)
-- Static typing and LSP tooling outweigh embedded runtime integration
-- A standalone evaluator and package ecosystem are acceptable dependencies
+- **[Mustache](https://mustache.github.io/) logic-less presentation** — workers write sections and variables; templates do not grow into programs.
+- **JS/TS-first host context** — artisans implement map, join, branch, and indirection in TypeScript before render.
+- **RPL power without TCL-first syntax** — legacy mathematical semantics via host-prepared structures, documented in [V2 mathematical design](./v2_mathematical_design.md).
+- **Security contracts** — `TrustedTemplate`, allowlisted functions, recursion limits, and context-aware escaping ([Secure templating guide](./secure_templating_guide.md)).
 
-The PoC in ADR-001 demonstrated that many `mergeEngine` recipes map cleanly to Pkl's `map`, `joinToString`, and typed property access.
+[Pkl](https://pkl-lang.org/) was evaluated and briefly adopted ([ADR-001](./adr-001-adopt-pkl.md)); that path is **dropped**. Pkl is not a configuration side-path or complementary lane for this project.
 
-### Mustache / m4 hybrid — a better fit for another lane
+### Why a host-integrated engine (not consolidation)
 
-Further research suggests a complementary architecture for workloads that ADR-001 did not fully address:
+Industry research explains why no single external tool replaced mergeEngine-style workloads for this codebase:
 
 - **Live TypeScript runtimes** (proxies, getters, async context)
 - **Template-as-projection** over data prepared by the host
 - **Jinja/Liquid-class output complexity** without growing a procedural template parser
-- **Legacy mathematical semantics** (map, cross-product, conditional vectors) expressed via host-prepared context
+- **Legacy mathematical semantics** expressed via host-prepared context
 
-This is the direction documented in [V2 mathematical design](./v2_mathematical_design.md): Mustache-style sections for workers, TypeScript macros for artisans, strict security boundaries for production.
-
-### How to choose (pragmatic decision guide)
-
-| Need                                                       | Favor                                      |
-| :--------------------------------------------------------- | :----------------------------------------- |
-| Typed config modules, CI validation, minimal host coupling | Pkl (per ADR-001)                          |
-| Dynamic SQL / reports driven by live app state             | Host-integrated template engine            |
-| Untrusted template authors                                 | Logic-less sections + allowlisted context  |
-| Expert-authored batch transforms with deep indirection     | Macro expansion + typed trusted boundaries |
-| Greenfield with no legacy templates                        | Pkl or plain TypeScript string builders    |
-| Legacy `mergeEngine` parity + modern syntax                | This project's V2.1 hybrid path            |
+That is the Mustache + m4-style hybrid in [V2 mathematical design](./v2_mathematical_design.md): Mustache sections for workers, TypeScript macros for artisans, strict security boundaries for production.
 
 ## 8. Moving Forward
 
-The goal is not to declare a single winner among Pkl, Mustache, `m4`, and Jinja. The goal is to **place each tool in its lane** and evolve this repository deliberately:
+The goal is not to pick a universal winner among every tool in §1–§6. For **this repository**, the goal is to execute [ADR-002](./adr-002-mustache-js-first-code-generation.md) deliberately:
 
 1. **Preserve the RPL insight:** Templating is mathematical data transformation; templates combine with data rather than execute as scripts.
-2. **Adopt the artisan/worker split:** Workers write sections and variables; artisans implement transforms in TypeScript (or Pkl for config-only paths).
+2. **Adopt the artisan/worker split:** Workers write sections and variables; artisans implement transforms in TypeScript.
 3. **Borrow execution mechanics from Mustache and `m4`:** Context-driven sections and macro expansion—without unsafe blind rescanning of untrusted strings.
-4. **Keep configuration options open:** Use Pkl where ADR-001 applies; use the TS template engine where live runtime integration and legacy parity matter.
-5. **Invest in boundaries, not syntax sprawl:** `TrustedTemplate`, parameterized SQL helpers, recursion limits, and registry hardening matter more than adding `{% set %}` or more filters to the parser.
+4. **Invest in boundaries, not syntax sprawl:** `TrustedTemplate`, parameterized SQL helpers, recursion limits, and registry hardening matter more than adding `{% set %}` or more filters to the parser.
+5. **Improve review tooling:** VS Code highlighting and go-to-definition for template/context keys support human and LLM review ([ADR-002](./adr-002-mustache-js-first-code-generation.md) tooling goals).
 
 Understanding why RPL existed—and why the industry proliferated tools instead of consolidating—clarifies that we are not "behind" for building a template engine. We are serving a **specific boundary**: experts who need mergeEngine-class indirection and workers who need a safe, reviewable projection layer over a TypeScript runtime.

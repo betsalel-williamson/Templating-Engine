@@ -1,5 +1,7 @@
 # V2 Mathematical Design (v2.1 Rev: Mustache/m4 Hybrid)
 
+Normative direction: [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md).
+
 The original `mergeEngine` language (written in TCL) was designed around a **transformational, mathematical metaphor** rather than an imperative programming metaphor. Instead of using procedural programming constructs like `for` loops or `if/else` statements, the language treated templates and data as operands, using mathematical operators to define how they should be combined.
 
 To take a **design-first approach** for Version 2, we translate this profound insight—that **templating is fundamentally mathematical data transformation**—into a highly secure, logic-less modern syntax.
