@@ -12,6 +12,10 @@ Shared terms for the Templating Engine documentation. Spell out on first use in 
 
 Each term is its own shard under `docs/glossary/`. Sub-indexes group related terms.
 
+**Inclusion bar:** Add a glossary entry when a term is project-specific jargon, overloaded in general English, or when two docs use the same word for different ideas (for example **modern syntax** vs **V2** destination).
+
+**Terminology:** [Legacy syntax](#legacy-syntax) is the stable, shipped template surface today. [Modern syntax](#modern-syntax) names the experimental `parseModern` grammar in the codebase—not the long-term language destination. [V2](#v2) and [logic-less presentation](#logic-less-presentation) describe the active design direction (Mustache-inspired presentation, JS/TS-first [host layer](#host-layer), code-generation use cases). Do not treat exploratory `{% ... %}` control blocks or superseded ADR-001 Pkl guidance as current product direction.
+
 ### Templating terms
 
 See [index-templating](#templating-terms).
@@ -266,15 +270,52 @@ WORK_ITEM=42
 WORK_ITEM_LOOKUP=Branch from main (pull first). One issue per branch. Load WORK_ITEM per docs/developer/agent-work-item-tracking.md.
 ```
 
+## legacy syntax
+
+**Stable, shipped** template surface derived from [mergeEngine](#mergeengine): tags such as `<#name#>`, `<~ ... ~>`, `<*>`, and `<{fn(...)}>`. Parsed by `parseLegacy` in `@bwilliamson/template-engine-core`. Default for the CLI and stable API.
+
+This RPL-style surface preserves mergeEngine's mathematical transformation semantics. It is not the long-term [V2](#v2) destination—active design moves presentation toward [logic-less presentation](#logic-less-presentation) with [host layer](#host-layer) data prep—but legacy syntax remains supported for existing recipes.
+
+## modern syntax
+
+**Experimental parser surface** — not the long-term language destination. The `parseModern` API in `@bwilliamson/template-engine-core` parses Jinja2/Handlebars-inspired `{{ ... }}` output tags and `{% ... %}` control blocks. The grammar is incomplete and **implementation in flux**; imperative control flow in template text is exploratory, not the intended [logic-less presentation](#logic-less-presentation) model.
+
+The **destination direction** for Version 2 is Mustache-style logic-less presentation with branching and iteration planned in the [host layer](#host-layer). See [V2 design goals](docs/features/architecture/v2_design_goals.md).
+
+The CLI and stable API use [legacy syntax](#legacy-syntax) via `parseLegacy`.
+
+## V2
+
+**Active design** toward a Mustache-inspired, [logic-less presentation](#logic-less-presentation) template language with a JavaScript/TypeScript-first [host layer](#host-layer), optimized for **code generation** use cases.
+
+V2 is **not** a synonym for [modern syntax](#modern-syntax): the experimental `parseModern` grammar is exploratory. Normative goals and destination constructs are in [V2 design goals](docs/features/architecture/v2_design_goals.md). ADR-002 (forthcoming) will record the superseding decision over ADR-001; [Pkl](https://pkl-lang.org/) is **not** a recommended path.
+
+[Legacy syntax](#legacy-syntax) remains the stable shipped surface until V2 syntax lands.
+
+## logic-less presentation
+
+Template design principle inspired by [Mustache](https://mustache.github.io/): template text **renders prepared data**; branching, iteration, aggregation, and side effects belong in the [host layer](#host-layer) (JavaScript/TypeScript) that builds [data context](#data-context) before render.
+
+Destination for [V2](#v2)—not fully expressed in any single shipped syntax surface yet. Exploratory `{% if %}` / `{% for %}` blocks in [modern syntax](#modern-syntax) are implementation in flux, not normative direction. See [V2 design goals](docs/features/architecture/v2_design_goals.md).
+
+## host layer
+
+The JavaScript/TypeScript program or build step that prepares template [data context](#data-context) before rendering: shaping arrays for sections, computing flags for conditionals, registering safe functions, and orchestrating **code generation** workflows.
+
+[V2](#v2) design puts control decisions here rather than in template text ([logic-less presentation](#logic-less-presentation)). The engine does not execute arbitrary JavaScript inside template strings—the host prepares values; templates project and format them.
+
 ## Templating terms
 
 - [AST](#ast)
 - [cross-product](#cross-product)
 - [data context](#data-context)
+- [host layer](#host-layer)
 - [legacy syntax](#legacy-syntax)
+- [logic-less presentation](#logic-less-presentation)
 - [mergeEngine](#mergeengine)
 - [modern syntax](#modern-syntax)
 - [secure evaluator](#secure-evaluator)
+- [V2](#v2)
 
 ## Protocol terms
 
@@ -289,29 +330,25 @@ Single-topic Markdown source file under a guide directory (`docs/features/`, `do
 
 **MarkDown Context Protocol** — sharded documentation with compile, validation, and export for agents and CI. This repository uses mdcp for `docs/features/`, `docs/developer/`, and `docs/client/`.
 
-## AST
+## mergeEngine
 
-**Abstract Syntax Tree** — the canonical tree structure produced by a template parser. Both [legacy syntax](#legacy-syntax) and [modern syntax](#modern-syntax) grammars map to the same AST node types so one evaluator can render either surface.
+Classic **Recipe Programming Language (RPL)**-style templating by Jordan Henderson (original implementation in TCL). Templates treat text and data as operands—projection (`<*>`), conditionals (`<+>`), and indirection (`<##...##>`) express transformation rather than imperative programs.
 
-## cross-product
-
-Iteration pattern in legacy templates: a loop walks an array and renders a sub-template for each element. Named after the original mergeEngine cross-product construct (`<*>` with `<[array]>`).
+This repository ports mergeEngine semantics to TypeScript with a Peggy parser and a [secure evaluator](#secure-evaluator). The **destination** keeps RPL's transformation power without a TCL-first template surface; see [V2](#v2) and [logic-less presentation](#logic-less-presentation).
 
 ## data context
 
-Named values a template reads at evaluation time. The core library uses `Map` keys and values; nested objects from JSON should be converted to nested `Map` instances before evaluation.
+Named values a template reads at evaluation time. The [host layer](#host-layer) prepares context before render; the core library uses `Map` keys and values. Nested objects from JSON should be converted to nested `Map` instances before evaluation.
 
-## legacy syntax
+## AST
 
-Stable template surface derived from [mergeEngine](#mergeengine): tags such as `<#name#>`, `<~ ... ~>`, `<*>`, and `<{fn(...)}>`. Parsed by `parseLegacy` in `@bwilliamson/template-engine-core`.
+**Abstract Syntax Tree** — the canonical tree structure produced by a template parser. [Legacy syntax](#legacy-syntax) and experimental [modern syntax](#modern-syntax) grammars map to the same AST node types so one evaluator can render either surface.
 
-## mergeEngine
+## cross-product
 
-Classic JavaScript templating language by Jordan Henderson. This repository ports mergeEngine semantics to TypeScript with a Peggy parser and a secure evaluator.
+Legacy iteration pattern: a loop walks an array and renders a sub-template for each element. Named after the original mergeEngine cross-product construct (`<*>` with `<[array]>`).
 
-## modern syntax
-
-Experimental template surface inspired by Jinja2 and Handlebars: `{{ expression }}` and `{% ... %}` blocks. Parsed by `parseModern` in `@bwilliamson/template-engine-core`. Not yet feature-complete.
+In [V2](#v2) destination design, the [host layer](#host-layer) prepares arrays and templates use section-style rendering rather than reimplementing loop control flow in template text.
 
 ## secure evaluator
 
