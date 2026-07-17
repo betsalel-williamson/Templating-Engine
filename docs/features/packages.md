@@ -16,9 +16,11 @@ Pass `sourcePath` in parse options so diagnostics name the template file. See [P
 
 [Data context](../glossary/data-context.md) values are `Map`-based. Convert nested JSON objects to nested `Map` instances before evaluation.
 
+`parseModern` is **library-only** — the CLI does not expose it. Treat modern parsing as exploratory; long-term syntax direction is in [V2 design goals](./architecture/v2_design_goals.md) (ADR-002 forthcoming in [issue #76](https://github.com/betsalel-williamson/Templating-Engine/issues/76)).
+
 ## `@bwilliamson/template-engine-cli`
 
-Command-line renderer for legacy templates and JSON data.
+Command-line renderer for **legacy** templates and JSON data.
 
 ```bash
 template-engine --template template.txt --data data.json
