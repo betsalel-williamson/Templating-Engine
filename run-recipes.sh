@@ -20,11 +20,9 @@ if [ -f "dist/template-engine-linux" ]; then
   CLI_BINARY="dist/template-engine-linux"
 elif [ -f "dist/template-engine-macos" ]; then
   CLI_BINARY="dist/template-engine-macos"
-elif [ -f "dist/template-engine-win.exe" ]; then
-  CLI_BINARY="dist/template-engine-win.exe"
 else
   echo "Error: No compiled CLI binary found in 'dist/' directory." >&2
-  echo "Please run one of the 'npm run build:standalone:*' scripts first." >&2
+  echo "Please run one of the 'pnpm --filter @bwilliamson/template-engine-cli run build:standalone:{linux,macos}' scripts first." >&2
   exit 1
 fi
 

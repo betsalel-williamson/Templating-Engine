@@ -73,10 +73,10 @@ See the **[Template Language Reference](https://github.com/betsalel-williamson/T
 For environments without Node.js, build a single-file binary from the monorepo root:
 
 ```bash
-pnpm --filter @bwilliamson/template-engine-cli run build:standalone:linux   # or :macos / :windows
+pnpm --filter @bwilliamson/template-engine-cli run build:standalone:linux   # or :macos
 ```
 
-Output lands in `packages/template-engine-cli/dist/`. See [DEVELOPERS.md](https://github.com/betsalel-williamson/Templating-Engine/blob/main/DEVELOPERS.md) for release details.
+Output lands in `packages/template-engine-cli/dist/`. Linux and macOS binaries are published on GitHub Releases; Windows users should use the npm package. See [DEVELOPERS.md](https://github.com/betsalel-williamson/Templating-Engine/blob/main/DEVELOPERS.md) for release details.
 
 ## Links
 

@@ -69,7 +69,9 @@ template-engine --template template.txt --data data.json
 
 ## Standalone binary
 
-Pre-built executables are published on [GitHub Releases](https://github.com/betsalel-williamson/Templating-Engine/releases) as `template-engine-v*-linux`, `template-engine-v*-macos`, and `template-engine-v*-win.exe`. Use the same flags as the npm-installed CLI.
+Pre-built executables for **Linux** and **macOS** are published on [GitHub Releases](https://github.com/betsalel-williamson/Templating-Engine/releases) as `template-engine-v*-linux` and `template-engine-v*-macos`. Use the same flags as the npm-installed CLI.
+
+**Windows:** There is no published Windows standalone binary. Install and run the CLI via npm (`npm install -g @bwilliamson/template-engine-cli`). See [ADR-002](../features/architecture/adr-002-retire-windows-sea-ci.md).
 
 ### macOS Gatekeeper
 
