@@ -176,7 +176,7 @@ Use `mdcp refs lookup "<topic>" --format json` before inserting `[text](#slug)` 
 
 ## Project management
 
-Planning work for this repository is tracked on the [Templating Engine project board](https://github.com/users/betsalel-williamson/projects/5).
+Open work for this repository lives in [GitHub Issues](https://github.com/betsalel-williamson/Templating-Engine/issues) and on the [Templating Engine project board](https://github.com/users/betsalel-williamson/projects/5). The tracker is the source of truth — not local bootstrap scripts or durable docs backlogs.
 
 ### Board
 
@@ -195,30 +195,39 @@ Planning work for this repository is tracked on the [Templating Engine project b
 | CLI Interface           | [#41](https://github.com/betsalel-williamson/Templating-Engine/issues/41) | #31          |
 | Tooling and CI          | [#42](https://github.com/betsalel-williamson/Templating-Engine/issues/42) | #32–#38      |
 
-Epic issues were created by `scripts/configure-project-management.sh`. Re-run the script safely if you need to backfill a fresh board; it skips existing epics.
+Create new epics with the **Epic** issue template (`.github/ISSUE_TEMPLATE/epic.yml`). Link child issues via **Set parent issue** in the GitHub UI or the `gh` sub-issue APIs.
 
-### Adding issues to the board
+### File and track work
 
-- **Issue templates** — `.github/ISSUE_TEMPLATE/*.yml` include `projects: [betsalel-williamson/5]` so template-created issues land on the board immediately.
-- **Epics** — use the **Epic** issue template, then link child issues via **Set parent issue** in the GitHub UI or `gh` sub-issue APIs.
-- **Backfill** — run `scripts/configure-project-management.sh` to add existing open issues to the board ([one-time setup](#one-time-setup)).
+#### Issue templates
 
-### One-time setup
+Templates under `.github/ISSUE_TEMPLATE/` cover bug reports, features, documentation, maintenance, and epics. Each template includes `projects: [betsalel-williamson/5]`, so issues created from a template land on the board immediately.
 
-After cloning or when bootstrapping a fresh project board:
+Create an issue from the web UI (**New issue** → pick a template) or with `gh`:
 
 ```bash
-chmod +x scripts/configure-project-management.sh
-./scripts/configure-project-management.sh
+gh issue create --repo betsalel-williamson/Templating-Engine --template feature_request.yml
 ```
 
-This script:
+#### Add an existing issue to the board
 
-1. Creates epic issues (if missing)
-2. Links child issues under the correct epic
-3. Adds all open repository issues to the project board
+When an issue was not created from a template, add it to the project with `gh`:
 
-Requires `gh` authenticated with `project`, `read:project`, and `repo` scopes.
+```bash
+gh project item-add 5 --owner betsalel-williamson \
+  --url https://github.com/betsalel-williamson/Templating-Engine/issues/<number>
+```
+
+#### View and update status
+
+Browse or drag cards on the [project board](https://github.com/users/betsalel-williamson/projects/5), or use `gh issue view` / `gh issue edit` for issue fields. Move **Status** to **In Progress** when starting work and **Done** when the linked PR merges or the issue closes.
+
+#### Agents and automation
+
+Coding agents load issue scope via [agent work-item tracking](#agent-work-item-tracking):
+
+- **`gh`** — `gh issue view <number> --comments` when the CLI is authenticated
+- **GitHub MCP** — issue and project tools when the MCP server is enabled in the agent host
 
 ### Working conventions
 

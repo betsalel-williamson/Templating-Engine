@@ -11,10 +11,7 @@ export default tseslint.config(
       '**/node_modules/**',
       '.cursor/**',
       'packages/**/test/**',
-      'scripts/validate-stories.ts',
       'scripts/release.sh',
-      'scripts/validate-stories.sh',
-      'scripts/run-pkl-recipes.sh',
     ],
   },
   {
