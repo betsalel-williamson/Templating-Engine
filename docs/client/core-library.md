@@ -1,6 +1,6 @@
 # Core library
 
-`@bwilliamson/template-engine-core` provides parsers and a [secure evaluator](../glossary/secure-evaluator.md).
+`@bwilliamson/template-engine-core` provides parsers and a [secure evaluator](../glossary/secure-evaluator.md). Use it when embedding template rendering in a JavaScript/TypeScript application.
 
 ## Install
 
@@ -9,6 +9,12 @@ npm install @bwilliamson/template-engine-core
 ```
 
 Requires Node.js >= 24.0.
+
+## Host-first workflow
+
+Templates render **prepared** context. Fetch, validate, map, filter, and branch in TypeScript **before** calling `evaluate`. Register only the template functions your application needs.
+
+Long-term direction keeps logic in the host and templates logic-less — see [ADR-002](../features/architecture/adr-002-mustache-js-first-code-generation.md). Today, [legacy syntax](../glossary/legacy-syntax.md) is the stable surface; `parseModern` is exploratory and not CLI-supported.
 
 ## Usage
 
@@ -50,13 +56,13 @@ const output = await evaluate(ast, context);
 Invalid template syntax throws a `SyntaxError` with `location.start.line` and `location.start.column` (1-based). Format errors for humans with `formatTemplateParseError`:
 
 ```typescript
-import { formatTemplateParseError, parseModern } from '@bwilliamson/template-engine-core';
+import { formatTemplateParseError, parseLegacy } from '@bwilliamson/template-engine-core';
 
-const sourcePath = 'report.v2.template';
-const source = '{% for item in items %}\n  {{ item.name }}\n';
+const sourcePath = 'report.template';
+const source = 'Hello, <#name\n';
 
 try {
-  parseModern(source, { sourcePath });
+  parseLegacy(source, { sourcePath });
 } catch (error) {
   console.error(formatTemplateParseError(error, { sourcePath, sourceText: source }));
 }
@@ -65,14 +71,14 @@ try {
 Example stderr-style output:
 
 ```text
-Error: Expected end of input but "{" found.
- --> report.v2.template:2:3
+Error: Expected end of input but "<" found.
+ --> report.template:1:12
   |
-2 |   {{ item.name }}
-  |   ^
+1 | Hello, <#name
+  |           ^
 ```
 
-Best practices: always pass `sourcePath` when parsing file-backed templates; pass full `sourceText` when formatting. The formatted diagnostics are designed to be self-contained and are typically sufficient for LLM prompts to assist with fixing syntax issues. Some evaluation errors (for example unknown filters on modern syntax) include the same line/column metadata when the failing AST node carries a parse-time `location`.
+Best practices: always pass `sourcePath` when parsing file-backed templates; pass full `sourceText` when formatting. The formatted diagnostics are designed to be self-contained and are typically sufficient for LLM prompts to assist with fixing syntax issues. Some evaluation errors include the same line/column metadata when the failing AST node carries a parse-time `location`.
 
 ## Evaluation errors
 
@@ -83,15 +89,16 @@ import {
   createSecureEvaluator,
   formatTemplateEvaluationError,
   isTemplateEvaluationError,
-  parseModern,
+  parseLegacy,
 } from '@bwilliamson/template-engine-core';
 
-const sourcePath = 'filters.template';
-const source = '{{ users | unknown }}';
+const sourcePath = 'functions.template';
+const source = '<{unknownFn(<#user#>)}>';
 const evaluate = createSecureEvaluator({ functions: new Map() });
+const context = new Map([['user', 'World']]);
 
 try {
-  const ast = parseModern(source, { sourcePath });
+  const ast = parseLegacy(source, { sourcePath });
   await evaluate(ast, context);
 } catch (error) {
   if (isTemplateEvaluationError(error)) {

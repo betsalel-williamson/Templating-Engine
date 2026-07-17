@@ -1,5 +1,9 @@
 # Quick start
 
+The templating engine renders structured text from a template string plus a [data context](../glossary/data-context.md). Prepare data in JavaScript/TypeScript (library) or JSON (CLI); templates project that context. Arbitrary host code runs only when you register template functions in the core library — the CLI registers none.
+
+Shipped syntax is [legacy](../glossary/legacy-syntax.md). Full reference: [template language](./template-language.md).
+
 ## Library
 
 ```bash

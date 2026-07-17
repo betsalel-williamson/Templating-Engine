@@ -2,6 +2,8 @@
 
 The templating engine uses [legacy syntax](../glossary/legacy-syntax.md) derived from the original [`mergeEngine`](https://jordanhenderson.com/). Templates combine literal text with tags that read [data context](../glossary/data-context.md), iterate, branch, and call registered functions.
 
+This is the **stable, CLI-supported** surface. Prepare and shape data in JavaScript/TypeScript (or JSON for the CLI) before render — templates project context; they do not execute arbitrary host programs unless you register functions.
+
 > **Indexing:** Array slicing uses **1-based** `{offset,limit}` notation, matching the original mergeEngine.
 
 ## Delimiters
@@ -17,7 +19,7 @@ The templating engine uses [legacy syntax](../glossary/legacy-syntax.md) derived
 | Iteration              | `<*>`, `<[array]>`       | Loop over an array                         |
 | Array slice            | `{offset,limit}`         | Limit which elements are iterated          |
 
-[Modern syntax](../glossary/modern-syntax.md) (`{{ ... }}`, `{% ... %}`) is in development. The CLI and stable API currently use legacy syntax via `parseLegacy`.
+[Modern syntax](../glossary/modern-syntax.md) (`{{ ... }}`, `{% ... %}`) is **library-only and experimental** via `parseModern`. Exploratory modern control-flow delimiters are **not** the long-term destination — active design targets Mustache logic-less presentation with a JS/TS-first host layer ([ADR-002](../features/architecture/adr-002-mustache-js-first-code-generation.md)).
 
 ## Variables
 
@@ -101,6 +103,7 @@ Any construct that expects a value can accept a template that resolves to that v
 
 ## Further reading
 
-- [Modern syntax overview](../features/architecture/new_syntax_technical_overview.md) (in progress)
+- [ADR-002: Mustache logic-less + JS/TS-first](../features/architecture/adr-002-mustache-js-first-code-generation.md) — normative direction (not fully shipped)
+- [V2 design goals](../features/architecture/v2_design_goals.md)
 - [Property access patterns](../features/architecture/property_access_patterns.md)
 - [Host environment integration](../features/architecture/host_environment_integration.md)
