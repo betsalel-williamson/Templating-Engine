@@ -39,9 +39,8 @@ chmod +x scripts/configure-project-management.sh
 This script:
 
 1. Creates epic issues (if missing)
-2. Links migrated work items as sub-issues under the correct epic
+2. Links child issues under the correct epic
 3. Adds all open repository issues to the project board
-4. Sets #34 (parser error messages) to **In Progress**
 
 Requires `gh` authenticated with `project`, `read:project`, and `repo` scopes.
 
