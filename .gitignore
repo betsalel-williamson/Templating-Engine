@@ -32,3 +32,4 @@ archive/
 # mdcp generated docs (shards are source of truth)
 docs/_build/
 docs/.caches/
+docs/mdcp.v*.llms.txt
