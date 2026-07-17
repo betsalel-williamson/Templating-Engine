@@ -2,54 +2,42 @@
 #
 # run-recipes.sh
 #
-# This script automatically detects the appropriate compiled CLI binary for the
-# current operating system, iterates through all recipes in the 'docs/recipes/'
-# directory, and generates a corresponding '.result' file for each one.
+# Iterates through recipes in docs/recipes/ and generates a corresponding
+# '.result' file for each one via the built npm CLI package.
 #
 # This serves as an end-to-end regression test for the template engine.
 #
 # Usage:
-#   Run from the root of the project:
+#   Run from the root of the project after `pnpm run build`:
 #   ./run-recipes.sh
 
 set -euo pipefail
 
-# 1. Detect the correct CLI binary for the current OS
-CLI_BINARY=""
-if [ -f "dist/template-engine-linux" ]; then
-  CLI_BINARY="dist/template-engine-linux"
-elif [ -f "dist/template-engine-macos" ]; then
-  CLI_BINARY="dist/template-engine-macos"
-else
-  echo "Error: No compiled CLI binary found in 'dist/' directory." >&2
-  echo "Please run one of the 'pnpm --filter @bwilliamson/template-engine-cli run build:standalone:{linux,macos}' scripts first." >&2
+CLI_JS="packages/template-engine-cli/dist/cli.js"
+if [ ! -f "${CLI_JS}" ]; then
+  echo "Error: Built CLI not found at '${CLI_JS}'." >&2
+  echo "Run 'pnpm run build' first, then re-run this script." >&2
   exit 1
 fi
 
-echo "Using binary: ${CLI_BINARY}"
+echo "Using CLI: node ${CLI_JS}"
 echo "----------------------------------------"
 
-# 2. Iterate through all recipe markdown files to find the base names
 for recipe_md in docs/recipes/*.md; do
-  # Get the base name of the recipe (e.g., "01-dynamic-sql-generation")
-  base_name=$(basename "$recipe_md" .md)
+  base_name=$(basename "${recipe_md}" .md)
 
-  # Define the paths for the template, data, and result files
   template_file="docs/recipes/${base_name}.template"
   data_file="docs/recipes/${base_name}.json"
   result_file="docs/recipes/${base_name}.result"
 
   echo "-> Processing recipe: ${base_name}"
 
-  # Check if the required input files exist
   if [ ! -f "${template_file}" ] || [ ! -f "${data_file}" ]; then
     echo "   [SKIP] Missing template or data file for ${base_name}."
     continue
   fi
 
-  # 3. Execute the CLI binary and redirect the output to the result file
-  #    The quotes are essential to handle paths correctly.
-  time "${CLI_BINARY}" --template "${template_file}" --data "${data_file}" > "${result_file}"
+  time node "${CLI_JS}" --template "${template_file}" --data "${data_file}" > "${result_file}"
 
   echo "   [OK] Generated ${result_file}"
 done

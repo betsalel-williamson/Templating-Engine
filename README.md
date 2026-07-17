@@ -54,26 +54,10 @@ const output = await evaluate(parseLegacy('Hello, <#name#>!'), new Map([['name',
 ```bash
 npm install -g @bwilliamson/template-engine-cli
 template-engine --template template.txt --data data.json
+# or: npx @bwilliamson/template-engine-cli --template template.txt --data data.json
 ```
 
-**Standalone binary (GitHub Releases)**
-
-Pre-built executables for Linux and macOS are attached to [GitHub Releases](https://github.com/betsalel-williamson/Templating-Engine/releases) (for example `template-engine-v1.2.3-macos`). Download the file for your platform, make it executable if needed, and run it with the same flags as the npm CLI. On Windows, use the npm package instead of a standalone binary.
-
-### macOS: Gatekeeper warning
-
-On macOS, the first launch of a downloaded release binary may be blocked by **Gatekeeper** with a message that the developer cannot be verified. Release binaries are **not** signed with an Apple Developer ID certificate and are **not** notarized. That is expected for the current release process.
-
-To run the binary safely without changing system-wide security settings:
-
-1. Download `template-engine-v*-macos` from [GitHub Releases](https://github.com/betsalel-williamson/Templating-Engine/releases).
-2. In Finder, **Control-click** (or right-click) the file and choose **Open**.
-3. In the dialog, click **Open** again to confirm.
-4. macOS records a one-time exception for that file; later runs from Terminal or Finder should work normally.
-
-If you prefer to avoid this step, install the CLI with npm instead (`npm install -g @bwilliamson/template-engine-cli`).
-
-See [CLI — standalone binary](docs/client/cli.md#standalone-binary) for more detail.
+See [CLI](docs/client/cli.md) for options and behavior. npm/npx is the supported install path on all platforms ([ADR-005](docs/features/architecture/adr-005-retire-sea-binaries.md)).
 
 ## Development
 

@@ -105,24 +105,8 @@ pnpm changeset:status
 1. Merge PRs with changesets to `main`.
 2. On `main`, run `pnpm release:tag:push` (interactive; requires a TTY).
 3. CI publishes to npm on tag push (`v*`).
-4. SEA binaries are published separately via the `release-binaries` workflow.
 
 Record removed or breaking behavior in the **changeset**, not in feature or client shards.
-
-## Standalone CLI binaries
-
-Build a self-contained executable (Node.js SEA) for the CLI package on **Linux** or **macOS**:
-
-```bash
-pnpm --filter @bwilliamson/template-engine-cli run build:standalone:linux
-pnpm --filter @bwilliamson/template-engine-cli run build:standalone:macos
-```
-
-Artifacts are written to `packages/template-engine-cli/dist/` (`template-engine-linux` or `template-engine-macos`). Binaries are published separately via the `release-binaries` workflow as `template-engine-v*-{linux,macos}` on GitHub Releases.
-
-Windows is not part of the standalone release matrix. Windows users should use the npm-published CLI. Decision, restore criteria, and pointers to the prior Windows SEA/CI implementation are in [ADR-003: Retire Windows SEA and CI](docs/features/architecture/adr-003-retire-windows-sea-ci.md).
-
-Release artifacts are **not** Apple-signed or notarized. macOS users may see a Gatekeeper warning on first launch; the safe one-time **Control-click → Open** workaround is documented in the [CLI client guide](./docs/_build/client.md#macos-gatekeeper).
 
 ## Docs dogfooding
 

@@ -1,7 +1,10 @@
 # ADR-003: Retire Windows SEA Binaries and CI Verify
 
-- **Status**: Accepted
+- **Status**: Superseded
+- **Superseded by**: [ADR-005: Retire All SEA CLI Binaries](./adr-005-retire-sea-binaries.md)
 - **Date**: 2026-07-17
+
+> **Supersession:** Full SEA retirement (all platforms) is recorded in [ADR-005](./adr-005-retire-sea-binaries.md). This ADR remains the historical record of the Windows-only retire.
 
 ## Context and Problem Statement
 

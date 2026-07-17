@@ -1,5 +1,0 @@
-{
-  "main": "dist/cli.bundle.cjs",
-  "output": "dist/cli.blob",
-  "disableExperimentalSEAWarning": true
-}
