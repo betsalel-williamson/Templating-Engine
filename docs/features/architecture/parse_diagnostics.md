@@ -45,7 +45,7 @@ Peggy grammars attach an optional `location` field to canonical AST nodes at par
 | `location.end.line`     | 1-based end line (inclusive span)                      |
 | `location.end.column`   | 1-based end column                                     |
 
-The evaluator reads `location` from the node that triggered a failure when formatting runtime errors. Unknown-filter failures on modern syntax are the first supported evaluation path; additional error kinds may attach spans in follow-up work.
+The evaluator reads `location` from the node that triggered a failure when formatting runtime errors. Unknown-filter and circular-alias failures on modern syntax attach spans when parse-time location metadata is available; additional error kinds may attach spans in follow-up work.
 
 ## Contracts
 
@@ -64,7 +64,7 @@ Integrator usage and package exports live in the [core library (client)](../../c
 | --------------------- | ---------------------- | ---------------------------------------------- |
 | Parse / syntax        | Yes (`line`, `column`) | `Expected end of input but …`                  |
 | Unknown filter        | Yes (filter span)      | `Unknown filter: "…"`                          |
-| Circular alias        | No                     | `Circular alias reference detected: …`         |
+| Circular alias        | Yes (identifier span)  | `Circular alias reference detected: …`         |
 | Max evaluation depth  | No                     | `Max evaluation depth exceeded …`              |
 | Unregistered function | No                     | `Attempted to call unregistered function: "…"` |
 

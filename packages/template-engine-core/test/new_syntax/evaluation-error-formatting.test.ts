@@ -64,4 +64,40 @@ describe('Template evaluation error formatting', () => {
       expect(formatted).toContain('^');
     }
   });
+
+  it('should format circular alias errors with file path, line, column, and caret', async () => {
+    const sourcePath = 'aliases.template';
+    const sourceText = 'line1\n{{ varA }}';
+    const ast = parseModern(sourceText, { sourcePath });
+    const context: DataContext = new Map([
+      ['varA', 'varB'],
+      ['varB', 'varA'],
+    ]);
+    const evaluate = createSecureEvaluator({
+      functions: new Map(),
+      resolveAliases: true,
+      parseTemplate: parseModern,
+    });
+
+    try {
+      await evaluate(ast, context);
+      expect.fail('expected evaluation to throw');
+    } catch (error) {
+      expect(isTemplateEvaluationError(error)).toBe(true);
+      expect(error.message).toBe('Circular alias reference detected: varA -> varB -> varA');
+      expect(error.location?.source).toBe(sourcePath);
+      expect(error.location?.start.line).toBe(2);
+      expect(error.location?.start.column).toBeGreaterThan(0);
+
+      const formatted = formatTemplateEvaluationError(error, {
+        sourcePath,
+        sourceText,
+      });
+
+      expect(formatted).toContain('Circular alias reference detected: varA -> varB -> varA');
+      expect(formatted).toContain('aliases.template:2:');
+      expect(formatted).toContain('{{ varA }}');
+      expect(formatted).toContain('^');
+    }
+  });
 });

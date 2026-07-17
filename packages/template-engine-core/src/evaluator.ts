@@ -6,12 +6,14 @@ import {
   DataContextValue,
   ParseFunction,
 } from './types.js';
+import type { SourceLocation } from './source-location.js';
 import { parse } from '../lib/parser.js';
 import {
   evaluateExpression,
   evaluateIfCondition,
   stringifyExpressionValue,
 } from './modern/expression-evaluator.js';
+import { createTemplateEvaluationError } from './errors/template-evaluation-error.js';
 
 const MAX_EVAL_DEPTH = 50;
 
@@ -25,14 +27,16 @@ interface EvaluatorConfig {
 function resolveAliasChain(
   context: DataContext,
   startKey: string,
+  location?: SourceLocation,
   visited: Set<string> = new Set()
 ): DataContextValue | undefined {
   let currentKey = startKey;
 
   while (true) {
     if (visited.has(currentKey)) {
-      throw new Error(
-        `Circular alias reference detected: ${[...Array.from(visited), currentKey].join(' -> ')}`
+      throw createTemplateEvaluationError(
+        `Circular alias reference detected: ${[...Array.from(visited), currentKey].join(' -> ')}`,
+        location
       );
     }
     visited.add(currentKey);
@@ -117,7 +121,7 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
 
         let value: DataContextValue | undefined;
         if (config.resolveAliases && !resolvedVarName.includes('.')) {
-          value = resolveAliasChain(context, resolvedVarName);
+          value = resolveAliasChain(context, resolvedVarName, node.location);
         } else {
           value = context.get(resolvedVarName);
           if (value === undefined && resolvedVarName.includes('.')) {
