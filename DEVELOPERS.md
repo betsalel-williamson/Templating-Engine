@@ -292,7 +292,7 @@ Config: [`docs/mdcp.config.json`](docs/mdcp.config.json).
 
 1. Edit shard `.md` files under the relevant guide directory.
 2. Run `pnpm docs:compile` then `pnpm docs:check` (Node >= 24).
-3. Commit shard changes. Regenerated `docs/_build/` and `docs/.caches/refs.json` are gitignored.
+3. Commit shard changes. Regenerated `docs/_build/`, `docs/.caches/refs.json`, and `docs/mdcp.v*.llms.txt` (from `docs:compile`) are gitignored.
 4. Commit `DEVELOPERS.md` when `developer/` shards change.
 
 ### Agent context
