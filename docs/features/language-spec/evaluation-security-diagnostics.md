@@ -45,9 +45,12 @@ Lambdas/macros that return section bodies follow the same frame push/pop rules a
 
 - Context stack depth counter for nested sections and partials.
 - Maximum evaluation depth for nested expressions and alias expansion.
-- Breach → `RecursionDepthError` or equivalent with source span — prevents billion-laughs and runaway macro expansion ([V2 mathematical design §4](../architecture/v2_mathematical_design.md)).
+- **Host-configurable ceiling** at evaluator setup ([host layer contracts](./host-layer-contracts.md)): the integrator may raise the default finite upper bound, or disable depth limiting entirely.
+- **Default remains finite** — unlimited (or “no depth check”) is an explicit opt-in for hosts that need deeper nesting than the default and accept the operational risk.
+- **Risk when disabled or set very high:** runaway expansion (including billion-laughs-style attacks or accidental deep recursion) may hang evaluation, exhaust memory, or crash the process; the host must be prepared to terminate the program. Disabling limits does not remove the need for trusted templates and allowlisted registries.
+- When a **configured finite limit** is breached → `RecursionDepthError` or equivalent with source span ([V2 mathematical design §4](../architecture/v2_mathematical_design.md)). When limits are **disabled**, that diagnostic does not fire; the host owns the risk.
 
-**Shipped:** max evaluation depth diagnostic exists for some paths ([parse diagnostics](../architecture/parse_diagnostics.md) coverage table).
+**Shipped:** max evaluation depth diagnostic exists for some paths ([parse diagnostics](../architecture/parse_diagnostics.md) coverage table). Raising or disabling the ceiling from the host is **proposed**.
 
 ## Failure modes
 
@@ -57,7 +60,7 @@ Lambdas/macros that return section bodies follow the same frame push/pop rules a
 | Unknown filter        | Throw or empty — align with function unregistered policy                                                                      | Span on filter name                      |
 | Unregistered function | Empty **or** throw — pick one before implementation [#21](https://github.com/betsalel-williamson/Templating-Engine/issues/21) | Span on function name                    |
 | Unknown partial       | Throw with span                                                                                                               | Partial name location                    |
-| Depth exceeded        | Throw                                                                                                                         | Span on triggering node                  |
+| Depth exceeded        | Throw when a finite host-configured limit is in effect; N/A if depth limiting is disabled                                     | Span on triggering node                  |
 | Async rejection       | Propagate; attach source metadata when available                                                                              | Message + location when present          |
 
 Formatted diagnostics must remain **LLM-ready** — self-contained message, path, line, column, caret ([parse diagnostics](../architecture/parse_diagnostics.md)).

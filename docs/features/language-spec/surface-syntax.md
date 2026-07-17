@@ -57,7 +57,7 @@ Inverted sections (`{{^}}`) cover else/missing cases without template-local `if/
 
 ## Partials
 
-**Proposed:** `{{> partialName}}` includes a named sub-template from a host-provided partial map. Partials compose; recursion depth is bounded (see [evaluation shard](./evaluation-security-diagnostics.md)).
+**Proposed:** `{{> partialName}}` includes a named sub-template from a host-provided partial map. Partials compose; recursion depth is bounded by host-configurable limits (see [evaluation shard](./evaluation-security-diagnostics.md)).
 
 Partial resolution strategy (file paths vs inline registry) is an open question.
 

@@ -28,7 +28,7 @@
 | ----------------------- | ------------------------------------------------------------------------------ |
 | Async section iteration | Sequential await vs parallel batch for array sections                          |
 | Lambda vs function call | Section functions vs `{{ fn() }}` — overlap and naming                         |
-| Partial recursion       | Cycle detection strategy; max depth shared with section stack                  |
+| Partial recursion       | Cycle detection; shared vs separate stack counters (raise/disable is settled)  |
 | TrustedTemplate nesting | Depth counting for rescan inside rescan                                        |
 | Empty vs falsy          | Mustache rules for `[]`, `0`, `""` in sections — confirm for code-gen contexts |
 

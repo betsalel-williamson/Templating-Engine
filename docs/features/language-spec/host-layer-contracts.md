@@ -81,7 +81,7 @@ Rules:
 
 **Shipped pattern:** `createSecureEvaluator` copies the function registry into a private closure; optional deep clone for higher assurance.
 
-**Proposed extension:** single setup surface registers filters, functions, partials, escaping policy, and depth limits before any template evaluation — freeze registries after creation.
+**Proposed extension:** single setup surface registers filters, functions, partials, escaping policy, and **configurable depth limits** (raise the finite ceiling, or disable limiting with explicit acceptance of hang/OOM/crash risk — see [evaluation shard](./evaluation-security-diagnostics.md)) before any template evaluation — freeze registries after creation.
 
 ## Spec inputs cross-reference
 
