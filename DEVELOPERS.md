@@ -269,7 +269,9 @@ pnpm --filter @bwilliamson/template-engine-cli run build:standalone:macos
 pnpm --filter @bwilliamson/template-engine-cli run build:standalone:windows
 ```
 
-Artifacts are written to `packages/template-engine-cli/dist/` (`template-engine-linux`, `template-engine-macos`, or `template-engine-win.exe`). Binaries are published separately via the `release-binaries` workflow.
+Artifacts are written to `packages/template-engine-cli/dist/` (`template-engine-linux`, `template-engine-macos`, or `template-engine-win.exe`). Binaries are published separately via the `release-binaries` workflow as `template-engine-v*-{linux,macos,win.exe}` on GitHub Releases.
+
+Release artifacts are **not** Apple-signed or notarized. macOS users may see a Gatekeeper warning on first launch; the safe one-time **Control-click → Open** workaround is documented in the [CLI client guide](./docs/_build/client.md#macos-gatekeeper).
 
 ## Docs dogfooding
 
