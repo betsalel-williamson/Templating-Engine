@@ -14,6 +14,8 @@ Product documentation for **what the templating engine does today**: packages, s
     - [V2 language specification (paper-first)](./language-spec/index.md)
     - [V2 design goals](./architecture/v2_design_goals.md)
     - [V2 mathematical design](./architecture/v2_mathematical_design.md)
+    - [ADR-002: Mustache logic-less + JS/TS-first](./architecture/adr-002-mustache-js-first-code-generation.md)
+    - [ADR-004: Abstract host invocation](./architecture/adr-004-abstract-host-invocation.md)
     - [ADR-001: Pkl adoption (superseded)](./architecture/adr-001-adopt-pkl.md)
     - [Modern syntax technical overview](./architecture/new_syntax_technical_overview.md)
     - [Language orthogonality](./architecture/language_orthogonality.md)

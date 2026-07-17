@@ -2,7 +2,7 @@
 
 **Status:** **Proposed** — on-paper design for go/no-go review and TDD slice estimation. Not shipped in product code until accepted and implemented.
 
-Normative architecture decision: [ADR-002: Mustache logic-less + JS/TS-first for code generation](../architecture/adr-002-mustache-js-first-code-generation.md).
+Normative architecture decisions: [ADR-002: Mustache logic-less + JS/TS-first for code generation](../architecture/adr-002-mustache-js-first-code-generation.md), [ADR-004: Abstract host invocation](../architecture/adr-004-abstract-host-invocation.md).
 
 This specification consolidates destination language intent from [V2 design goals](../architecture/v2_design_goals.md), [V2 mathematical design](../architecture/v2_mathematical_design.md), and spec inputs from issues [#21](https://github.com/betsalel-williamson/Templating-Engine/issues/21) (functions + TrustedTemplate), [#27](https://github.com/betsalel-williamson/Templating-Engine/issues/27) (string filters), and [#28](https://github.com/betsalel-williamson/Templating-Engine/issues/28) (array filters).
 

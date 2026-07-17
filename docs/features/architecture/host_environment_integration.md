@@ -2,38 +2,33 @@
 
 ## Core Principle: The Language is Decoupled from the Runtime
 
-Our templating engine's design is governed by a strict separation of concerns between the **template language** and the **engine's runtime environment**.
+Our templating engine's design separates the **template language** from the **host that implements transforms**.
 
-- **The Template Language:** This is our public API, defined by the syntax (`{{...}}`, `{%...%}`) and a set of abstract filter names (`| length`, `| upper`). This language is, by design, **platform-agnostic**. A template written today must be executable by a future version of this engine written in any other language (e.g., Rust, Go) without modification.
+- **The Template Language:** Public surface of syntax (`{{...}}` sections and output expressions) and **abstract** filter/function names (`| length`, `| upper`, `formatId(...)`). Templates stay portable across host runtimes that honor the same names and value contract ([ADR-004](./adr-004-abstract-host-invocation.md)).
+- **The Default Host Runtime:** TypeScript/Node.js parses and evaluates templates and supplies filter/function implementations. This is the path that delivers product value today and should use the full power of that environment for efficiency and maintainability.
+- **Direction:** The same abstract names remain valid if a host later attaches additional trusted backends under one registration model (capability labels, JSON-serializable value exchange first). See [ADR-004](./adr-004-abstract-host-invocation.md).
 
-- **The Engine Implementation:** This is the internal TypeScript code that parses and evaluates templates. This implementation **should leverage the full power of its host environment (Node.js)** to be efficient, robust, and easy to maintain.
-
-This decoupling is our primary strategy for ensuring long-term maintainability and portability.
+This decoupling is the primary strategy for long-term maintainability and an open path for future host backends without rewriting templates.
 
 ## What This Means in Practice
 
-### How We **DO** Leverage JavaScript/Node.js
+### How the default JS/TS host implements abstract names
 
-We use Node.js features to make the _implementation_ of our abstract filters simple and performant.
+We use Node.js features to make implementations of abstract filters and functions simple and performant.
 
-- **Array Filters (`length`, `slice`, `reduce`):** Our filter implementations use `Array.prototype.length`, `.slice()`, and `.reduce()` internally. The template author only sees `| length`, `| slice:1:5`, etc.
-- **String Filters (`upper`, `trim`):** Our filter implementations use `String.prototype.toUpperCase()`, `.trim()`, etc. The template author only sees `| upper`.
-- **Math Filters (`add`):** Our filter uses standard JavaScript math operators. The template author only sees `| add:5`.
-- **Async Operations:** We use Node's `async/await` syntax to seamlessly handle custom functions or filters that may need to perform asynchronous tasks (like a database lookup).
-- **Development Ecosystem:** We use the Node.js ecosystem (`npm`, `vitest`, `typescript`) for rapid, reliable development and testing.
-- **Distribution:** We use Node.js's Single Executable Application (SEA) feature for dependency-free Linux and macOS CLI binaries. Windows users install the CLI via npm. See [ADR-003: Retire Windows SEA and CI](./adr-003-retire-windows-sea-ci.md).
+- **Array Filters (`length`, `slice`, `reduce`):** Implementations use `Array.prototype.length`, `.slice()`, and `.reduce()` internally. The template author only sees `| length`, `| slice:1:5`, etc.
+- **String Filters (`upper`, `trim`):** Implementations use `String.prototype.toUpperCase()`, `.trim()`, etc. The template author only sees `| upper`.
+- **Math Filters (`add`):** Implementations use standard JavaScript math operators. The template author only sees `| add:5`.
+- **Async Operations:** Host functions and filters may return Promises; the evaluator awaits them in walk order.
+- **Development Ecosystem:** Node.js tooling (`npm`, `vitest`, `typescript`) supports rapid, reliable development and testing.
+- **Distribution:** Single Executable Application (SEA) builds for dependency-free Linux and macOS CLI binaries. Windows users install the CLI via npm. See [ADR-003: Retire Windows SEA and CI](./adr-003-retire-windows-sea-ci.md).
 
-### How We **DO NOT** Use JavaScript
+### Keep the template language abstract
 
-We **never** expose raw JavaScript syntax or objects directly into the template language. The following would be considered architectural anti-patterns:
+Template text uses abstract names and Mustache presentation—not raw host-language APIs:
 
-- **INCORRECT:** `{{ myArray.length }}` -> This exposes a JS-specific property name.
-- **CORRECT:** `{{ myArray | length }}` -> This uses an abstract filter.
+- Prefer `{{ myArray | length }}` over exposing a runtime-specific property name such as `.length` on a host object.
+- Prefer `{{ myObject | json_encode }}` over embedding a host global such as `JSON.stringify`.
+- Prefer host-prepared arrays/flags plus Mustache sections over embedding host-language map/join expressions in the template.
 
-- **INCORRECT:** `{{ JSON.stringify(myObject) }}` -> This exposes a global JS object.
-- **CORRECT:** `{{ myObject | json_encode }}` -> This uses an abstract filter.
-
-- **INCORRECT:** `{{ myArray.map(item => item.name).join(', ') }}` -> This exposes JS methods and arrow functions.
-- **CORRECT:** `{% for item in myArray %}{{ item.name }}{% if not loop.last %}, {% endif %}{% endfor %}` -> This uses language-native control flow.
-
-By maintaining this strict boundary, we gain the best of both worlds: a simple, portable language for our users, and a powerful, modern environment for our developers.
+By keeping this boundary, authors get a simple portable language, and host developers keep a powerful default runtime—with room to attach further trusted backends later under [ADR-004](./adr-004-abstract-host-invocation.md).

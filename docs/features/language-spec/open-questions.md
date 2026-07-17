@@ -2,6 +2,13 @@
 
 **Status:** **Proposed** — explicit uncertainty so the paper spec does not fake precision. Resolve during spec review **before** TDD slices begin.
 
+## Decided direction (architecture)
+
+| Topic                       | Decision                                                                                       |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| Host invocation model       | [ADR-004](../architecture/adr-004-abstract-host-invocation.md) — abstract names, JS/TS default |
+| Additional trusted backends | Same names and value contract; extend registration metadata rather than template syntax        |
+
 ## Product choices (pick before implementation)
 
 | Question              | Options                                               | Affects                                                                                 |
