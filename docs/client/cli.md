@@ -67,4 +67,20 @@ template-engine --template template.txt --data data.json
 
 **Functions:** The CLI registers no template functions. Use the core library when custom functions are required.
 
-**Standalone binary:** See [standalone CLI binaries](../developer/standalone-cli-binaries.md) in the developer guide.
+## Standalone binary
+
+Pre-built executables are published on [GitHub Releases](https://github.com/betsalel-williamson/Templating-Engine/releases) as `template-engine-v*-linux`, `template-engine-v*-macos`, and `template-engine-v*-win.exe`. Use the same flags as the npm-installed CLI.
+
+### macOS Gatekeeper
+
+macOS may block the downloaded macOS binary on first launch because it is **not** signed or notarized with Apple. Gatekeeper shows that the developer cannot be verified.
+
+To grant a **one-time exception** for that file:
+
+1. In Finder, **Control-click** (or right-click) the downloaded `template-engine-v*-macos` file.
+2. Choose **Open**.
+3. Click **Open** in the confirmation dialog.
+
+After that, macOS allows the same file to run from Terminal or Finder without repeating the workaround. Installing via npm avoids this prompt.
+
+Maintainers: build steps and release workflow are in [standalone CLI binaries](../developer/standalone-cli-binaries.md).
