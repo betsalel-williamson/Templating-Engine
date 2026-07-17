@@ -45,6 +45,26 @@ This script:
 
 Requires `gh` authenticated with `project`, `read:project`, and `repo` scopes.
 
+## Create issues from markdown files
+
+To publish a local issue definition to GitHub, use `scripts/create-issue.sh` with a markdown file that starts with YAML frontmatter:
+
+```yaml
+---
+title: Short issue title
+labels:
+  - enhancement
+---
+Issue body in markdown (everything after the closing ---).
+```
+
+```bash
+chmod +x scripts/create-issue.sh
+./scripts/create-issue.sh path/to/issue.md
+```
+
+The script reads `title` and `labels` from frontmatter, uses the remaining content as the issue body, creates the issue with `gh`, and prints the new issue URL. Requires `gh` on `PATH` and authenticated with the `repo` scope.
+
 ## Working conventions
 
 - File work as issues; use epics for multi-issue initiatives.
