@@ -18,8 +18,14 @@
   }
 }}
 
+{
+  function withLocation(node) {
+    return Object.assign(node, { location: location() });
+  }
+}
+
 Start "New Template"
-  = parts:TemplateParts* { return buildTemplate(parts); }
+  = parts:TemplateParts* { return withLocation(buildTemplate(parts)); }
 
 TemplateParts
   = OutputTag
@@ -28,11 +34,11 @@ TemplateParts
 
 OutputTag
   = "{{" ws expression:Expression ws "}}" {
-      return {
+      return withLocation({
         type: 'OutputExpression',
         expression,
         raw: text()
-      };
+      });
     }
 
 ControlTag
@@ -41,30 +47,30 @@ ControlTag
 
 ForBlock
   = open:"{%" ws "for" ws item:Ident ws "in" ws collection:Expression ws close:"%}" body:TemplateParts* endfor:"{%" ws "endfor" ws "%}" {
-      return { type: 'ForBlock', item, collection, body: buildTemplate(body) };
+      return withLocation({ type: 'ForBlock', item, collection, body: withLocation(buildTemplate(body)) });
     }
 
 IfBlock
   = open:"{%" ws "if" ws condition:IfCondition ws close:"%}" trueBranch:TemplateParts* elseBranch:ElseBlock? endif:"{%" ws "endif" ws "%}" {
-      return {
+      return withLocation({
         type: 'IfBlock',
         condition,
-        trueBranch: buildTemplate(trueBranch),
-        falseBranch: elseBranch ? elseBranch.body : buildTemplate([])
-      };
+        trueBranch: withLocation(buildTemplate(trueBranch)),
+        falseBranch: elseBranch ? elseBranch.body : withLocation(buildTemplate([]))
+      });
     }
 
 ElseBlock
   = "{%" ws "else" ws "%}" body:TemplateParts* {
-      return { body: buildTemplate(body) };
+      return { body: withLocation(buildTemplate(body)) };
     }
 
 IfCondition
   = "not" ws operand:IfCondition {
-      return { type: 'NotCondition', operand };
+      return withLocation({ type: 'NotCondition', operand });
     }
   / expression:Expression {
-      return { type: 'ExpressionCondition', expression };
+      return withLocation({ type: 'ExpressionCondition', expression });
     }
 
 Expression
@@ -73,12 +79,12 @@ Expression
 FilterPipeline
   = input:PrimaryExpression filters:(ws "|" ws filter:FilterCall)* {
       const filterNodes = filters.map((entry) => entry[3]);
-      return buildFilterPipeline(input, filterNodes);
+      return withLocation(buildFilterPipeline(input, filterNodes));
     }
 
 FilterCall
   = name:Ident args:("(" ws args:FilterArgList? ws ")")? {
-      return { name, args: args && args[2] ? args[2] : [] };
+      return withLocation({ name, args: args && args[2] ? args[2] : [] });
     }
 
 FilterArgList
@@ -98,17 +104,17 @@ PrimaryExpression
 
 BracketLookup
   = "[" ws key:ConcatExpression ws "]" {
-      return { type: 'BracketLookup', key };
+      return withLocation({ type: 'BracketLookup', key });
     }
 
 PropertyAccess
   = head:Ident tail:("." segment:Ident)+ {
-      return buildPropertyAccess(head, tail.map((entry) => entry[1]));
+      return withLocation(buildPropertyAccess(head, tail.map((entry) => entry[1])));
     }
 
 Identifier
   = name:Ident {
-      return { type: 'Identifier', name };
+      return withLocation({ type: 'Identifier', name });
     }
 
 ConcatExpression
@@ -116,19 +122,19 @@ ConcatExpression
       if (!tail || tail.length === 0) {
         return head;
       }
-      return { type: 'Concat', parts: [head, ...tail.map((entry) => entry[3])] };
+      return withLocation({ type: 'Concat', parts: [head, ...tail.map((entry) => entry[3])] });
     }
 
 ConcatPart
   = StringLiteral
-  / name:Ident { return { type: 'Identifier', name }; }
+  / name:Ident { return withLocation({ type: 'Identifier', name }); }
 
 StringLiteral
   = '"' value:DoubleStringContent '"' {
-      return { type: 'StringLiteral', value };
+      return withLocation({ type: 'StringLiteral', value });
     }
   / "'" value:SingleStringContent "'" {
-      return { type: 'StringLiteral', value };
+      return withLocation({ type: 'StringLiteral', value });
     }
 
 DoubleStringContent
@@ -138,7 +144,7 @@ SingleStringContent
   = chars:$([^'\\] / "\\" .)* { return chars; }
 
 Literal
-  = value:$((!TagStart .)+) { return { type: 'Literal', value }; }
+  = value:$((!TagStart .)+) { return withLocation({ type: 'Literal', value }); }
 
 TagStart
   = "{{" / "{%"

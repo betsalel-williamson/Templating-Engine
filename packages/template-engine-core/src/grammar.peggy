@@ -17,6 +17,10 @@
     }
   };
 
+  function withLocation(node) {
+    return Object.assign(node, { location: location() });
+  }
+
   function buildTemplate(parts) {
     if (!parts || parts.length === 0) {
       return { type: 'Template', body: [] };
@@ -44,7 +48,7 @@
 // Top-level entry point.
 // Note: StringLiteral is NOT at top level - quotes are literal text unless in specific contexts
 Start "Template"
-  = parts:(Tag / Literal)* { log("Start", text()); return buildTemplate(parts); }
+  = parts:(Tag / Literal)* { log("Start", text()); return withLocation(buildTemplate(parts)); }
 
 // A Tag is any expression starting with '<'. The order is critical for precedence.
 Tag
@@ -56,14 +60,14 @@ Tag
 
 // MODIFIED: A Literal is any character sequence that does not start with a known tag.
 Literal "Literal Text"
-  = value:$( ( [^<]+ / "<" !("{" / "~" / "#" / "`") )+ ) { log("Literal", value); return { type: 'Literal', value }; }
+  = value:$( ( [^<]+ / "<" !("{" / "~" / "#" / "`") )+ ) { log("Literal", value); return withLocation({ type: 'Literal', value }); }
 
 
 // --- Function Call ---
 FunctionCall "Function Call"
   = "<{" ws name:Ident ws "(" ws args:ArgumentList? ws ")" ws "}>" {
       log("FunctionCall", text());
-      return { type: 'FunctionCall', functionName: name, args: args || [] };
+      return withLocation({ type: 'FunctionCall', functionName: name, args: args || [] });
     }
 
 ArgumentList
@@ -77,7 +81,7 @@ ArgumentList
 Argument "Argument"
   = ws parts:ArgumentPart* ws {
       log("Argument", text());
-      return buildTemplate(parts);
+      return withLocation(buildTemplate(parts));
     }
 
 // An argument part can be: a string literal, a tag (variable/function/etc), or plain text
@@ -92,22 +96,22 @@ ArgumentLiteral "Argument Literal"
   = value:$( [^,)<"< \t\n\r] [^,)<"]* ) {
       log("ArgumentLiteral", value);
       // Trim trailing whitespace from the literal
-      return { type: 'Literal', value: value.trimEnd() };
+      return withLocation({ type: 'Literal', value: value.trimEnd() });
     }
 
 
 // --- Expression and Sub-Template ---
 
 Expression "Expression"
-  = "<~" body:(ConditionalBody / CrossProductBody) "~>" { log("Expression", text()); return body; }
+  = "<~" body:(ConditionalBody / CrossProductBody) "~>" { log("Expression", text()); return withLocation(body); }
 
 SubTemplate "SubTemplate"
-  = "<`" body:SubTemplateBody "`>" { log("SubTemplate", text()); return buildTemplate(body); }
+  = "<`" body:SubTemplateBody "`>" { log("SubTemplate", text()); return withLocation(buildTemplate(body)); }
 SubTemplateBody "Body of a SubTemplate"
   = parts:(Tag / SubTemplateLiteral)* { log("SubTemplateBody", text()); return parts; }
 
 SubTemplateLiteral
-  = value:$( ( [^<`]+ / "<" !("{" / "~" / "#" / "`") / "`" !">" )+ ) { log("SubTemplateLiteral", value); return { type: 'Literal', value }; }
+  = value:$( ( [^<`]+ / "<" !("{" / "~" / "#" / "`") / "`" !">" )+ ) { log("SubTemplateLiteral", value); return withLocation({ type: 'Literal', value }); }
 
 
 // --- Conditional and Cross-Product Components ---
@@ -117,30 +121,30 @@ ConditionalBody
     {
       log("ConditionalBody", text());
       let trueBranch = null, falseBranch = null, condition = null;
-      const defaultEmptyTemplate = { type: 'Template', body: [{ type: 'Literal', value: '' }] };
+      const defaultEmptyTemplate = withLocation({ type: 'Template', body: [{ type: 'Literal', value: '' }] });
       for (const part of parts) {
         if (part.kind === 'TruePart') trueBranch = part.template;
         if (part.kind === 'FalsePart') falseBranch = part.template;
         if (part.kind === 'Condition') condition = part.template;
       }
       if (!condition) throw new Error("Conditional expression is missing a condition part '<?...?>'.");
-      return { type: 'Conditional', condition, trueBranch: trueBranch || defaultEmptyTemplate, falseBranch: falseBranch || defaultEmptyTemplate };
+      return withLocation({ type: 'Conditional', condition, trueBranch: trueBranch || defaultEmptyTemplate, falseBranch: falseBranch || defaultEmptyTemplate });
     }
 
 CrossProductBody
   = slice:Slice? ws template:SubTemplate ws multiplier:Multiplier ws iterator:ArrayRule {
       log("CrossProductBody", text());
-      return { type: 'CrossProduct', template, iterator, delimiter: multiplier.delimiter, terminator: multiplier.terminator, sliceTemplate: slice || undefined };
+      return withLocation({ type: 'CrossProduct', template, iterator, delimiter: multiplier.delimiter, terminator: multiplier.terminator, sliceTemplate: slice || undefined });
     }
 
 // MODIFIED: The Slice rule now parses a full template inside the braces.
 Slice "Array Slice"
   = "{" body:SliceBody "}" {
       log("Slice", text());
-      return buildTemplate(body); // Returns a TemplateNode
+      return withLocation(buildTemplate(body)); // Returns a TemplateNode
     }
 SliceBody = parts:(Tag / SliceLiteral)* { log("SliceBody", text()); return parts; }
-SliceLiteral = value:$([^<}]+ / "<" !("{" / "~" / "#" / "`"))+ { log("SliceLiteral", value); return { type: 'Literal', value }; }
+SliceLiteral = value:$([^<}]+ / "<" !("{" / "~" / "#" / "`"))+ { log("SliceLiteral", value); return withLocation({ type: 'Literal', value }); }
 
 Multiplier = ConditionalMultiplier / SimpleMultiplier
 SimpleMultiplier = tag:"<*>" { log("SimpleMultiplier", tag); return { delimiter: null, terminator: null }; }
@@ -157,31 +161,31 @@ TruePart "True Part" = "<+>" template:SubTemplate { log("TruePart", text()); ret
 FalsePart "False Part" = "<->" template:SubTemplate { log("FalsePart", text()); return { kind: 'FalsePart', template }; }
 
 Condition "Condition"
-  = "<?" body:ConditionBody "?>" { log("Condition", text()); return { kind: 'Condition', template: buildTemplate(body) }; }
+  = "<?" body:ConditionBody "?>" { log("Condition", text()); return { kind: 'Condition', template: withLocation(buildTemplate(body)) }; }
 ConditionBody = parts:(Tag / ConditionLiteral)* { log("ConditionBody", text()); return parts; }
 
-ConditionLiteral = value:$( ( [^<?]+  / "<" !("{" / "~" / "#" / "`") / "?" !">" )+ ) { log("ConditionLiteral", value); return { type: 'Literal', value }; }
+ConditionLiteral = value:$( ( [^<?]+  / "<" !("{" / "~" / "#" / "`") / "?" !">" )+ ) { log("ConditionLiteral", value); return withLocation({ type: 'Literal', value }); }
 
 
 // --- Variable, Indirect, and Array Rules (Now Fully Recursive) ---
 
 Variable
-  = lt:"<#" name:VariableBody "#>" { log("Variable", text()); return { type: 'Variable', name: buildTemplate(name), raw: text() }; }
+  = lt:"<#" name:VariableBody "#>" { log("Variable", text()); return withLocation({ type: 'Variable', name: withLocation(buildTemplate(name)), raw: text() }); }
 VariableBody = parts:(Tag / VariableLiteral)* { log("VariableBody", text()); return parts; }
 
-VariableLiteral = value:$( ( [^<#]+ / "<" !("{" / "~" / "#" / "`") / "#" !">" )+ ) { log("VariableLiteral", value); return { type: 'Literal', value }; }
+VariableLiteral = value:$( ( [^<#]+ / "<" !("{" / "~" / "#" / "`") / "#" !">" )+ ) { log("VariableLiteral", value); return withLocation({ type: 'Literal', value }); }
 
 IndirectVariable
-  = lt:"<##" name:IndirectVariableBody "##>" { log("IndirectVariable", text()); return { type: 'IndirectVariable', name: buildTemplate(name), raw: text() }; }
+  = lt:"<##" name:IndirectVariableBody "##>" { log("IndirectVariable", text()); return withLocation({ type: 'IndirectVariable', name: withLocation(buildTemplate(name)), raw: text() }); }
 IndirectVariableBody = parts:(Tag / IndirectVariableLiteral)* { log("IndirectVariableBody", text()); return parts; }
 
-IndirectVariableLiteral = value:$( ( [^<#]+ / "<" !("{" / "~" / "#" / "`") / "#" !"#>" )+ ) { log("IndirectVariableLiteral", value); return { type: 'Literal', value }; }
+IndirectVariableLiteral = value:$( ( [^<#]+ / "<" !("{" / "~" / "#" / "`") / "#" !"#>" )+ ) { log("IndirectVariableLiteral", value); return withLocation({ type: 'Literal', value }); }
 
 ArrayRule "Array"
-  = "<[" ws name:ArrayBody ws "]>" { log("ArrayRule", text()); return { type: 'Array', name: buildTemplate(name) }; }
+  = "<[" ws name:ArrayBody ws "]>" { log("ArrayRule", text()); return withLocation({ type: 'Array', name: withLocation(buildTemplate(name)) }); }
 ArrayBody = parts:(Tag / ArrayLiteral)* { log("ArrayBody", text()); return parts; }
 
-ArrayLiteral = value:$( ( [^<\]]+ / "<" !("{" / "~" / "#" / "`") )+ ) { log("ArrayLiteral", value); return { type: 'Literal', value }; }
+ArrayLiteral = value:$( ( [^<\]]+ / "<" !("{" / "~" / "#" / "`") )+ ) { log("ArrayLiteral", value); return withLocation({ type: 'Literal', value }); }
 
 
 // --- Primitives ---
@@ -190,7 +194,7 @@ ArrayLiteral = value:$( ( [^<\]]+ / "<" !("{" / "~" / "#" / "`") )+ ) { log("Arr
 StringLiteral "String Literal"
   = '"' parts:StringContent* '"' {
       log("StringLiteral", text());
-      return buildTemplate(parts);
+      return withLocation(buildTemplate(parts));
     }
 
 // Content inside a string literal: escaped chars, tags, or literal text
@@ -203,7 +207,7 @@ StringContent
 EscapedChar
   = "\\" char:. {
       log("EscapedChar", char);
-      return { type: 'Literal', value: char };
+      return withLocation({ type: 'Literal', value: char });
     }
 
 // Literal text inside a string (stops at quotes, escapes, or tag markers)
@@ -211,7 +215,7 @@ EscapedChar
 StringLiteralText
   = value:$( ( [^"\\<]+ / "<" !("{" / "~" / "#" / "`") )+ ) {
       log("StringLiteralText", value);
-      return { type: 'Literal', value };
+      return withLocation({ type: 'Literal', value });
     }
 
 Ident = ident:$( [a-zA-Z] [a-zA-Z_0-9.-]* ) { log("Ident", ident); return ident; }
