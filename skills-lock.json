@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "skills": {
+    "mdcp": {
+      "source": "betsalel-williamson/mdcp",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/mdcp/SKILL.md",
+      "computedHash": "6ca52724af0e9f8fb3a40ffce9302027c8bc6eb34a58922d2aced4c7d3b33f12"
+    },
+    "mdcp-design-architecture": {
+      "source": "betsalel-williamson/mdcp",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/mdcp-design-architecture/SKILL.md",
+      "computedHash": "eadd8054c07dd67d877503eb17f4412f3e793edb1480cbe3cf7804c54d84b472"
+    },
+    "mdcp-doc-only": {
+      "source": "betsalel-williamson/mdcp",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/mdcp-doc-only/SKILL.md",
+      "computedHash": "b7690f86a91c8fb9485396c01cdb61c6bf9c70961ef1713bb41ff3139772c604"
+    },
+    "mdcp-feature-level": {
+      "source": "betsalel-williamson/mdcp",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/mdcp-feature-level/SKILL.md",
+      "computedHash": "87153a5b4f343deb44189e1069acb6e718ab0dddf2ca00a333e88ecadf3153b0"
+    },
+    "mdcp-getting-started": {
+      "source": "betsalel-williamson/mdcp",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/mdcp-getting-started/SKILL.md",
+      "computedHash": "993ec8ed7766af9b404794e859320cc2b9cd3403ceea16be89dd71499242bd70"
+    },
+    "mdcp-ux": {
+      "source": "betsalel-williamson/mdcp",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/mdcp-ux/SKILL.md",
+      "computedHash": "66a1f8e4b436e0b7386b9be20048df161ca89199f7a974ddd95b8f32bc9912fd"
+    }
+  }
+}
