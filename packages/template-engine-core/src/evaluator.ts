@@ -188,7 +188,11 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
       case 'FunctionCall': {
         const { functionName, args } = node;
         const func = privateFunctions.get(functionName);
-        if (!func) throw new Error(`Attempted to call unregistered function: "${functionName}"`);
+        if (!func)
+          throw createTemplateEvaluationError(
+            `Attempted to call unregistered function: "${functionName}"`,
+            node.location
+          );
         const resolvedArgs = await Promise.all(
           args.map((arg) => evaluate(arg, context, depth + 1, originLocation))
         );
