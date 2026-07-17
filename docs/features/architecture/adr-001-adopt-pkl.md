@@ -1,7 +1,10 @@
 # ADR-001: Adopting Pkl for Future Work
 
-- **Status**: Accepted
+- **Status**: Superseded
+- **Superseded by**: ADR-002 — Mustache logic-less + JS/TS-first template language (forthcoming)
 - **Date**: 2025-06-25
+
+> **Note:** This ADR recorded a decision to halt `template-engine-ts` and adopt Apple Pkl. That direction is **no longer active**. Active development continues on this TypeScript templating engine; the superseding decision will be documented in ADR-002.
 
 ## Context and Problem Statement
 
@@ -24,7 +27,7 @@ Recently, I discovered Apple's Pkl (<https://pkl-lang.org/>), a new open-source 
 
 ## Decision Outcome
 
-**Chosen option: "Adopt Pkl"**.
+**Chosen option: "Adopt Pkl"** (historical — superseded).
 
 For now, we will halt active feature development on `template-engine-ts` and adopt Pkl as our standard for configuration and templating.
 
