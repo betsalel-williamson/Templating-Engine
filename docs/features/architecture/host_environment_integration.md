@@ -21,7 +21,7 @@ We use Node.js features to make implementations of abstract filters and function
 - **Math Filters (`add`):** Implementations use standard JavaScript math operators. The template author only sees `| add:5`.
 - **Async Operations:** Host functions and filters may return Promises; the evaluator awaits them in walk order.
 - **Development Ecosystem:** Node.js tooling (`npm`, `vitest`, `typescript`) supports rapid, reliable development and testing.
-- **Distribution:** Single Executable Application (SEA) builds for dependency-free Linux and macOS CLI binaries. Windows users install the CLI via npm. See [ADR-003: Retire Windows SEA and CI](./adr-003-retire-windows-sea-ci.md).
+- **Distribution:** Install and run the CLI via npm or npx (`@bwilliamson/template-engine-cli`). See [ADR-005: Retire all SEA CLI binaries](./adr-005-retire-sea-binaries.md).
 
 ### Keep the template language abstract
 
