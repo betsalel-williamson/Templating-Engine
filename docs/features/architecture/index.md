@@ -6,7 +6,7 @@ Design notes and ADRs for the templating engine.
 
 - [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md) — **current north star**
 - [ADR-001: Pkl adoption (superseded)](./adr-001-adopt-pkl.md)
-- [ADR-002: Retire Windows SEA and CI](./adr-002-retire-windows-sea-ci.md)
+- [ADR-003: Retire Windows SEA and CI](./adr-003-retire-windows-sea-ci.md)
 
 ## V2 direction
 

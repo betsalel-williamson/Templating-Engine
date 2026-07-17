@@ -1,4 +1,4 @@
-# ADR-002: Retire Windows SEA Binaries and CI Verify
+# ADR-003: Retire Windows SEA Binaries and CI Verify
 
 - **Status**: Accepted
 - **Date**: 2026-07-17
