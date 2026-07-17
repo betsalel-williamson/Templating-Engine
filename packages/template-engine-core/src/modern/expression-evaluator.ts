@@ -1,5 +1,6 @@
 import { DataContext, DataContextValue, ExpressionNode, IfConditionNode } from '../types.js';
 import { createDefaultFilterRegistry } from '../filters/registry.js';
+import { createTemplateEvaluationError } from '../errors/template-evaluation-error.js';
 
 export interface ExpressionEvaluatorConfig {
   resolveAliases?: boolean;
@@ -99,7 +100,7 @@ export async function evaluateExpression(
       for (const filter of expression.filters) {
         const filterFn = registry.get(filter.name);
         if (!filterFn) {
-          throw new Error(`Unknown filter: "${filter.name}"`);
+          throw createTemplateEvaluationError(`Unknown filter: "${filter.name}"`, filter.location);
         }
         const args = await Promise.all(
           filter.args.map((arg) => evaluateExpression(arg, context, config))

@@ -1,3 +1,7 @@
+import type { WithSourceLocation } from './source-location.js';
+
+export type { SourceLocation, SourcePosition, WithSourceLocation } from './source-location.js';
+
 // Defines the structure of the Abstract Syntax Tree (AST) and the data context.
 
 export type AstNode =
@@ -21,20 +25,20 @@ export type ExpressionNode =
   | StringLiteralExpression
   | FilterPipelineExpression;
 
-export interface OutputExpressionNode {
+export interface OutputExpressionNode extends WithSourceLocation {
   type: 'OutputExpression';
   expression: ExpressionNode;
   raw: string;
 }
 
-export interface ForBlockNode {
+export interface ForBlockNode extends WithSourceLocation {
   type: 'ForBlock';
   item: string;
   collection: ExpressionNode;
   body: TemplateNode;
 }
 
-export interface IfBlockNode {
+export interface IfBlockNode extends WithSourceLocation {
   type: 'IfBlock';
   condition: IfConditionNode;
   trueBranch: TemplateNode;
@@ -42,73 +46,73 @@ export interface IfBlockNode {
 }
 
 export type IfConditionNode =
-  | { type: 'NotCondition'; operand: IfConditionNode }
-  | { type: 'ExpressionCondition'; expression: ExpressionNode };
+  | ({ type: 'NotCondition'; operand: IfConditionNode } & WithSourceLocation)
+  | ({ type: 'ExpressionCondition'; expression: ExpressionNode } & WithSourceLocation);
 
-export interface IdentifierExpression {
+export interface IdentifierExpression extends WithSourceLocation {
   type: 'Identifier';
   name: string;
 }
 
-export interface PropertyAccessExpression {
+export interface PropertyAccessExpression extends WithSourceLocation {
   type: 'PropertyAccess';
   path: string[];
 }
 
-export interface BracketLookupExpression {
+export interface BracketLookupExpression extends WithSourceLocation {
   type: 'BracketLookup';
   key: ExpressionNode;
 }
 
-export interface ConcatExpression {
+export interface ConcatExpression extends WithSourceLocation {
   type: 'Concat';
   parts: ExpressionNode[];
 }
 
-export interface StringLiteralExpression {
+export interface StringLiteralExpression extends WithSourceLocation {
   type: 'StringLiteral';
   value: string;
 }
 
-export interface FilterPipelineExpression {
+export interface FilterPipelineExpression extends WithSourceLocation {
   type: 'FilterPipeline';
   input: ExpressionNode;
   filters: FilterCallNode[];
 }
 
-export interface FilterCallNode {
+export interface FilterCallNode extends WithSourceLocation {
   name: string;
   args: ExpressionNode[];
 }
 
-export interface TemplateNode {
+export interface TemplateNode extends WithSourceLocation {
   type: 'Template';
   body: AstNode[];
 }
 
-export interface LiteralNode {
+export interface LiteralNode extends WithSourceLocation {
   type: 'Literal';
   value: string;
 }
 
-export interface VariableNode {
+export interface VariableNode extends WithSourceLocation {
   type: 'Variable';
   name: AstNode; // MODIFIED: The name is a nested template.
   raw: string;
 }
 
-export interface IndirectVariableNode {
+export interface IndirectVariableNode extends WithSourceLocation {
   type: 'IndirectVariable';
   name: AstNode; // The nested template for the name.
   raw: string; // The original raw tag (e.g., "<##<#env#>-key##>").
 }
 
-export interface ArrayNode {
+export interface ArrayNode extends WithSourceLocation {
   type: 'Array';
   name: AstNode; // Updated: name is always an AstNode (specifically TemplateNode from grammar)
 }
 
-export interface CrossProductNode {
+export interface CrossProductNode extends WithSourceLocation {
   type: 'CrossProduct';
   template: AstNode;
   iterator: ArrayNode;
@@ -117,14 +121,14 @@ export interface CrossProductNode {
   sliceTemplate?: AstNode; // MODIFIED: Replaces offset/limit with a template.
 }
 
-export interface ConditionalNode {
+export interface ConditionalNode extends WithSourceLocation {
   type: 'Conditional';
   condition: AstNode;
   trueBranch: AstNode;
   falseBranch: AstNode;
 }
 
-export interface FunctionCallNode {
+export interface FunctionCallNode extends WithSourceLocation {
   type: 'FunctionCall';
   functionName: string;
   args: AstNode[];

@@ -2,11 +2,11 @@
 
 ## Objective
 
-Document the compiler-style parse error format and the APIs integrators should use so syntax failures report file path, line, column, and a source caret—like rustc or TypeScript.
+Define the compiler-style diagnostic contract for template failures so integrators and operators get a file path, line, column, and source caret—like rustc or TypeScript—whether the failure is syntax or runtime evaluation.
 
-## Error format
+## Diagnostic shape
 
-When parsing fails, `formatTemplateParseError` produces multi-line diagnostics on stderr or in application logs:
+Both parse failures and evaluation failures that carry source metadata use the same multi-line shape on stderr or in application logs:
 
 ```text
 Error: Expected end of input but "{" found.
@@ -16,78 +16,59 @@ Error: Expected end of input but "{" found.
   |       ^
 ```
 
-| Field                  | Meaning                                     |
-| ---------------------- | ------------------------------------------- |
-| Message line           | Peggy parse expectation (`Error: …`)        |
-| `--> path:line:column` | 1-based line and column of the failure      |
-| Source line            | The template line containing the error      |
-| Caret (`^`)            | Column indicator under the unexpected token |
-
-Both [legacy](../../glossary/legacy-syntax.md) (`parseLegacy`) and [modern](../../glossary/modern-syntax.md) (`parseModern`) parsers use the same formatter.
-
-## API
-
-### Parse with a source label
-
-Pass `sourcePath` so errors identify the template file (or a logical name such as `email-body.template`):
-
-```typescript
-import { parseModern } from '@bwilliamson/template-engine-core';
-
-const ast = parseModern(templateSource, { sourcePath: 'report.v2.template' });
+```text
+Error: Unknown filter: "unknown"
+ --> filters.template:2:12
+  |
+2 | {{ users | unknown }}
+  |            ^
 ```
 
-`sourcePath` maps to Peggy `grammarSource` and appears in `error.location.source`.
+| Field                  | Meaning                                    |
+| ---------------------- | ------------------------------------------ |
+| Message line           | Parse expectation or runtime error message |
+| `--> path:line:column` | 1-based line and column of the failure     |
+| Source line            | The template line containing the error     |
+| Caret (`^`)            | Column indicator under the error token     |
 
-### Format errors for humans
+[Legacy](../../glossary/legacy-syntax.md) and [modern](../../glossary/modern-syntax.md) parsers share this shape for syntax errors. Evaluation diagnostics use the same shape when the failing construct has parse-time location metadata.
 
-```typescript
-import {
-  formatTemplateParseError,
-  isTemplateSyntaxError,
-  parseModern,
-} from '@bwilliamson/template-engine-core';
+## AST source spans
 
-const sourcePath = 'report.v2.template';
+Peggy grammars attach an optional `location` field to canonical AST nodes at parse time:
 
-try {
-  parseModern(templateSource, { sourcePath });
-} catch (error) {
-  if (isTemplateSyntaxError(error)) {
-    console.error(formatTemplateParseError(error, { sourcePath, sourceText: templateSource }));
-    // Optional: programmatic access
-    const { line, column } = error.location!.start;
-  }
-  throw error;
-}
-```
+| Field                   | Meaning                                                |
+| ----------------------- | ------------------------------------------------------ |
+| `location.source`       | Template label from `ParseOptions.sourcePath` when set |
+| `location.start.line`   | 1-based start line                                     |
+| `location.start.column` | 1-based start column                                   |
+| `location.end.line`     | 1-based end line (inclusive span)                      |
+| `location.end.column`   | 1-based end column                                     |
 
-| Export                                                         | Role                                               |
-| -------------------------------------------------------------- | -------------------------------------------------- |
-| `formatTemplateParseError(error, { sourcePath?, sourceText })` | rustc-style string for logs and UI                 |
-| `isTemplateSyntaxError(error)`                                 | Type guard; checks for `location.start.line`       |
-| `TemplateSyntaxError`                                          | Peggy `SyntaxError` with `location` and `format()` |
-| `ParseOptions.sourcePath`                                      | File label attached at parse time                  |
+The evaluator reads `location` from the node that triggered a failure when formatting runtime errors. Unknown-filter failures on modern syntax are the first supported evaluation path; additional error kinds may attach spans in follow-up work.
 
-## Best practices
+## Contracts
 
-1. **Always pass `sourcePath`** when the template comes from a file, database record, or named slot—not only when writing to a terminal. Reviewers and LLMs use the label to map errors back to the right artifact.
-2. **Always pass full `sourceText` to `formatTemplateParseError`.** The caret requires the original template string; do not format from the message alone.
-3. **Use `isTemplateSyntaxError` before reading `location`.** Evaluation errors (unknown filters, circular aliases, max depth) are plain `Error` objects without line/column metadata.
-4. **Prefer parse-time failures over silent output.** Invalid syntax throws; it does not partially render. See [parse failure contracts](../../../packages/template-engine-core/test/new_syntax/parse-failures.test.ts) in the test suite.
-5. **CLI integrators:** The `template-engine` CLI passes `sourcePath` (`--template` path or `<stdin>`) and writes formatted parse errors to stderr. Match this pattern in hosted renderers.
-6. **Leverage diagnostics for LLM assistance.** The formatted parse errors (with their messages, line/column numbers, and source carets) are designed to be self-contained. When users encounter a syntax error, pasting the raw diagnostic output directly into an LLM prompt is typically sufficient for the AI to identify and fix the issue without needing additional explanation.
+1. **Named source.** When a template comes from a file, database record, or named slot, parsers accept a source label so diagnostics name that artifact—not only when writing to a terminal. The label is stored on AST `location.source` and on parse error locations.
+2. **Full source text for formatting.** Building the caret requires the original template string; formatting from the message alone is not enough.
+3. **Guard before reading location.** Not every thrown error includes line/column metadata. Callers distinguish syntax errors and location-bearing evaluation errors from plain runtime errors before reading spans.
+4. **Fail closed on invalid syntax.** Invalid syntax throws; it does not partially render.
+5. **CLI parity.** The `template-engine` CLI attaches a source label (`--template` path or `<stdin>`) and writes formatted parse errors to stderr. Hosted renderers should match that pattern for evaluation errors as spans roll out.
+6. **LLM-ready output.** Formatted diagnostics are self-contained: message, path, line/column, and caret are typically enough to paste into an LLM prompt without extra explanation.
 
-## Out of scope (today)
+Integrator usage and package exports live in the [core library (client)](../../client/core-library.md) guide; this shard defines the product contract only.
 
-| Error kind           | Location metadata      | Typical message                        |
-| -------------------- | ---------------------- | -------------------------------------- |
-| Parse / syntax       | Yes (`line`, `column`) | `Expected end of input but …`          |
-| Unknown filter       | No                     | `Unknown filter: "…"`                  |
-| Circular alias       | No                     | `Circular alias reference detected: …` |
-| Max evaluation depth | No                     | `Max evaluation depth exceeded …`      |
+## Coverage (today)
 
-Runtime evaluation errors may gain source spans in a future change if AST nodes carry parse locations.
+| Error kind            | Location metadata      | Typical message                                |
+| --------------------- | ---------------------- | ---------------------------------------------- |
+| Parse / syntax        | Yes (`line`, `column`) | `Expected end of input but …`                  |
+| Unknown filter        | Yes (filter span)      | `Unknown filter: "…"`                          |
+| Circular alias        | No                     | `Circular alias reference detected: …`         |
+| Max evaluation depth  | No                     | `Max evaluation depth exceeded …`              |
+| Unregistered function | No                     | `Attempted to call unregistered function: "…"` |
+
+Additional evaluation paths may attach spans later; the diagnostic shape above stays the target when location metadata is present.
 
 ## Related documents
 
