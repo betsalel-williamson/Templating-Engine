@@ -2,7 +2,7 @@
 
 **Status:** **Proposed** — architecture goals from [ADR-002](../architecture/adr-002-mustache-js-first-code-generation.md). Editor implementation issues (**#32**, **#33**) stay **blocked** until the V2 language spec is accepted and syntax freezes enough to implement highlighting and navigation reliably.
 
-Tooling does **not** change the logic-less / JS-first split; it makes templates easier to review for humans and LLMs.
+Tooling does **not** change the logic-less / JS-first split; it makes the **compact pipeline** (spec intent → host meta-code → template → product) practical for humans and LLMs — lower review cost, clearer trust boundaries, faster iteration ([overview](./overview-and-non-goals.md)).
 
 ## VS Code syntax highlighting
 
@@ -48,11 +48,14 @@ Requirements:
 
 ## Review and LLM workflows
 
-Goals aligned with [V2 design goals](../architecture/v2_design_goals.md):
+Goals aligned with [V2 design goals](../architecture/v2_design_goals.md) and the [overview efficiency direction](./overview-and-non-goals.md):
 
 - Templates scannable in PR diffs with consistent delimiter highlighting.
 - Canonical golden-file recipes linked from docs for pattern reference.
 - Diagnostic output pasteable into LLM prompts without extra context.
+- **Clean tool integration** — highlighting, go-to-definition, and shared diagnostics so agents and humans navigate host registries and template symbols without re-explaining the language each turn.
+- **Token-thrifty reviews** — prefer reviewing short templates plus host prep over large generated or imperative bodies; tooling should reinforce that split rather than encourage logic in template text.
+- **Directional efficiency** — aim for review and agent loops that are meaningfully cheaper and faster (e.g. half the tokens/cost or twice the throughput versus verbose template-heavy approaches). These are **design pressures**, not claimed benchmarks until measured.
 
 ## Implementation sequencing (informative)
 

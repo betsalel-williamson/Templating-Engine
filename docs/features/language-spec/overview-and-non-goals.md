@@ -12,7 +12,7 @@ V2 is **Mustache [logic-less presentation](../../glossary/logic-less-presentatio
 
 Templates **project and format** context; they do not orchestrate programs. Mathematical transformation semantics from mergeEngine (projection, cross-product joins, conditional vectors) survive through **host-prepared structures** and concise template sections — see [V2 mathematical design](../architecture/v2_mathematical_design.md).
 
-Primary audience: TypeScript developers and LLM-assisted reviewers who need scannable, low-token templates in PRs and recipes.
+Primary audience: TypeScript developers and LLM-assisted reviewers who need scannable, low-token templates in PRs and recipes — and hosts that want the language to **integrate cleanly into tools** so agent and human workflows stay trustworthy at lower cost.
 
 ## Relationship to existing surfaces
 
@@ -41,10 +41,27 @@ Aligned with [V2 design goals](../architecture/v2_design_goals.md) and [ADR-002]
 
 1. **Logic-less presentation** — control in host TS; templates render views.
 2. **JS/TS-first ergonomics** — dot and bracket access, pipe chains, familiar mental models.
-3. **Concise review** — fewer tokens for humans and LLMs.
+3. **Concise, tool-friendly review** — fewer tokens for humans and LLMs; templates and host code stay easy to scan in editors, PRs, and agent loops ([tooling goals](./tooling-goals.md)).
 4. **Orthogonality** — one job per construct; filters over special properties where they overlap.
 5. **Mathematical transformation** — host shapes data; template expresses projection and formatting.
 6. **Secure by default** — escaping, allowlisted registries, explicit TrustedTemplate for re-parse.
+7. **Efficiency direction** — design choices should bias toward workflows that review and generate **faster and cheaper** (illustrative bar: roughly half the review tokens / cost, or twice the throughput) even when those gains are not yet measured SLAs. Prefer compact presentation plus reusable host prep over large imperative template programs.
+
+## Compact pipeline (intent)
+
+V2 is meant to sit in a **human- and LLM-forward** path from idea to artifact:
+
+```text
+High-level intent (specs / shards)
+        ↓
+Host meta-layer (TS data prep, registries, TrustedTemplate)
+        ↓
+Compact template presentation (Mustache + output expressions)
+        ↓
+Generated product (SQL, configs, reports, …)
+```
+
+The benefit is not prettier delimiters alone: reviewers and agents spend attention on **intent and host contracts**, then trust a small template surface to compile down safely. Less template ceremony → less token burn → easier safety and speed review. See [tooling goals](./tooling-goals.md) for editor/diagnostic support that makes this pipeline practical.
 
 ## Non-goals
 
