@@ -39,3 +39,22 @@ We need to decide whether to keep paying that cost until demand appears, or reti
 - **Positive:** Shorter CI loops; less release matrix surface; docs match shipped platforms.
 - **Negative:** No fresh Windows `.exe` on new releases; contributors must not assume Windows runner coverage in CI.
 - **Mitigation:** npm CLI remains the cross-platform install path, including Windows.
+
+## Restore from prior implementation
+
+When a user needs Windows SEA again, start from the pre-retirement tree rather than reinventing the scripts and workflow wiring.
+
+| Pointer                                                                         | Use                                                                                  |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Issue [#79](https://github.com/betsalel-williamson/Templating-Engine/issues/79) | Scope, acceptance criteria, and why we retired                                       |
+| PR [#84](https://github.com/betsalel-williamson/Templating-Engine/pull/84)      | Diff that removed Windows CI/release/SEA; invert that change as the restore baseline |
+| Parent of the retire commit on `main` (after merge)                             | Last revision that still contained the Windows paths                                 |
+
+Surfaces to recover from that history:
+
+- `.github/workflows/ci.yml` — `build-windows` job
+- `.github/workflows/release-binaries.yml` — `windows-latest` matrix cell, prepare/upload steps
+- `packages/template-engine-cli` — `build:standalone:windows` and `scripts/build-sea-windows.sh`
+- Client/developer docs and the maintenance issue-template checklist for Windows verify
+
+After restore, update this ADR’s status (or supersede it) so docs again match shipped platforms.
