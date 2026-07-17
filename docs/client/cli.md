@@ -6,7 +6,11 @@
 
 ```bash
 npm install -g @bwilliamson/template-engine-cli
+# or without a global install:
+npx @bwilliamson/template-engine-cli --template template.txt --data data.json
 ```
+
+npm and npx are the supported install paths on all platforms. See [ADR-005](../features/architecture/adr-005-retire-sea-binaries.md).
 
 ## Usage
 
@@ -66,23 +70,3 @@ template-engine --template template.txt --data data.json
 **Stdin:** The CLI reads the entire stdin stream before parsing. If the stream closes mid-tag, parsing fails with a syntax error.
 
 **Functions:** The CLI registers no template functions. Use the core library when custom functions are required.
-
-## Standalone binary
-
-Pre-built executables for **Linux** and **macOS** are published on [GitHub Releases](https://github.com/betsalel-williamson/Templating-Engine/releases) as `template-engine-v*-linux` and `template-engine-v*-macos`. Use the same flags as the npm-installed CLI.
-
-**Windows:** There is no published Windows standalone binary. Install and run the CLI via npm (`npm install -g @bwilliamson/template-engine-cli`). See [ADR-003](../features/architecture/adr-003-retire-windows-sea-ci.md).
-
-### macOS Gatekeeper
-
-macOS may block the downloaded macOS binary on first launch because it is **not** signed or notarized with Apple. Gatekeeper shows that the developer cannot be verified.
-
-To grant a **one-time exception** for that file:
-
-1. In Finder, **Control-click** (or right-click) the downloaded `template-engine-v*-macos` file.
-2. Choose **Open**.
-3. Click **Open** in the confirmation dialog.
-
-After that, macOS allows the same file to run from Terminal or Finder without repeating the workaround. Installing via npm avoids this prompt.
-
-Maintainers: build steps and release workflow are in [standalone CLI binaries](../developer/standalone-cli-binaries.md).
