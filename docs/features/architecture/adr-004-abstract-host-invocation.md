@@ -16,7 +16,7 @@ Stability and utility come first. The architecture records **direction and reser
 
 1. **Templates invoke abstract names.** Filters and functions in template text are identifiers and arguments. The language remains independent of how a given host implements those names.
 2. **The host supplies implementations and trust.** Registration, allowlisting, and which artifact is trusted to run are host responsibilities. The engine dispatches registered names through the active host path.
-3. **The default host runtime is JavaScript/TypeScript.** That is the path that showcases the system and earns measurable benefit today.
+3. **The default host runtime is JavaScript/TypeScript.** That is the shipped path that runs templates and registries today.
 4. **Value exchange uses JSON-serializable, immutable snapshots.** Arguments and results cross the invocation boundary as copy-in / copy-out data. This favors safety, reviewability, and interchangeable backends. A later `argMode` extension (for example handles for shared reference) may be added under the same registration model when performance needs justify it.
 5. **Registrations declare a capability label** — at least `pure` or `io`. Host-trusted `io` registrations are allowed; tooling and diagnostics surface impure calls so humans and LLMs can review them.
 6. **Direction for additional backends.** The same abstract names, capability labels, and JSON value contract remain the stable surface if the host later attaches further trusted backends (for example a reviewed static library for hot transforms, or a dedicated channel to a reviewed worker/container for isolated work). Prefer extending registration metadata over changing template syntax.
@@ -41,7 +41,7 @@ These contracts guide paper specs and future TDD slices. They are **architecture
 
 - Clear separation: language surface vs host execution path.
 - Immediate value stays on the JS/TS host without speculative multi-backend machinery.
-- Capability labels improve trust and LLM/human review of impure calls.
+- Capability labels make impure registrations visible for LLM and human review.
 - Future native or channel backends can share the same template text and value contract.
 
 ### Trade-offs
