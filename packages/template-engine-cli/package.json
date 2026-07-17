@@ -38,7 +38,6 @@
     "sea:blob": "node --experimental-sea-config sea-config.json",
     "build:standalone:linux": "pnpm --filter @bwilliamson/template-engine-core run build && pnpm run build:sea-bundle && pnpm run sea:blob && ./scripts/build-sea-linux.sh",
     "build:standalone:macos": "pnpm --filter @bwilliamson/template-engine-core run build && pnpm run build:sea-bundle && pnpm run sea:blob && ./scripts/build-sea-macos.sh",
-    "build:standalone:windows": "pnpm --filter @bwilliamson/template-engine-core run build && pnpm run build:sea-bundle && pnpm run sea:blob && bash ./scripts/build-sea-windows.sh",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"

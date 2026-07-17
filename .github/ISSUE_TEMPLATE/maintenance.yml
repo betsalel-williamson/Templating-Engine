@@ -37,7 +37,7 @@ body:
       label: Acceptance criteria
       description: How will we know this is done?
       placeholder: |
-        - [ ] `pnpm run build` succeeds on Windows, macOS, and Linux runners
+        - [ ] `pnpm run build` succeeds on Linux (and macOS when that platform is in scope)
         - [ ] README documents the new workflow
     validations:
       required: true

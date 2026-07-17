@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - name: Set tag reference
@@ -69,15 +69,7 @@ jobs:
           node scripts/ensure-dir.mjs dist
           mv packages/template-engine-cli/dist/template-engine-macos dist/template-engine-${{ steps.get_version.outputs.VERSION }}-macos
 
-      - name: Prepare Binary (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          pnpm --filter @bwilliamson/template-engine-cli run build:standalone:windows
-          node scripts/ensure-dir.mjs dist
-          mv packages/template-engine-cli/dist/template-engine-win.exe dist/template-engine-${{ steps.get_version.outputs.VERSION }}-win.exe
-
-      # CORRECTED: Use three separate, conditioned steps for uploading.
-      # This avoids complex, error-prone expressions and is unambiguously correct.
+      # Separate conditioned upload steps avoid complex expressions.
       - name: Upload Linux Artifact
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v7
@@ -91,13 +83,6 @@ jobs:
         with:
           name: binary-macOS
           path: dist/template-engine-${{ steps.get_version.outputs.VERSION }}-macos
-
-      - name: Upload Windows Artifact
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v7
-        with:
-          name: binary-Windows
-          path: dist/template-engine-${{ steps.get_version.outputs.VERSION }}-win.exe
 
   publish-release:
     name: Publish Release

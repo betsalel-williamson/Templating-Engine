@@ -21,7 +21,7 @@ We use Node.js features to make the _implementation_ of our abstract filters sim
 - **Math Filters (`add`):** Our filter uses standard JavaScript math operators. The template author only sees `| add:5`.
 - **Async Operations:** We use Node's `async/await` syntax to seamlessly handle custom functions or filters that may need to perform asynchronous tasks (like a database lookup).
 - **Development Ecosystem:** We use the Node.js ecosystem (`npm`, `vitest`, `typescript`) for rapid, reliable development and testing.
-- **Distribution:** We use Node.js's Single Executable Application (SEA) feature for simple, dependency-free distribution of our CLI.
+- **Distribution:** We use Node.js's Single Executable Application (SEA) feature for dependency-free Linux and macOS CLI binaries. Windows users install the CLI via npm. See [ADR-003: Retire Windows SEA and CI](./adr-003-retire-windows-sea-ci.md).
 
 ### How We **DO NOT** Use JavaScript
 

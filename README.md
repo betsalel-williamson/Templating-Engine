@@ -58,7 +58,7 @@ template-engine --template template.txt --data data.json
 
 **Standalone binary (GitHub Releases)**
 
-Pre-built executables for Linux, macOS, and Windows are attached to [GitHub Releases](https://github.com/betsalel-williamson/Templating-Engine/releases) (for example `template-engine-v1.2.3-macos`). Download the file for your platform, make it executable if needed, and run it with the same flags as the npm CLI.
+Pre-built executables for Linux and macOS are attached to [GitHub Releases](https://github.com/betsalel-williamson/Templating-Engine/releases) (for example `template-engine-v1.2.3-macos`). Download the file for your platform, make it executable if needed, and run it with the same flags as the npm CLI. On Windows, use the npm package instead of a standalone binary.
 
 ### macOS: Gatekeeper warning
 
