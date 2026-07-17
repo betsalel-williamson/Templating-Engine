@@ -92,23 +92,27 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
   return async function evaluate(
     node: AstNode,
     context: DataContext,
-    depth: number = 0
+    depth: number = 0,
+    originLocation?: SourceLocation
   ): Promise<string> {
     if (depth > MAX_EVAL_DEPTH) {
-      throw new Error(
-        'Max evaluation depth exceeded, possible infinite loop in template variables.'
+      throw createTemplateEvaluationError(
+        'Max evaluation depth exceeded, possible infinite loop in template variables.',
+        originLocation ?? node.location
       );
     }
     if (!node) return '';
     switch (node.type) {
       case 'Template':
         return (
-          await Promise.all(node.body.map((child) => evaluate(child, context, depth + 1)))
+          await Promise.all(
+            node.body.map((child) => evaluate(child, context, depth + 1, originLocation))
+          )
         ).join('');
       case 'Literal':
         return node.value;
       case 'Variable': {
-        const resolvedVarName = await evaluate(node.name, context, depth + 1);
+        const resolvedVarName = await evaluate(node.name, context, depth + 1, originLocation);
 
         // MODIFIED: Handle array.length property access outside of loops.
         if (resolvedVarName.endsWith('.length')) {
@@ -132,10 +136,15 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
 
         if (value === undefined) return node.raw;
 
-        return await evaluate(parseTemplate(String(value)), context, depth + 1);
+        return await evaluate(
+          parseTemplate(String(value)),
+          context,
+          depth + 1,
+          originLocation ?? node.location
+        );
       }
       case 'IndirectVariable': {
-        const firstKeyToLookup = await evaluate(node.name, context, depth + 1);
+        const firstKeyToLookup = await evaluate(node.name, context, depth + 1, originLocation);
         let currentKeyToLookup: string = firstKeyToLookup;
         let lastResolvedStringValue: string | undefined;
         const visitedKeysInChain = new Set<string>();
@@ -169,14 +178,19 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           }
           resolvedValue = tempValue;
         }
-        return await evaluate(parse(lastResolvedStringValue as string), context, depth + 1);
+        return await evaluate(
+          parse(lastResolvedStringValue as string),
+          context,
+          depth + 1,
+          originLocation ?? node.location
+        );
       }
       case 'FunctionCall': {
         const { functionName, args } = node;
         const func = privateFunctions.get(functionName);
         if (!func) throw new Error(`Attempted to call unregistered function: "${functionName}"`);
         const resolvedArgs = await Promise.all(
-          args.map((arg) => evaluate(arg, context, depth + 1))
+          args.map((arg) => evaluate(arg, context, depth + 1, originLocation))
         );
         const result = await func(...resolvedArgs);
         return String(result);
@@ -186,7 +200,12 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           `Invalid AST: Encountered a standalone ArrayNode. Should be nested in CrossProduct.`
         );
       case 'CrossProduct': {
-        const arrayName: string = await evaluate(node.iterator.name, context, depth + 1);
+        const arrayName: string = await evaluate(
+          node.iterator.name,
+          context,
+          depth + 1,
+          originLocation
+        );
         const rawArrayData = resolveDotNotation(context, arrayName.split('.'));
         if (!Array.isArray(rawArrayData) || rawArrayData.length === 0) return '';
         const originalArrayLength = rawArrayData.length;
@@ -195,7 +214,12 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
         let endIndex = rawArrayData.length;
 
         if (node.sliceTemplate) {
-          const sliceString = await evaluate(node.sliceTemplate, context, depth + 1);
+          const sliceString = await evaluate(
+            node.sliceTemplate,
+            context,
+            depth + 1,
+            originLocation
+          );
           const parts = sliceString.split(',').map((s) => s.trim());
 
           let offset = 1;
@@ -229,7 +253,7 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
             subContext.set(`${arrayName}.numberofelements`, String(originalArrayLength));
             subContext.set(`${arrayName}.index`, String(zeroBasedIndex));
             subContext.set(`${arrayName}.length`, String(originalArrayLength));
-            return await evaluate(node.template, subContext, depth + 1);
+            return await evaluate(node.template, subContext, depth + 1, originLocation);
           })
         );
         if (node.delimiter !== null && node.delimiter !== undefined) {
@@ -238,10 +262,10 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
         return iterationResults.join('');
       }
       case 'Conditional': {
-        const conditionResult = await evaluate(node.condition, context, depth + 1);
+        const conditionResult = await evaluate(node.condition, context, depth + 1, originLocation);
         return conditionResult !== '0' && conditionResult !== ''
-          ? await evaluate(node.trueBranch, context, depth + 1)
-          : await evaluate(node.falseBranch, context, depth + 1);
+          ? await evaluate(node.trueBranch, context, depth + 1, originLocation)
+          : await evaluate(node.falseBranch, context, depth + 1, originLocation);
       }
       case 'OutputExpression': {
         const expressionConfig = { resolveAliases: config.resolveAliases };
@@ -250,7 +274,12 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           return node.expression.type === 'Identifier' ? node.raw : '';
         }
         if (typeof value === 'string' && (value.includes('{{') || value.includes('{%'))) {
-          return await evaluate(parseTemplate(value), context, depth + 1);
+          return await evaluate(
+            parseTemplate(value),
+            context,
+            depth + 1,
+            originLocation ?? node.location
+          );
         }
         return stringifyExpressionValue(value);
       }
@@ -281,7 +310,7 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
               ])
             );
 
-            return await evaluate(node.body, loopContext, depth + 1);
+            return await evaluate(node.body, loopContext, depth + 1, originLocation);
           })
         );
 
@@ -292,8 +321,8 @@ export function createSecureEvaluator(config: EvaluatorConfig) {
           resolveAliases: config.resolveAliases,
         });
         return conditionResult
-          ? await evaluate(node.trueBranch, context, depth + 1)
-          : await evaluate(node.falseBranch, context, depth + 1);
+          ? await evaluate(node.trueBranch, context, depth + 1, originLocation)
+          : await evaluate(node.falseBranch, context, depth + 1, originLocation);
       }
       default:
         const exhaustiveCheck: never = node;

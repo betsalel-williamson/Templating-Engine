@@ -65,6 +65,46 @@ describe('Template evaluation error formatting', () => {
     }
   });
 
+  it('should format max evaluation depth errors with file path, line, column, and caret', async () => {
+    const sourcePath = 'depth.template';
+    const sourceText = 'line1\n{{ v0 }}';
+    const ast = parseModern(sourceText, { sourcePath });
+    const chainDepth = 55;
+    const context: DataContext = new Map();
+    for (let i = 0; i < chainDepth; i++) {
+      context.set(`v${i}`, `{{ v${i + 1} }}`);
+    }
+    context.set(`v${chainDepth}`, 'done');
+    const evaluate = createSecureEvaluator({
+      functions: new Map(),
+      resolveAliases: true,
+      parseTemplate: parseModern,
+    });
+
+    try {
+      await evaluate(ast, context);
+      expect.fail('expected evaluation to throw');
+    } catch (error) {
+      expect(isTemplateEvaluationError(error)).toBe(true);
+      expect(error.message).toBe(
+        'Max evaluation depth exceeded, possible infinite loop in template variables.'
+      );
+      expect(error.location?.source).toBe(sourcePath);
+      expect(error.location?.start.line).toBe(2);
+      expect(error.location?.start.column).toBeGreaterThan(0);
+
+      const formatted = formatTemplateEvaluationError(error, {
+        sourcePath,
+        sourceText,
+      });
+
+      expect(formatted).toContain('Max evaluation depth exceeded');
+      expect(formatted).toContain('depth.template:2:');
+      expect(formatted).toContain('{{ v0 }}');
+      expect(formatted).toContain('^');
+    }
+  });
+
   it('should format circular alias errors with file path, line, column, and caret', async () => {
     const sourcePath = 'aliases.template';
     const sourceText = 'line1\n{{ varA }}';
