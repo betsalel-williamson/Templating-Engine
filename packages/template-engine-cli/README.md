@@ -68,16 +68,6 @@ See the **[Template Language Reference](https://github.com/betsalel-williamson/T
 
 **Functions:** The CLI intentionally registers no template functions. For custom functions, use the core library in a host application.
 
-## Standalone executable
-
-For environments without Node.js, build a single-file binary from the monorepo root:
-
-```bash
-pnpm --filter @bwilliamson/template-engine-cli run build:standalone:linux   # or :macos
-```
-
-Output lands in `packages/template-engine-cli/dist/`. Linux and macOS binaries are published on GitHub Releases; Windows users should use the npm package. See [DEVELOPERS.md](https://github.com/betsalel-williamson/Templating-Engine/blob/main/DEVELOPERS.md) for release details.
-
 ## Links
 
 - [Core library](https://www.npmjs.com/package/@bwilliamson/template-engine-core)

@@ -34,10 +34,6 @@
   ],
   "scripts": {
     "build": "tsup src/cli.ts --format esm --clean",
-    "build:sea-bundle": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.bundle.cjs --format=cjs --packages=bundle",
-    "sea:blob": "node --experimental-sea-config sea-config.json",
-    "build:standalone:linux": "pnpm --filter @bwilliamson/template-engine-core run build && pnpm run build:sea-bundle && pnpm run sea:blob && ./scripts/build-sea-linux.sh",
-    "build:standalone:macos": "pnpm --filter @bwilliamson/template-engine-core run build && pnpm run build:sea-bundle && pnpm run sea:blob && ./scripts/build-sea-macos.sh",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"
@@ -47,8 +43,6 @@
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
-    "esbuild": "^0.25.5",
-    "postject": "^1.0.0-alpha.6",
     "tsup": "^8.4.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10"
