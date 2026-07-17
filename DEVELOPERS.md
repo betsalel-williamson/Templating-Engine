@@ -289,7 +289,7 @@ The CLI and stable API use [legacy syntax](#legacy-syntax) via `parseLegacy`.
 
 **Active design** toward a Mustache-inspired, [logic-less presentation](#logic-less-presentation) template language with a JavaScript/TypeScript-first [host layer](#host-layer), optimized for **code generation** use cases.
 
-V2 is **not** a synonym for [modern syntax](#modern-syntax): the experimental `parseModern` grammar is exploratory. Normative goals and destination constructs are in [V2 design goals](docs/features/architecture/v2_design_goals.md). ADR-002 (forthcoming) will record the superseding decision over ADR-001; [Pkl](https://pkl-lang.org/) is **not** a recommended path.
+V2 is **not** a synonym for [modern syntax](#modern-syntax): the experimental `parseModern` grammar is exploratory. Normative goals are in [V2 design goals](docs/features/architecture/v2_design_goals.md); the on-paper language specification is in [V2 language spec](docs/features/language-spec/index.md). Decision record: [ADR-002](docs/features/architecture/adr-002-mustache-js-first-code-generation.md); [Pkl](https://pkl-lang.org/) is **not** a recommended path.
 
 [Legacy syntax](#legacy-syntax) remains the stable shipped surface until V2 syntax lands.
 
@@ -315,6 +315,9 @@ The JavaScript/TypeScript program or build step that prepares template [data con
 - [logic-less presentation](#logic-less-presentation)
 - [mergeEngine](#mergeengine)
 - [modern syntax](#modern-syntax)
+- [Mustache section](#mustache-section)
+- [output expression](#output-expression)
+- [TrustedTemplate](#trustedtemplate)
 - [secure evaluator](#secure-evaluator)
 - [V2](#v2)
 
@@ -350,6 +353,34 @@ Named values a template reads at evaluation time. The [host layer](#host-layer) 
 Legacy iteration pattern: a loop walks an array and renders a sub-template for each element. Named after the original mergeEngine cross-product construct (`<*>` with `<[array]>`).
 
 In [V2](#v2) destination design, the [host layer](#host-layer) prepares arrays and templates use section-style rendering rather than reimplementing loop control flow in template text.
+
+## Mustache section
+
+**Proposed** V2 construct: `{} … {{/name}}` (positive) and `{{^name}} … {{/name}}` (inverted) blocks that render over host-prepared context.
+
+When the host supplies an **array**, the engine iterates the block; when it supplies a **boolean** or truthy/falsy scalar, the block acts as conditional; inverted sections cover missing/false cases. Replaces legacy RPL iteration/branch operators and **replaces** exploratory Jinja `{% for %}` / `{% if %}` as destination syntax.
+
+**Not shipped** as the V2 Mustache parser destination today. See [surface syntax](docs/features/language-spec/surface-syntax.md) and [logic-less presentation](#logic-less-presentation).
+
+## output expression
+
+**Proposed** V2 and **partially shipped** experimental construct: text inside `{{ … }}` delimiters that evaluates to a value, applies optional filter pipelines, escapes, and appends to template output.
+
+Destination surface for variable lookup, literals, filter chains (`| upper`, `| length`), and allowlisted function calls — not for imperative control flow. Control flow belongs in [Mustache sections](#mustache-section) over host-prepared context or in the [host layer](#host-layer).
+
+**Shipped (experimental):** `parseModern` supports output expressions with dot access and filters. Function-call shape and full V2 grammar are **proposed**.
+
+See [surface syntax](docs/features/language-spec/surface-syntax.md).
+
+## TrustedTemplate
+
+**Status:** **Proposed** V2 host contract — not fully enforced in product code.
+
+Explicit wrapper type for output from host functions or macros that **intentionally contains template syntax** and may be expanded (rescanned) by the evaluator. Plain string returns are treated as **data**: escaped and written without rescan.
+
+Only developer-controlled host code may construct TrustedTemplate; untrusted user content must never be promoted. Prevents SSTI and uncontrolled m4-style blind rescan. Spec: [host layer contracts](docs/features/language-spec/host-layer-contracts.md); architecture: [ADR-002](docs/features/architecture/adr-002-mustache-js-first-code-generation.md), [V2 mathematical design §4](docs/features/architecture/v2_mathematical_design.md).
+
+Issue input: [#21](https://github.com/betsalel-williamson/Templating-Engine/issues/21).
 
 ## secure evaluator
 

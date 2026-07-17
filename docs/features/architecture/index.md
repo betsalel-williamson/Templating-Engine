@@ -14,6 +14,17 @@ Design notes and ADRs for the templating engine.
 - [V2 mathematical design](./v2_mathematical_design.md)
 - [Templating evolution and tool landscape](./templating_evolution.md)
 
+## V2 language specification (paper-first)
+
+**Proposed** destination language — [language spec index](../language-spec/index.md):
+
+- [Overview and non-goals](../language-spec/overview-and-non-goals.md)
+- [Surface syntax](../language-spec/surface-syntax.md)
+- [Host layer contracts](../language-spec/host-layer-contracts.md)
+- [Evaluation, security, and diagnostics](../language-spec/evaluation-security-diagnostics.md)
+- [Tooling goals](../language-spec/tooling-goals.md)
+- [Open questions and constraints](../language-spec/open-questions.md)
+
 ## Language design
 
 - [Modern syntax technical overview](./new_syntax_technical_overview.md)

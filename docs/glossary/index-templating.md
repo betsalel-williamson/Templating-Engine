@@ -8,5 +8,8 @@
 - [logic-less presentation](./logic-less-presentation.md)
 - [mergeEngine](./merge-engine.md)
 - [modern syntax](./modern-syntax.md)
+- [Mustache section](./mustache-section.md)
+- [output expression](./output-expression.md)
+- [TrustedTemplate](./trusted-template.md)
 - [secure evaluator](./secure-evaluator.md)
 - [V2](./v2.md)

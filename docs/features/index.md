@@ -11,6 +11,7 @@ Product documentation for **what the templating engine does today**: packages, s
   - [Packages](./packages.md)
   - [Template syntax surfaces](./template-syntax-surfaces.md)
   - [Architecture](./architecture/index.md)
+    - [V2 language specification (paper-first)](./language-spec/index.md)
     - [V2 design goals](./architecture/v2_design_goals.md)
     - [V2 mathematical design](./architecture/v2_mathematical_design.md)
     - [ADR-001: Pkl adoption (superseded)](./architecture/adr-001-adopt-pkl.md)
