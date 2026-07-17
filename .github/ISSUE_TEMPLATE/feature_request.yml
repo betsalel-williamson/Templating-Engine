@@ -11,7 +11,7 @@ body:
       value: |
         Describe the user value of this change. Focus on observable outcomes, not implementation details.
 
-        For large syntax or architecture changes, see the [modern syntax migration plan](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/developer/migration-plan.md).
+        For large syntax or architecture changes, see [ADR-002: Mustache logic-less + JS/TS-first for code generation](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/features/architecture/adr-002-mustache-js-first-code-generation.md) and the [architecture decision records](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/features/architecture/index.md).
 
   - type: textarea
     id: user-story

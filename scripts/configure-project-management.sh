@@ -62,7 +62,7 @@ set_in_progress() {
 echo "Creating epics..."
 MODERN_EPIC_ID=$(create_epic_if_missing "[Epic] Modern Syntax Migration" "Parent epic for modern templating syntax parity work.
 
-See [migration plan](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/developer/migration-plan.md).")
+See [ADR-002](https://github.com/betsalel-williamson/Templating-Engine/blob/main/docs/features/architecture/adr-002-mustache-js-first-code-generation.md) and the [project board](https://github.com/users/betsalel-williamson/projects/5).")
 
 CLI_EPIC_ID=$(create_epic_if_missing "[Epic] CLI Interface" "Parent epic for CLI packaging, distribution, and developer experience.")
 
