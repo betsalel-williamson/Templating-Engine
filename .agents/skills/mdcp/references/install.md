@@ -26,7 +26,9 @@ Start a bootstrap session with a natural-language turn under the getting-started
 ```
 
 The agent asks for `FEATURE` and
-`PERSONA` before installing or writing shards.
+`PERSONA` before installing or writing shards. After bootstrap succeeds, it can
+offer a guided first feature (design → feature → UX → doc-only) using a
+recommended example or one you choose.
 
 Optional archetype skills under `skills/mdcp-arch-*` are WIP and are not part of
 the consumer install path yet.

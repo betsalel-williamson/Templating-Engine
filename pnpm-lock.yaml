@@ -13,11 +13,11 @@ importers:
   .:
     devDependencies:
       '@bwilliamson/mdcp-cli':
-        specifier: 0.5.0
-        version: 0.5.0
+        specifier: 0.6.1
+        version: 0.6.1
       '@bwilliamson/mdcp-presets':
-        specifier: 0.5.0
-        version: 0.5.0
+        specifier: 0.6.1
+        version: 0.6.1
       '@changesets/cli':
         specifier: ^2.31.1
         version: 2.31.1(@types/node@26.1.1)
@@ -123,18 +123,18 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@bwilliamson/mdcp-cli@0.5.0':
-    resolution: {integrity: sha512-M9eW44KC7XEDZkzNBUUMRH39omdJtyL2EK30kg31Nt8PtgdtR9lXoJ/DoUSFiQoffKzw230LYBYYkMvOXinLPQ==}
-    engines: {node: '>=24.0.0'}
+  '@bwilliamson/mdcp-cli@0.6.1':
+    resolution: {integrity: sha512-VNr23kGr3w3sboy54qQXZx7SSaQwWL3OcNqTFU9ByhvQa984vhyg0A5Rcoz09MxQo7+viRP2DFAfeSd+A1V/xA==}
+    engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@bwilliamson/mdcp-core@0.5.0':
-    resolution: {integrity: sha512-LKQvzS6w2kbqSgIAYRG8HilJEf3dH0cAZxFTx2Ar7j23nU2fHCamPHi3JknUp/8bMI7ZM6t3HkAp3jhPDu5DSA==}
-    engines: {node: '>=24.0.0'}
+  '@bwilliamson/mdcp-core@0.6.1':
+    resolution: {integrity: sha512-UGJyZ7U6sY3BxRsKPwEL8HuQk0B+P69qm6Z/hJSE8pmX5mTHLJqSFMEWVN9b/Pbr/gmC4/hbYdNooJBp+0WzdA==}
+    engines: {node: '>=18.0.0'}
 
-  '@bwilliamson/mdcp-presets@0.5.0':
-    resolution: {integrity: sha512-s3i5b8S03qSbdaVoZD0MBJsUxqb+Bg7D0crRDPPcCO0qO8tLIwM3REnf52kJ2H4VnG+hEKYBBBpnccRaM4zCuA==}
-    engines: {node: '>=24.0.0'}
+  '@bwilliamson/mdcp-presets@0.6.1':
+    resolution: {integrity: sha512-w8hOsOHLhO8QkaSdaMwyn9g7MWZ5oDGSwglftp3Sd/Hluvm1YVzaga9EhhBKTKinFponsi1Ppbxvre+emk01Rg==}
+    engines: {node: '>=18.0.0'}
 
   '@changesets/apply-release-plan@7.1.1':
     resolution: {integrity: sha512-9qPCm/rLx/xoOFXIHGB229+4GOL76S4MC+7tyOuTsR6+1jYlfFDQORdvwR5hDA6y4FL2BPt3qpbcQIS+dW85LA==}
@@ -1015,6 +1015,10 @@ packages:
   cac@6.7.14:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
     engines: {node: '>=8'}
+
+  cac@7.0.0:
+    resolution: {integrity: sha512-tixWYgm5ZoOD+3g6UTea91eow5z6AAHaho3g0V9CNSNb45gM8SmflpAc+GRd1InC4AqN/07Unrgp56Y94N9hJQ==}
+    engines: {node: '>=20.19.0'}
 
   callsites@3.1.0:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
@@ -2252,18 +2256,19 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@bwilliamson/mdcp-cli@0.5.0':
+  '@bwilliamson/mdcp-cli@0.6.1':
     dependencies:
-      '@bwilliamson/mdcp-core': 0.5.0
+      '@bwilliamson/mdcp-core': 0.6.1
+      cac: 7.0.0
       commander: 15.0.0
 
-  '@bwilliamson/mdcp-core@0.5.0':
+  '@bwilliamson/mdcp-core@0.6.1':
     dependencies:
       github-slugger: 2.0.0
       semver: 7.8.5
       zod: 4.4.3
 
-  '@bwilliamson/mdcp-presets@0.5.0': {}
+  '@bwilliamson/mdcp-presets@0.6.1': {}
 
   '@changesets/apply-release-plan@7.1.1':
     dependencies:
@@ -3115,6 +3120,8 @@ snapshots:
       load-tsconfig: 0.2.5
 
   cac@6.7.14: {}
+
+  cac@7.0.0: {}
 
   callsites@3.1.0: {}
 

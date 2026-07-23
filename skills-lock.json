@@ -27,45 +27,39 @@
     },
     "mdcp": {
       "source": "betsalel-williamson/mdcp",
-      "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/mdcp/SKILL.md",
-      "computedHash": "6ca52724af0e9f8fb3a40ffce9302027c8bc6eb34a58922d2aced4c7d3b33f12"
+      "computedHash": "7b41ed9cc1d323c31d131bfcbe3196357a7a1654e9c72ff27b45ac5b409e871c"
     },
     "mdcp-design-architecture": {
       "source": "betsalel-williamson/mdcp",
-      "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/mdcp-design-architecture/SKILL.md",
-      "computedHash": "eadd8054c07dd67d877503eb17f4412f3e793edb1480cbe3cf7804c54d84b472"
+      "computedHash": "b338e602174abc26df5069b6537daa3435070c769d524bf41d9d221a05b9589b"
     },
     "mdcp-doc-only": {
       "source": "betsalel-williamson/mdcp",
-      "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/mdcp-doc-only/SKILL.md",
-      "computedHash": "b7690f86a91c8fb9485396c01cdb61c6bf9c70961ef1713bb41ff3139772c604"
+      "computedHash": "3479dc1d8e9724dfe9075ddfeab5c1e6c7986796fb54053b1ed96532960065c0"
     },
     "mdcp-feature-level": {
       "source": "betsalel-williamson/mdcp",
-      "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/mdcp-feature-level/SKILL.md",
-      "computedHash": "87153a5b4f343deb44189e1069acb6e718ab0dddf2ca00a333e88ecadf3153b0"
+      "computedHash": "f04c3a0f992de1344297f6c0a157139fd65241d5a4c7ab8fcc509ea1592dfc91"
     },
     "mdcp-getting-started": {
       "source": "betsalel-williamson/mdcp",
-      "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/mdcp-getting-started/SKILL.md",
-      "computedHash": "993ec8ed7766af9b404794e859320cc2b9cd3403ceea16be89dd71499242bd70"
+      "computedHash": "bb89245861eac18abc628005c95c15e89a07592e035977fdfaec23833a579478"
     },
     "mdcp-ux": {
       "source": "betsalel-williamson/mdcp",
-      "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/mdcp-ux/SKILL.md",
-      "computedHash": "66a1f8e4b436e0b7386b9be20048df161ca89199f7a974ddd95b8f32bc9912fd"
+      "computedHash": "210df0c2ae9862c045ba2e65d3bfd954466a548098f99b7202a2ad671a7ba13c"
     },
     "receiving-code-review": {
       "source": "obra/superpowers",

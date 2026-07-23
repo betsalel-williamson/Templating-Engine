@@ -11,13 +11,13 @@ pnpm run lint:md      # root markdownlint (non-mdcp paths)
 Documentation (Node >= 24):
 
 ```bash
-pnpm run docs:compile # compile shards + refresh llms-index
+pnpm run docs:compile # compile shards to monoliths
 pnpm run docs:check   # compile, refs, xrefs, markdownlint
-pnpm run docs:context # export features monolith for agent context
+pnpm run docs:context # print features monolith for agent context
 ```
 
-Look up link slugs from compiled output (quote multi-word queries):
+List link slugs from compiled output:
 
 ```bash
-pnpm docs:refs -- "Template language"
+pnpm docs:refs
 ```
