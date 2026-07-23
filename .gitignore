@@ -31,6 +31,9 @@ test-results/*
 # Local agent worktrees (isolated checkouts)
 .worktrees/
 
+# Dogfood gate run artifacts (ADR-006)
+evals/dogfood/reports/
+
 # Legacy shell script archive
 archive/
 

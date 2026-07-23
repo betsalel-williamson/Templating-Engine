@@ -33,20 +33,20 @@ Broad engine TDD for paused implementation issues remains **PREOP-PAUSE** until 
 
 ### §1 Consumer and non-goals
 
-| Item | Choice |
-| --- | --- |
-| **Consumer** | This template system itself (legacy path = working baseline) |
-| **What we measure** | Tokens, wall-clock, and correctness while agents **build toward V2** on a fixed slice |
-| **Secondary later** | Recipe fixtures — not the primary dogfood consumer |
-| **Out of scope** | Broad #21 / #27 / #28 (and related) before the decision; other vendor SDKs before solid Cursor evidence; editor/epics/Node engine work; treating docs-mdcp dogfooding as a substitute |
+| Item                | Choice                                                                                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Consumer**        | This template system itself (legacy path = working baseline)                                                                                                                          |
+| **What we measure** | Tokens, wall-clock, and correctness while agents **build toward V2** on a fixed slice                                                                                                 |
+| **Secondary later** | Recipe fixtures — not the primary dogfood consumer                                                                                                                                    |
+| **Out of scope**    | Broad #21 / #27 / #28 (and related) before the decision; other vendor SDKs before solid Cursor evidence; editor/epics/Node engine work; treating docs-mdcp dogfooding as a substitute |
 
 **ICP:** artisan programmers who already value codegen and can think at host/spec abstraction.
 
 ### §2 A/B arms and isolation
 
-| Arm | Treatment |
-| --- | --- |
-| **A (baseline)** | Same fixed V2 build slice; freeform; **no** V2 treatment skill |
+| Arm               | Treatment                                                                                                                                                      |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A (baseline)**  | Same fixed V2 build slice; freeform; **no** V2 treatment skill                                                                                                 |
 | **B (treatment)** | Same task + purpose-built Agent Skill (V2 language-spec / ADR contracts; host + logic-less + classical expansion; TrustedTemplate rules; stop when tests pass) |
 
 **Constants:** same model, Cursor runtime, scorers, timeouts, and shared task body.
@@ -109,11 +109,11 @@ This gate borrows: multi-axis fail-closed scoring and honesty about weak outcome
 
 ### §5 Go / no-go / slim-go
 
-| Outcome | When | Meaning |
-| --- | --- | --- |
-| **Go** | B valid, and B wins on tokens **or** wall-clock while the other metric is not worse beyond the noise band, with no correctness regression vs A | Broad V2 engine TDD is justified |
-| **Slim-go** | B valid but gains are mixed/narrow, or a thinner skill/contract set is required to stay competitive | Reduced V2 surface or one focused TDD slice; re-dogfood before widening |
-| **No-go** | A valid and B invalid; or both valid and B worse on tokens **and** time; or repeated B failures after task/skill fixes | Do not open broad engine TDD; keep legacy; park or rewrite the paper language |
+| Outcome     | When                                                                                                                                           | Meaning                                                                       |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Go**      | B valid, and B wins on tokens **or** wall-clock while the other metric is not worse beyond the noise band, with no correctness regression vs A | Broad V2 engine TDD is justified                                              |
+| **Slim-go** | B valid but gains are mixed/narrow, or a thinner skill/contract set is required to stay competitive                                            | Reduced V2 surface or one focused TDD slice; re-dogfood before widening       |
+| **No-go**   | A valid and B invalid; or both valid and B worse on tokens **and** time; or repeated B failures after task/skill fixes                         | Do not open broad engine TDD; keep legacy; park or rewrite the paper language |
 
 ### Hard rules
 

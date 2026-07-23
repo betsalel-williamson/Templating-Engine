@@ -21,6 +21,8 @@
     "docs:check": "mdcp check --config docs/mdcp.config.json --docs-root docs --require-lint --skip-vale",
     "docs:context": "cat docs/_build/features.md",
     "docs:refs": "mdcp refs-list --config docs/mdcp.config.json --docs-root docs",
+    "dogfood:test": "pnpm --filter @bwilliamson/dogfood-evals test",
+    "dogfood:run": "node evals/dogfood/runner/run-pair.mjs",
     "check": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run build && pnpm run test",
     "changeset": "changeset",
     "changeset:status": "changeset status --since=origin/main",
