@@ -9,6 +9,7 @@ export default tseslint.config(
       '**/dist/**',
       '**/lib/**',
       '**/node_modules/**',
+      '.agents/**',
       '.cursor/**',
       'packages/**/test/**',
       'scripts/release.sh',
