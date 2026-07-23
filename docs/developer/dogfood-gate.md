@@ -29,7 +29,7 @@ Optional env:
 
 Reports land in `evals/dogfood/reports/<runId>.json` (gitignored). Each arm includes outcome correctness, **process-check results** (Arm B skill injection and contract engagement when observability is available), and usage/duration. Runs with **no-HITL** violations or failed process checks when observable are invalid and do not count toward go / slim-go / no-go.
 
-Record the outcome on GitHub issue #96 with run ids, usage, durations, correctness details, process-check results, and the `outcome` field — use the comment template in [`evals/dogfood/README.md`](../../evals/dogfood/README.md#post-decision-on-96).
+Record the outcome on GitHub issue #96 with run ids, usage, durations, correctness details, process-check results, and the `outcome` field — use the comment template in [`evals/dogfood/README.md`](../../evals/dogfood/README.md#post-decision-on-96). Harness readiness (pre-pilot) is summarized in [`evals/dogfood/READINESS.md`](../../evals/dogfood/READINESS.md).
 
 ## Preflight
 

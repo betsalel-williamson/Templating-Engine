@@ -2,6 +2,8 @@
 
 Harness for the language dogfood gate ([ADR-006](../../docs/features/architecture/adr-006-dogfood-gate.md)). Full maintainer runbook: [`docs/developer/dogfood-gate.md`](../../docs/developer/dogfood-gate.md).
 
+**Readiness checkpoint (demo / #96):** [`READINESS.md`](./READINESS.md) — what is done, what is blocked, paste-ready issue comment.
+
 ## Pilot run (issue #96)
 
 **Before posting a decision:** reopen [#96](https://github.com/betsalel-williamson/Templating-Engine/issues/96) if it is still closed (it was incorrectly closed by unrelated PRs #100/#101).
