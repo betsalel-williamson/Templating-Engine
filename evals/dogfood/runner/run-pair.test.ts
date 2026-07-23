@@ -73,9 +73,13 @@ describe('runPair', () => {
     const taskDir = path.join(repoRoot, 'task');
     fs.mkdirSync(taskDir, { recursive: true });
     const cleanup = vi.fn();
+    const armA = path.join(repoRoot, 'arm-a');
+    const armB = path.join(repoRoot, 'arm-b');
+    fs.mkdirSync(path.join(armB, '.agents/skills/v2-engine-build'), { recursive: true });
+    fs.writeFileSync(path.join(armB, '.agents/skills/v2-engine-build/SKILL.md'), '# skill\n');
     const createArmWorktreesFn = vi.fn(() => ({
-      armA: path.join(repoRoot, 'arm-a'),
-      armB: path.join(repoRoot, 'arm-b'),
+      armA,
+      armB,
       cleanup,
     }));
     const runArmFn = vi.fn(async ({ arm }) => armMetrics(arm));
@@ -96,9 +100,7 @@ describe('runPair', () => {
         decideOutcomeFn,
       });
 
-      expect(decideOutcomeFn).toHaveBeenCalledWith(
-        expect.objectContaining({ noiseBand: 0.1 })
-      );
+      expect(decideOutcomeFn).toHaveBeenCalledWith(expect.objectContaining({ noiseBand: 0.1 }));
       expect(result.report.noiseBand).toBe(0.1);
     } finally {
       fs.rmSync(repoRoot, { recursive: true, force: true });
@@ -110,9 +112,13 @@ describe('runPair', () => {
     const taskDir = path.join(repoRoot, 'task');
     fs.mkdirSync(taskDir, { recursive: true });
     const cleanup = vi.fn();
+    const armA = path.join(repoRoot, 'arm-a');
+    const armB = path.join(repoRoot, 'arm-b');
+    fs.mkdirSync(path.join(armB, '.agents/skills/v2-engine-build'), { recursive: true });
+    fs.writeFileSync(path.join(armB, '.agents/skills/v2-engine-build/SKILL.md'), '# skill\n');
     const createArmWorktreesFn = vi.fn(() => ({
-      armA: path.join(repoRoot, 'arm-a'),
-      armB: path.join(repoRoot, 'arm-b'),
+      armA,
+      armB,
       cleanup,
     }));
     const runArmFn = vi.fn(async ({ arm }) => armMetrics(arm));
@@ -138,17 +144,21 @@ describe('runPair', () => {
       expect(createArmWorktreesFn).toHaveBeenCalledWith({ repoRoot, runId: 'pair-1' });
       expect(runArmFn).toHaveBeenCalledWith({
         arm: 'A',
-        worktreeRoot: path.join(repoRoot, 'arm-a'),
+        worktreeRoot: armA,
         taskDir,
         modelId: 'test-model',
         apiKey: 'test-key',
+        skillAbsentOnArmA: true,
+        skillPresent: false,
       });
       expect(runArmFn).toHaveBeenCalledWith({
         arm: 'B',
-        worktreeRoot: path.join(repoRoot, 'arm-b'),
+        worktreeRoot: armB,
         taskDir,
         modelId: 'test-model',
         apiKey: 'test-key',
+        skillAbsentOnArmA: true,
+        skillPresent: true,
       });
       expect(decideOutcomeFn).toHaveBeenCalledWith({
         A: armMetrics('A'),

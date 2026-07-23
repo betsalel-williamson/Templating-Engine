@@ -42,9 +42,31 @@ describe('scoreProcess', () => {
       worktreeRoot: '/tmp/fake-b',
       skillPresent: true,
       transcriptEvents: null,
+      skillAbsentOnArmA: true,
     });
     expect(checks.observability).toBe('unavailable');
     expect(checks.contractsEngaged).toBeNull();
+  });
+
+  it('detects when Arm A still has the treatment skill injected', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dogfood-proc-'));
+    const skillDir = path.join(root, '.agents/skills/v2-engine-build');
+    fs.mkdirSync(skillDir, { recursive: true });
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), '# skill\n');
+
+    try {
+      const checks = scoreProcess({
+        arm: 'A',
+        worktreeRoot: root,
+        transcriptEvents: null,
+      });
+
+      expect(checks.skillInjected).toBe(true);
+      expect(checks.skillAbsentOnArmA).toBe(false);
+      expect(processPass('A', checks)).toBe(false);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
   });
 });
 

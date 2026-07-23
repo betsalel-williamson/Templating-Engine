@@ -10,7 +10,7 @@ const CONTRACT_PATH_MARKERS = [
 ];
 
 /**
- * @param {{ arm: 'A'|'B', worktreeRoot: string, skillPresent?: boolean, transcriptEvents: unknown[] | null, peerSkillAbsent?: boolean }} args
+ * @param {{ arm: 'A'|'B', worktreeRoot: string, skillPresent?: boolean, transcriptEvents: unknown[] | null, skillAbsentOnArmA?: boolean }} args
  * @returns {import('./types.ts').ProcessChecks}
  */
 export function scoreProcess({
@@ -18,18 +18,18 @@ export function scoreProcess({
   worktreeRoot,
   skillPresent,
   transcriptEvents,
-  peerSkillAbsent = true,
+  skillAbsentOnArmA,
 }) {
-  void arm;
   const skillInjected =
     skillPresent ??
     fs.existsSync(path.join(worktreeRoot, '.agents/skills/v2-engine-build/SKILL.md'));
+  const resolvedSkillAbsentOnArmA = skillAbsentOnArmA ?? (arm === 'A' ? !skillInjected : false);
 
   if (!transcriptEvents) {
     return {
       observability: 'unavailable',
       skillInjected,
-      skillAbsentOnArmA: peerSkillAbsent,
+      skillAbsentOnArmA: resolvedSkillAbsentOnArmA,
       contractsEngaged: null,
       details: ['transcript unavailable — process observability limited'],
     };
@@ -40,7 +40,7 @@ export function scoreProcess({
   return {
     observability: 'available',
     skillInjected,
-    skillAbsentOnArmA: peerSkillAbsent,
+    skillAbsentOnArmA: resolvedSkillAbsentOnArmA,
     contractsEngaged,
     details: [
       contractsEngaged

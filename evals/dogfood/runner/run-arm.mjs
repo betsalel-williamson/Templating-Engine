@@ -21,12 +21,17 @@ function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
 }
 
+export function hasTreatmentSkill(worktreeRoot) {
+  return fs.existsSync(path.join(worktreeRoot, '.agents/skills/v2-engine-build/SKILL.md'));
+}
+
 /**
  * @param {{
  *   arm: 'A'|'B',
  *   worktreeRoot: string,
  *   taskDir: string,
- *   peerSkillAbsent?: boolean,
+ *   skillAbsentOnArmA?: boolean,
+ *   skillPresent?: boolean,
  *   modelId?: string,
  *   apiKey?: string,
  *   Agent?: typeof CursorAgent,
@@ -40,7 +45,8 @@ export async function runArm({
   arm,
   worktreeRoot,
   taskDir,
-  peerSkillAbsent = true,
+  skillAbsentOnArmA,
+  skillPresent,
   modelId = process.env.DOGFOOD_MODEL ?? 'composer-2',
   apiKey = process.env.CURSOR_API_KEY,
   Agent = CursorAgent,
@@ -53,6 +59,9 @@ export async function runArm({
 
   const taskBody = fs.readFileSync(path.join(taskDir, 'task.md'), 'utf8');
   const prompt = buildArmPrompt({ arm, taskBody });
+  const resolvedSkillPresent = skillPresent ?? hasTreatmentSkill(worktreeRoot);
+  const resolvedSkillAbsentOnArmA =
+    skillAbsentOnArmA ?? (arm === 'A' ? !resolvedSkillPresent : false);
   const started = Date.now();
 
   let agent;
@@ -87,6 +96,8 @@ export async function runArm({
     usage = normalizeUsageFn(result.usage);
     if (result.status === 'error') {
       error = result.error?.message ?? 'run error';
+    } else if (result.status !== 'finished') {
+      error = `run ended with status ${result.status}`;
     }
   } catch (e) {
     error = errorMessage(e);
@@ -100,8 +111,9 @@ export async function runArm({
   const process = scoreProcessFn({
     arm,
     worktreeRoot,
+    skillPresent: resolvedSkillPresent,
     transcriptEvents,
-    peerSkillAbsent,
+    skillAbsentOnArmA: resolvedSkillAbsentOnArmA,
   });
   const valid = correctness.valid && processPassFn(arm, process) && !error;
 

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { decideOutcome } from '../scorers/decide.mjs';
-import { runArm } from './run-arm.mjs';
+import { hasTreatmentSkill, runArm } from './run-arm.mjs';
 import { createArmWorktrees } from './workspaces.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -64,9 +64,28 @@ export async function runPair({
 
   const pair = createArmWorktreesFn({ repoRoot, runId });
   try {
+    const armASkillPresent = hasTreatmentSkill(pair.armA);
+    const armBSkillPresent = hasTreatmentSkill(pair.armB);
+    const skillAbsentOnArmA = !armASkillPresent;
     const [A, B] = await Promise.all([
-      runArmFn({ arm: 'A', worktreeRoot: pair.armA, taskDir, modelId, apiKey }),
-      runArmFn({ arm: 'B', worktreeRoot: pair.armB, taskDir, modelId, apiKey }),
+      runArmFn({
+        arm: 'A',
+        worktreeRoot: pair.armA,
+        taskDir,
+        modelId,
+        apiKey,
+        skillAbsentOnArmA,
+        skillPresent: armASkillPresent,
+      }),
+      runArmFn({
+        arm: 'B',
+        worktreeRoot: pair.armB,
+        taskDir,
+        modelId,
+        apiKey,
+        skillAbsentOnArmA,
+        skillPresent: armBSkillPresent,
+      }),
     ]);
 
     const { outcome, rationale } = decideOutcomeFn({ A, B, noiseBand: resolvedNoiseBand });

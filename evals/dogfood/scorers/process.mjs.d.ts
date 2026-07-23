@@ -5,7 +5,7 @@ export function scoreProcess(args: {
   worktreeRoot: string;
   skillPresent?: boolean;
   transcriptEvents: unknown[] | null;
-  peerSkillAbsent?: boolean;
+  skillAbsentOnArmA?: boolean;
 }): ProcessChecks;
 
 export function processPass(arm: ArmId, checks: ProcessChecks): boolean;
