@@ -1,6 +1,6 @@
 # ADR-006: Dogfood Gate Before Broad V2 Engine TDD
 
-- **Status**: Accepted (process and success bar); **outcome pending** pilot evidence
+- **Status**: Accepted (process and success bar); **outcome recorded: no-go** → [ADR-007](./adr-007-shelve-v2-agent-codegen.md)
 - **Date**: 2026-07-23
 - **Related**: [V2 language specification](../language-spec/index.md), [ADR-002](./adr-002-mustache-js-first-code-generation.md), [ADR-004](./adr-004-abstract-host-invocation.md), [#96](https://github.com/betsalel-williamson/Templating-Engine/issues/96)
 
@@ -29,7 +29,7 @@ This gate is **not** [docs dogfooding](../../developer/docs-dogfooding.md) (shar
 
 **Chosen option: Design + thin Cursor A/B harness (Approach 1).**
 
-Broad engine TDD for paused implementation issues remains **PREOP-PAUSE** until a written **go / slim-go / no-go** decision is recorded from pilot evidence (unless a minimal spike is explicitly required to run the pilot).
+Broad engine TDD for paused implementation issues remains **PREOP-PAUSE** until a written **go / slim-go / no-go** decision is recorded from pilot evidence (unless a minimal spike is explicitly required to run the pilot). **Update (2026-07-23):** valid pilots recorded **no-go**; [ADR-007](./adr-007-shelve-v2-agent-codegen.md) shelves broad V2 TDD and template-as-agent-codegen.
 
 ### §1 Consumer and non-goals
 

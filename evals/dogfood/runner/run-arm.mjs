@@ -4,10 +4,19 @@ import { Agent as CursorAgent } from '@cursor/sdk';
 import { scoreCorrectness } from '../scorers/correctness.mjs';
 import { scoreProcess, processPass } from '../scorers/process.mjs';
 import { normalizeUsage } from '../scorers/usage.mjs';
+import {
+  loadProcessConfig,
+  resolveSkillName,
+  resolveTaskId,
+  skillAgentsRel,
+} from '../task-config.mjs';
 
-export function buildArmPrompt({ arm, taskBody }) {
+/**
+ * @param {{ arm: 'A'|'B', taskBody: string, skillName?: string }} args
+ */
+export function buildArmPrompt({ arm, taskBody, skillName = resolveSkillName() }) {
   return arm === 'B'
-    ? `${taskBody}\n\nUse the v2-engine-build skill. Follow it strictly.\n`
+    ? `${taskBody}\n\nUse the ${skillName} skill. Follow it strictly.\n`
     : `${taskBody}\n\nNo special skills are provided. Solve with general engineering judgment.\n`;
 }
 
@@ -21,8 +30,12 @@ function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
 }
 
-export function hasTreatmentSkill(worktreeRoot) {
-  return fs.existsSync(path.join(worktreeRoot, '.agents/skills/v2-engine-build/SKILL.md'));
+/**
+ * @param {string} worktreeRoot
+ * @param {string} [skillName]
+ */
+export function hasTreatmentSkill(worktreeRoot, skillName = resolveSkillName()) {
+  return fs.existsSync(path.join(worktreeRoot, skillAgentsRel(skillName), 'SKILL.md'));
 }
 
 /**
@@ -30,6 +43,8 @@ export function hasTreatmentSkill(worktreeRoot) {
  *   arm: 'A'|'B',
  *   worktreeRoot: string,
  *   taskDir: string,
+ *   taskId?: string,
+ *   skillName?: string,
  *   skillAbsentOnArmA?: boolean,
  *   skillPresent?: boolean,
  *   modelId?: string,
@@ -45,6 +60,8 @@ export async function runArm({
   arm,
   worktreeRoot,
   taskDir,
+  taskId = resolveTaskId(),
+  skillName = resolveSkillName(),
   skillAbsentOnArmA,
   skillPresent,
   modelId = process.env.DOGFOOD_MODEL ?? 'composer-2',
@@ -58,8 +75,8 @@ export async function runArm({
   requireApiKey(apiKey);
 
   const taskBody = fs.readFileSync(path.join(taskDir, 'task.md'), 'utf8');
-  const prompt = buildArmPrompt({ arm, taskBody });
-  const resolvedSkillPresent = skillPresent ?? hasTreatmentSkill(worktreeRoot);
+  const prompt = buildArmPrompt({ arm, taskBody, skillName });
+  const resolvedSkillPresent = skillPresent ?? hasTreatmentSkill(worktreeRoot, skillName);
   const resolvedSkillAbsentOnArmA =
     skillAbsentOnArmA ?? (arm === 'A' ? !resolvedSkillPresent : false);
   const started = Date.now();
@@ -107,13 +124,18 @@ export async function runArm({
   }
 
   const durationMs = Date.now() - started;
+  const processConfig = loadProcessConfig(taskDir);
   const correctness = scoreCorrectnessFn({ worktreeRoot, taskDir });
   const process = scoreProcessFn({
     arm,
     worktreeRoot,
+    taskId,
+    taskDir,
+    skillName,
     skillPresent: resolvedSkillPresent,
     transcriptEvents,
     skillAbsentOnArmA: resolvedSkillAbsentOnArmA,
+    processConfig,
   });
   const valid = correctness.valid && processPassFn(arm, process) && !error;
 

@@ -141,11 +141,17 @@ describe('runPair', () => {
         decideOutcomeFn,
       });
 
-      expect(createArmWorktreesFn).toHaveBeenCalledWith({ repoRoot, runId: 'pair-1' });
+      expect(createArmWorktreesFn).toHaveBeenCalledWith({
+        repoRoot,
+        runId: 'pair-1',
+        skillName: 'v2-engine-build',
+      });
       expect(runArmFn).toHaveBeenCalledWith({
         arm: 'A',
         worktreeRoot: armA,
         taskDir,
+        taskId: 'task',
+        skillName: 'v2-engine-build',
         modelId: 'test-model',
         apiKey: 'test-key',
         skillAbsentOnArmA: true,
@@ -155,6 +161,8 @@ describe('runPair', () => {
         arm: 'B',
         worktreeRoot: armB,
         taskDir,
+        taskId: 'task',
+        skillName: 'v2-engine-build',
         modelId: 'test-model',
         apiKey: 'test-key',
         skillAbsentOnArmA: true,

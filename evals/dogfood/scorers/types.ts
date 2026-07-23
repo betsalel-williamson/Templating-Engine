@@ -18,6 +18,7 @@ export interface ProcessChecks {
   skillInjected: boolean;
   skillAbsentOnArmA: boolean;
   contractsEngaged: boolean | null;
+  staticPass?: boolean;
   details: string[];
 }
 

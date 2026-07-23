@@ -49,3 +49,34 @@ Replace placeholders from the report JSON after a successful pair run. If both a
 | `runId` per arm | `arms.*.runId` if present                    |
 | `Outcome`       | Top-level `outcome`                          |
 | `Rationale`     | Top-level `rationale`                        |
+
+---
+
+## App codegen pilot (`calculator-cli`)
+
+Measures whether **legacy template codegen** helps agents build a real CLI vs plain TypeScript. Design: [`docs/superpowers/specs/2026-07-23-calculator-cli-app-dogfood-design.md`](../../docs/superpowers/specs/2026-07-23-calculator-cli-app-dogfood-design.md).
+
+### Preflight
+
+1. Mini-eval: [`skills/legacy-template-codegen/eval/README.md`](skills/legacy-template-codegen/eval/README.md).
+2. `bash -lc 'pnpm dogfood:test'`
+3. `CURSOR_API_KEY` exported.
+
+### Run
+
+```bash
+bash -lc 'DOGFOOD_TASK=calculator-cli DOGFOOD_SKILL=legacy-template-codegen DOGFOOD_KEEP_WORKTREES=1 pnpm dogfood:run'
+```
+
+### Inspect code quality
+
+Compare worktrees:
+
+```bash
+ls .worktrees/dogfood-a-<runId>/evals/dogfood/tasks/calculator-cli/
+ls .worktrees/dogfood-b-<runId>/evals/dogfood/tasks/calculator-cli/
+```
+
+Arm A: TypeScript only. Arm B: `templates/*.template` → `scripts/codegen.mjs` → `src/generated/*.ts` (build-time TS codegen, no runtime template engine).
+
+**Roadmap:** Dogfood pilots for this experiment recorded **no-go**; see [ADR-007](../../docs/features/architecture/adr-007-shelve-v2-agent-codegen.md).
