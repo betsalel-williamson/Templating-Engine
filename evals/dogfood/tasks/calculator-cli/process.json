@@ -1,0 +1,16 @@
+{
+  "skillName": "legacy-template-codegen",
+  "contractMarkers": [
+    "docs/client/template-language.md",
+    "evals/dogfood/skills/legacy-template-codegen"
+  ],
+  "armBChecks": {
+    "requireCoreImport": true,
+    "requireTemplateFiles": true,
+    "requireHelpTemplate": true,
+    "requireRuntimeTemplate": true
+  },
+  "armAChecks": {
+    "forbidCoreImport": true
+  }
+}
