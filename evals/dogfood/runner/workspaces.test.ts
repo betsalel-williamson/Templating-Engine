@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { checkDirtyScope } from '../scorers/correctness.mjs';
+import { hasTreatmentSkill } from './run-arm.mjs';
 import { createArmWorktrees } from './workspaces.mjs';
 
 function git(repoRoot: string, args: string[]) {
@@ -55,6 +56,11 @@ describe('createArmWorktrees', () => {
       );
       expect(
         fs.existsSync(path.join(pair.armA, 'evals/dogfood/skills/v2-engine-build/SKILL.md'))
+      ).toBe(false);
+      expect(hasTreatmentSkill(pair.armA)).toBe(false);
+      expect(hasTreatmentSkill(pair.armB)).toBe(true);
+      expect(
+        fs.existsSync(path.join(pair.armB, 'evals/dogfood/skills/v2-engine-build/SKILL.md'))
       ).toBe(true);
       expect(
         checkDirtyScope({ worktreeRoot: pair.armA, taskDir: path.join(repoRoot, 'task') })

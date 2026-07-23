@@ -52,13 +52,18 @@ export function createArmWorktrees({
       runGit({ repoRoot, args: ['worktree', 'add', '-b', branch, dir, 'HEAD'] });
     }
 
+    // ADR-006: Arm A must not receive the treatment skill via runtime injection or repo tree.
+    runGit({ repoRoot: armA, args: ['rm', '-rf', skillSrcRel] });
+    runGit({
+      repoRoot: armA,
+      args: ['commit', '-m', 'dogfood(a): remove treatment skill from control arm'],
+    });
+    const armASkill = path.join(armA, '.agents/skills/v2-engine-build');
+    fs.rmSync(armASkill, { recursive: true, force: true });
+
     const skillSrc = path.join(repoRoot, skillSrcRel);
     const skillDst = path.join(armB, '.agents/skills/v2-engine-build');
     fs.cpSync(skillSrc, skillDst, { recursive: true });
-
-    // Runtime skill injection is under .agents; keep tracked skill fixtures intact.
-    const armASkill = path.join(armA, '.agents/skills/v2-engine-build');
-    fs.rmSync(armASkill, { recursive: true, force: true });
 
     installDependenciesFn({ worktreeRoot: armA });
     installDependenciesFn({ worktreeRoot: armB });
