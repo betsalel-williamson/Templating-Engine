@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
-import { runPair } from './run-pair.mjs';
+import { resolveNoiseBand, runPair } from './run-pair.mjs';
 
 const processChecks = {
   observability: 'unavailable',
@@ -35,6 +35,23 @@ function armMetrics(arm: 'A' | 'B') {
   };
 }
 
+describe('resolveNoiseBand', () => {
+  it('returns ADR-006 default for empty, NaN, negative, and above-10% values', () => {
+    expect(resolveNoiseBand(undefined)).toBe(0.1);
+    expect(resolveNoiseBand(null)).toBe(0.1);
+    expect(resolveNoiseBand('')).toBe(0.1);
+    expect(resolveNoiseBand('not-a-number')).toBe(0.1);
+    expect(resolveNoiseBand(-0.05)).toBe(0.1);
+    expect(resolveNoiseBand(0.2)).toBe(0.1);
+  });
+
+  it('accepts valid values within the ADR-006 band', () => {
+    expect(resolveNoiseBand(0.1)).toBe(0.1);
+    expect(resolveNoiseBand('0.05')).toBe(0.05);
+    expect(resolveNoiseBand(0)).toBe(0);
+  });
+});
+
 describe('runPair', () => {
   it('fails closed without an API key before creating worktrees', async () => {
     const createArmWorktreesFn = vi.fn();
@@ -49,6 +66,43 @@ describe('runPair', () => {
       })
     ).rejects.toThrow('CURSOR_API_KEY is required for dogfood runs');
     expect(createArmWorktreesFn).not.toHaveBeenCalled();
+  });
+
+  it('clamps invalid noiseBand values to the ADR-006 default', async () => {
+    const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'dogfood-pair-'));
+    const taskDir = path.join(repoRoot, 'task');
+    fs.mkdirSync(taskDir, { recursive: true });
+    const cleanup = vi.fn();
+    const createArmWorktreesFn = vi.fn(() => ({
+      armA: path.join(repoRoot, 'arm-a'),
+      armB: path.join(repoRoot, 'arm-b'),
+      cleanup,
+    }));
+    const runArmFn = vi.fn(async ({ arm }) => armMetrics(arm));
+    const decideOutcomeFn = vi.fn(() => ({
+      outcome: 'go',
+      rationale: 'B wins duration',
+    }));
+
+    try {
+      const result = await runPair({
+        repoRoot,
+        taskDir,
+        runId: 'pair-invalid-band',
+        noiseBand: 0.25,
+        apiKey: 'test-key',
+        createArmWorktreesFn,
+        runArmFn,
+        decideOutcomeFn,
+      });
+
+      expect(decideOutcomeFn).toHaveBeenCalledWith(
+        expect.objectContaining({ noiseBand: 0.1 })
+      );
+      expect(result.report.noiseBand).toBe(0.1);
+    } finally {
+      fs.rmSync(repoRoot, { recursive: true, force: true });
+    }
   });
 
   it('runs both arms, writes the report, and cleans up worktrees', async () => {
@@ -74,7 +128,7 @@ describe('runPair', () => {
         taskId: 'task',
         runId: 'pair-1',
         modelId: 'test-model',
-        noiseBand: 0.2,
+        noiseBand: 0.05,
         apiKey: 'test-key',
         createArmWorktreesFn,
         runArmFn,
@@ -99,14 +153,14 @@ describe('runPair', () => {
       expect(decideOutcomeFn).toHaveBeenCalledWith({
         A: armMetrics('A'),
         B: armMetrics('B'),
-        noiseBand: 0.2,
+        noiseBand: 0.05,
       });
       expect(cleanup).toHaveBeenCalledOnce();
       expect(result.outFile).toBe(path.join(repoRoot, 'evals/dogfood/reports/pair-1.json'));
       expect(JSON.parse(fs.readFileSync(result.outFile, 'utf8'))).toMatchObject({
         taskId: 'task',
         modelId: 'test-model',
-        noiseBand: 0.2,
+        noiseBand: 0.05,
         arms: { A: { arm: 'A' }, B: { arm: 'B' } },
         outcome: 'go',
         rationale: 'B wins duration',

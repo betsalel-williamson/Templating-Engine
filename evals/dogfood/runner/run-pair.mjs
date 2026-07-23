@@ -7,6 +7,23 @@ import { createArmWorktrees } from './workspaces.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const defaultRepoRoot = path.resolve(__dirname, '../../..');
+const DEFAULT_NOISE_BAND = 0.1;
+
+/**
+ * ADR-006 §5 default noise band is ≤10%. Invalid env/config values clamp to 0.1.
+ * @param {string | number | undefined | null} raw
+ * @returns {number}
+ */
+export function resolveNoiseBand(raw) {
+  if (raw === undefined || raw === null || raw === '') {
+    return DEFAULT_NOISE_BAND;
+  }
+  const value = typeof raw === 'number' ? raw : Number(raw);
+  if (!Number.isFinite(value) || value < 0 || value > DEFAULT_NOISE_BAND) {
+    return DEFAULT_NOISE_BAND;
+  }
+  return value;
+}
 
 function requireApiKey(apiKey) {
   if (!apiKey) {
@@ -35,7 +52,7 @@ export async function runPair({
   taskDir = path.join(repoRoot, 'evals/dogfood/tasks', taskId),
   runId = process.env.DOGFOOD_RUN_ID ?? `run-${Date.now()}`,
   modelId = process.env.DOGFOOD_MODEL ?? 'composer-2',
-  noiseBand = Number(process.env.DOGFOOD_NOISE_BAND ?? '0.1'),
+  noiseBand = process.env.DOGFOOD_NOISE_BAND,
   apiKey = process.env.CURSOR_API_KEY,
   keepWorktrees = process.env.DOGFOOD_KEEP_WORKTREES === '1',
   createArmWorktreesFn = createArmWorktrees,
@@ -43,6 +60,7 @@ export async function runPair({
   decideOutcomeFn = decideOutcome,
 } = {}) {
   requireApiKey(apiKey);
+  const resolvedNoiseBand = resolveNoiseBand(noiseBand);
 
   const pair = createArmWorktreesFn({ repoRoot, runId });
   try {
@@ -51,11 +69,11 @@ export async function runPair({
       runArmFn({ arm: 'B', worktreeRoot: pair.armB, taskDir, modelId, apiKey }),
     ]);
 
-    const { outcome, rationale } = decideOutcomeFn({ A, B, noiseBand });
+    const { outcome, rationale } = decideOutcomeFn({ A, B, noiseBand: resolvedNoiseBand });
     const report = {
       taskId,
       modelId,
-      noiseBand,
+      noiseBand: resolvedNoiseBand,
       arms: { A, B },
       outcome,
       rationale,
