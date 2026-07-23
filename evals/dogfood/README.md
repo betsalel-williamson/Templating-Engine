@@ -77,4 +77,4 @@ ls .worktrees/dogfood-a-<runId>/evals/dogfood/tasks/calculator-cli/
 ls .worktrees/dogfood-b-<runId>/evals/dogfood/tasks/calculator-cli/
 ```
 
-Arm A: TypeScript only. Arm B: `.template` files + `renderHelp` / `renderOutput` using `parseLegacy`.
+Arm A: TypeScript only. Arm B: `templates/*.template` → `scripts/codegen.mjs` → `src/generated/*.ts` (build-time TS codegen, no runtime template engine).

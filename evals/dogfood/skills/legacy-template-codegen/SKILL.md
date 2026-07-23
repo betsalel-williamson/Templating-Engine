@@ -1,64 +1,78 @@
 ---
 name: legacy-template-codegen
 description: >-
-  Build applications with legacy template code generation using
-  @bwilliamson/template-engine-core (parseLegacy + createSecureEvaluator).
-  Use when implementing CLIs, reports, SQL/config generators, or any tool where
-  host-prepared data projects into structured text — especially dogfood
-  calculator-cli or "use templates to build this app" tasks.
+  Generate TypeScript source files from legacy template meta-patterns using
+  @bwilliamson/template-engine-core at build time (parseLegacy + createSecureEvaluator).
+  Use when building apps via template→code expansion — calculator-cli dogfood,
+  SQL/config generators, or "write templates that expand into TS/source files".
 ---
 
-# Legacy template code generation
+# Legacy template → TypeScript codegen
 
-## When templates earn their keep
+## Core idea
 
-Use legacy templates when output is **structured text from data**:
+**Templates are the authoring surface.** Compact legacy template files describe meta-patterns (command tables, help blocks, dispatch stubs). A **build-time codegen script** expands them into `.ts` files under `src/generated/`. The shipped CLI uses **only compiled TypeScript** — no template engine at runtime.
 
-- CLI help/usage generated from a command registry
-- Formatted results, tables, or error lines from evaluated context
-- SQL/config/report fragments (see recipe `01-dynamic-sql-generation`)
+Arm A writes TypeScript directly. Arm B writes **smaller template sources** + a thin codegen driver; tokens go into template authoring, not hand-typing repetitive TS.
 
-Keep **logic in TypeScript**: parsing argv, math, validation, file I/O.
+## Build-time workflow (Arm B)
 
-## When TypeScript only
+1. Define a **data model** in TypeScript (e.g. `commands.json` or `registry.ts` exported metadata only).
+2. Author **`.template` files** that emit TypeScript **source text** when evaluated with that context.
+3. `scripts/codegen.mjs` (or `pnpm codegen`):
+   - load command registry into `Map` context
+   - `parseLegacy(template)` → `createSecureEvaluator` → `evaluate` → string of TS source
+   - write `src/generated/help.ts`, `src/generated/dispatch.ts`, etc.
+4. `pnpm build` = `pnpm codegen && tsc`
+5. `src/cli.ts` imports from `./generated/` — **must not** import `template-engine-core`.
 
-- Single literal strings with no data-driven structure
-- Algorithms and control flow
-- Parsing and evaluation
+## When templates earn their keep (codegen)
 
-## Host workflow
+- Repetitive TS structures driven by a table (commands, routes, enum dispatch)
+- Help/usage strings that mirror the same registry
+- SQL/config/report **files** (recipe `01-dynamic-sql-generation`)
 
-1. Prepare a `Map` data context (nested maps for objects).
-2. `parseLegacy(templateSource)` → AST.
-3. `createSecureEvaluator({ functions, parseTemplate: parseLegacy })` → `evaluate(ast, context)`.
-4. Register host functions with `functions` map when templates call `<{fn()}>`.
+## When TypeScript only (no template)
 
-Read [`docs/client/template-language.md`](../../../docs/client/template-language.md) for delimiter reference.
+- Expression parser / evaluator algorithms
+- Arg parsing control flow
+- One-off glue with no repeated pattern
 
-## Legacy constructs (high impact)
+## Legacy constructs for TS emission
 
-| Pattern         | Syntax                   | Use                                  |
-| --------------- | ------------------------ | ------------------------------------ |
-| Variable insert | `<#key#>`                | Simple substitution                  |
-| Conditional     | `<+>...<->` + `<?cond?>` | Branch on prepared flags             |
-| Iteration       | `<~...<*><[items]>~>`    | Lists from host arrays               |
-| Delimiters      | `<*?, :>`                | Commas between items, not after last |
-| Functions       | `<{name(args)}>`         | Host-registered formatters           |
+| Pattern            | Syntax                | Codegen use                            |
+| ------------------ | --------------------- | -------------------------------------- |
+| Iteration          | `<~...<*><[items]>~>` | Emit one TS block per registry row     |
+| Delimiters         | `<*?\n:>`             | Join emitted lines                     |
+| Literals in output | ``<`...`>``           | Wrap emitted TS keywords/punctuation   |
+| Variables          | `<#field#>`           | Substitute names, operators, summaries |
 
-## Calculator-cli requirements (Option D)
+## Calculator-cli requirements
 
-When this skill is active for `calculator-cli`:
+1. **`scripts/codegen.mjs`** — imports `@bwilliamson/template-engine-core`, writes `src/generated/*.ts`.
+2. **≥2 `templates/*.template`** — meta-patterns that expand into TS (e.g. `help.ts.template`, `dispatch.ts.template`).
+3. **`src/generated/`** — committed or build output consumed by `tsc`; must exist after `pnpm codegen`.
+4. **No runtime template engine** in `src/cli.ts` or other runtime modules.
 
-1. **`help.template`** (or equivalent) — usage from operation registry.
-2. **Runtime template** — e.g. `format-result.template` for successful `eval`/`div` output or structured errors.
-3. **Do not** import template engine on Arm A-style tasks (skill absent).
+## Example meta-pattern (dispatch stub)
+
+Template `templates/dispatch.ts.template` (conceptual):
+
+```text
+<~    case '<#name#>':
+      runBinary(<#op#>, args);
+      break;
+`><*><[commands]>~>
+```
+
+Codegen evaluates with `commands` array in context → writes `src/generated/dispatch.ts`.
 
 ## Anti-patterns
 
-- Putting expression parsing inside templates
-- One-line templates that are clearer as TS strings
-- `parseModern` / V2-only syntax on legacy tasks
+- Runtime `renderHelp()` / `parseLegacy` inside the CLI hot path
+- Templates that only format user-facing stdout (that is not TS codegen)
+- `parseModern` on legacy tasks
 
 ## Stop
 
-Stop when task acceptance + spec-alignment pass. No clarifying questions.
+`pnpm codegen && pnpm build`; acceptance + spec-alignment pass. No clarifying questions.

@@ -128,30 +128,31 @@ describe('processPass', () => {
     }
   });
 
-  it('requires help and runtime templates for Arm B calculator gate', () => {
+  it('requires build-time codegen structure for Arm B calculator gate', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dogfood-calc-b-'));
     const taskId = 'calculator-cli';
     const taskRoot = path.join(root, 'evals/dogfood/tasks', taskId);
     const src = path.join(taskRoot, 'src');
-    fs.mkdirSync(src, { recursive: true });
+    const scripts = path.join(taskRoot, 'scripts');
+    const templates = path.join(taskRoot, 'templates');
+    const generated = path.join(src, 'generated');
+    fs.mkdirSync(scripts, { recursive: true });
+    fs.mkdirSync(templates, { recursive: true });
+    fs.mkdirSync(generated, { recursive: true });
     fs.writeFileSync(
-      path.join(src, 'render.ts'),
-      [
-        "import '@bwilliamson/template-engine-core';",
-        "import help from '../templates/help.template';",
-        'export function renderHelp() {}',
-        'export function renderOutput() {}',
-      ].join('\n')
+      path.join(scripts, 'codegen.mjs'),
+      "import '@bwilliamson/template-engine-core';\n"
     );
-    fs.mkdirSync(path.join(taskRoot, 'templates'), { recursive: true });
-    fs.writeFileSync(path.join(taskRoot, 'templates/help.template'), '<#x#>');
-    fs.writeFileSync(path.join(taskRoot, 'templates/format-result.template'), '<#y#>');
+    fs.writeFileSync(path.join(src, 'cli.ts'), "import { HELP } from './generated/help.js';\n");
+    fs.writeFileSync(path.join(generated, 'help.ts'), 'export const HELP = "x";\n');
+    fs.writeFileSync(path.join(templates, 'help.ts.template'), '<#x#>');
+    fs.writeFileSync(path.join(templates, 'dispatch.ts.template'), '<#y#>');
     const config = {
       armBChecks: {
-        requireCoreImport: true,
+        requireCodegenScript: true,
         requireTemplateFiles: true,
-        requireHelpTemplate: true,
-        requireRuntimeTemplate: true,
+        requireGeneratedTs: true,
+        forbidRuntimeCoreInSrc: true,
       },
     };
     try {

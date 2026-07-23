@@ -44,5 +44,5 @@ node dist/cli.js div 1 0        → stderr message, exit 1
 
 ## Arm-specific rules (see `task.md`)
 
-- **Arm A:** TypeScript only; no `@bwilliamson/template-engine-core`.
-- **Arm B:** Legacy templates for **help** and **≥1 runtime output** path (Option D).
+- **Arm A:** TypeScript only; no `@bwilliamson/template-engine-core`; no `.template` files; no `src/generated/`.
+- **Arm B:** **Build-time TS codegen** — `.template` meta-patterns + `scripts/codegen.mjs` expand into `src/generated/*.ts`. Template engine runs at **codegen only**, not in the running CLI.

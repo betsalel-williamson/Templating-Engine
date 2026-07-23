@@ -71,10 +71,31 @@ export function listTemplateFiles(worktreeRoot, taskId) {
 }
 
 /**
+ * @param {string} worktreeRoot
+ * @param {string} taskId
+ */
+export function readCodegenBlob(worktreeRoot, taskId) {
+  const script = path.join(taskImplementationRoot(worktreeRoot, taskId), 'scripts/codegen.mjs');
+  if (!fs.existsSync(script)) {
+    return '';
+  }
+  return fs.readFileSync(script, 'utf8');
+}
+
+/**
  * @param {string} blob
  */
 export function usesCoreEngine(blob) {
   return /@bwilliamson\/template-engine-core/.test(blob);
+}
+
+/**
+ * @param {string} worktreeRoot
+ * @param {string} taskId
+ */
+export function listGeneratedTsFiles(worktreeRoot, taskId) {
+  const generatedDir = path.join(taskImplementationRoot(worktreeRoot, taskId), 'src/generated');
+  return walkFiles(generatedDir).filter((f) => f.endsWith('.ts'));
 }
 
 /**
@@ -90,48 +111,63 @@ export function runStaticProcessChecks({ arm, worktreeRoot, taskId, processConfi
     return { pass: true, details: ['no process.json — static checks skipped'] };
   }
 
-  const blob = readTaskSourceBlob(worktreeRoot, taskId);
+  const srcBlob = readTaskSourceBlob(worktreeRoot, taskId);
+  const codegenBlob = readCodegenBlob(worktreeRoot, taskId);
   const templates = listTemplateFiles(worktreeRoot, taskId);
-  const coreImport = usesCoreEngine(blob);
+  const generated = listGeneratedTsFiles(worktreeRoot, taskId);
+  const coreInSrc = usesCoreEngine(srcBlob);
   const details = [];
-  const armAChecks = /** @type {{ forbidCoreImport?: boolean }} */ (processConfig.armAChecks ?? {});
+  const armAChecks = /** @type {{ forbidCoreImport?: boolean, forbidGeneratedDir?: boolean }} */ (
+    processConfig.armAChecks ?? {}
+  );
   const armBChecks = /** @type {{
-    requireCoreImport?: boolean,
+    requireCodegenScript?: boolean,
     requireTemplateFiles?: boolean,
-    requireHelpTemplate?: boolean,
-    requireRuntimeTemplate?: boolean,
+    requireGeneratedTs?: boolean,
+    forbidRuntimeCoreInSrc?: boolean,
   }} */ (processConfig.armBChecks ?? {});
 
   if (arm === 'A') {
-    if (armAChecks.forbidCoreImport && coreImport) {
-      details.push('Arm A must not import @bwilliamson/template-engine-core');
+    if (armAChecks.forbidCoreImport && coreInSrc) {
+      details.push('Arm A must not import @bwilliamson/template-engine-core in src/');
       return { pass: false, details };
     }
     if (templates.length > 0) {
       details.push('Arm A must not use .template files');
       return { pass: false, details };
     }
+    if (armAChecks.forbidGeneratedDir && generated.length > 0) {
+      details.push('Arm A must not use src/generated/');
+      return { pass: false, details };
+    }
     details.push('Arm A static checks ok');
     return { pass: true, details };
   }
 
-  if (armBChecks.requireCoreImport && !coreImport) {
-    details.push('Arm B must import @bwilliamson/template-engine-core');
-    return { pass: false, details };
+  if (armBChecks.requireCodegenScript) {
+    const scriptPath = path.join(
+      taskImplementationRoot(worktreeRoot, taskId),
+      'scripts/codegen.mjs'
+    );
+    if (!fs.existsSync(scriptPath)) {
+      details.push('Arm B must provide scripts/codegen.mjs');
+      return { pass: false, details };
+    }
+    if (!usesCoreEngine(codegenBlob)) {
+      details.push('scripts/codegen.mjs must import @bwilliamson/template-engine-core');
+      return { pass: false, details };
+    }
   }
   if (armBChecks.requireTemplateFiles && templates.length < 2) {
     details.push(`Arm B needs ≥2 .template files (found ${templates.length})`);
     return { pass: false, details };
   }
-  if (armBChecks.requireHelpTemplate && !/help\.template|renderHelp/.test(blob)) {
-    details.push('Arm B must use help.template or renderHelp()');
+  if (armBChecks.requireGeneratedTs && generated.length < 1) {
+    details.push('Arm B must emit src/generated/*.ts from codegen');
     return { pass: false, details };
   }
-  if (
-    armBChecks.requireRuntimeTemplate &&
-    !/formatResult\.template|renderOutput|renderResult/.test(blob)
-  ) {
-    details.push('Arm B must use a runtime output template (formatResult.template / renderOutput)');
+  if (armBChecks.forbidRuntimeCoreInSrc && coreInSrc) {
+    details.push('Arm B must not import template-engine-core in runtime src/ (codegen only)');
     return { pass: false, details };
   }
 

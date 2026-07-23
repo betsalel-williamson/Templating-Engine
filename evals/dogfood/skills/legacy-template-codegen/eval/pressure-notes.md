@@ -1,9 +1,9 @@
-# RED pressure notes (Arm A / no skill)
+# RED pressure notes (wrong model)
 
-1. **String concat help** — building usage by concatenating lines in a loop instead of a template over a registry.
-2. **Logic in templates** — putting `eval` expression parsing inside `.template` files.
-3. **Fake template use** — one static `.template` with no context variables.
-4. **Modern syntax** — using `{{ }}` / `parseModern` on a legacy-only task.
-5. **Scope creep** — adding unrelated packages or moving CLI outside allowlist.
+1. **Runtime rendering** — `renderHelp()` / `parseLegacy` inside CLI instead of build-time codegen.
+2. **Templates for stdout only** — formatting user output, not generating `.ts` files.
+3. **No codegen script** — `.template` files present but nothing writes `src/generated/`.
+4. **Hand-written duplicate** — full `src/help.ts` AND templates doing the same thing.
+5. **Core in runtime src** — `template-engine-core` imported from `src/cli.ts`.
 
-Arm B should avoid these while still using real templates for help + runtime output.
+Arm B should spend tokens on **compact template meta-patterns** that **expand into TypeScript** at build time.

@@ -8,28 +8,30 @@ Implement a calculator CLI per **`spec.md`** in this directory.
 
 ## Arm you are in
 
-- If the **`legacy-template-codegen`** skill is available: you are **Arm B**. Use legacy templates for **help/usage** and **at least one runtime output path** (results or formatted errors). Import `@bwilliamson/template-engine-core` with `parseLegacy` and `createSecureEvaluator`.
-- If no treatment skill is provided: you are **Arm A**. Use TypeScript only. **Do not** import `@bwilliamson/template-engine-core` or use `.template` files.
+- If the **`legacy-template-codegen`** skill is available: you are **Arm B** (**build-time TS codegen**). Author compact `.template` meta-patterns that a codegen script expands into `src/generated/*.ts`. Use `@bwilliamson/template-engine-core` only in `scripts/codegen.mjs` — **not** in runtime `src/cli.ts`.
+- If no treatment skill is provided: you are **Arm A**. Write TypeScript directly under `src/`. No templates, no template engine, no `src/generated/`.
 
-## Requirements
-
-1. Create `package.json`, `tsconfig.json`, `src/`, build to `dist/cli.js`.
-2. Implement all commands in `spec.md`.
-3. Add unit tests under `src/` if helpful; acceptance is black-box.
-4. Keep changes inside `allowlist.txt`.
-
-## Suggested layout (Arm B)
+## Arm B layout (required)
 
 ```text
-src/
-  cli.ts              # argv parsing, dispatch
-  eval.ts             # expression evaluator (TS)
-  registry.ts         # operation metadata for help template
-  render-help.ts      # host → help.template
-  render-output.ts    # host → format-result.template (or similar)
+scripts/codegen.mjs          # parseLegacy → evaluate → write src/generated/*.ts
 templates/
-  help.template
-  format-result.template
+  help.ts.template           # expands to export const HELP_TEXT = `...`
+  dispatch.ts.template       # expands switch cases or handlers from command registry
+src/
+  cli.ts                     # imports from ./generated/ — no template-engine-core
+  eval.ts                    # expression math (hand-written TS)
+  registry.ts                # command metadata fed into codegen context
+src/generated/               # output of pnpm codegen (help.ts, dispatch.ts, …)
+```
+
+## Build
+
+```json
+"scripts": {
+  "codegen": "node scripts/codegen.mjs",
+  "build": "pnpm codegen && tsc"
+}
 ```
 
 ## Stop condition

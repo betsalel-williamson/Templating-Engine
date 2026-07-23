@@ -5,12 +5,13 @@
     "evals/dogfood/skills/legacy-template-codegen"
   ],
   "armBChecks": {
-    "requireCoreImport": true,
+    "requireCodegenScript": true,
     "requireTemplateFiles": true,
-    "requireHelpTemplate": true,
-    "requireRuntimeTemplate": true
+    "requireGeneratedTs": true,
+    "forbidRuntimeCoreInSrc": true
   },
   "armAChecks": {
-    "forbidCoreImport": true
+    "forbidCoreImport": true,
+    "forbidGeneratedDir": true
   }
 }
