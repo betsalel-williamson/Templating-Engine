@@ -1,0 +1,118 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { describe, expect, it, vi } from 'vitest';
+import { runPair } from './run-pair.mjs';
+
+const processChecks = {
+  observability: 'unavailable',
+  skillInjected: true,
+  skillAbsentOnArmA: true,
+  contractsEngaged: null,
+  details: ['transcript unavailable'],
+};
+
+function armMetrics(arm: 'A' | 'B') {
+  return {
+    arm,
+    valid: true,
+    durationMs: arm === 'A' ? 100 : 90,
+    usage: {
+      inputTokens: 10,
+      outputTokens: 5,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
+      totalTokens: 15,
+    },
+    correctness: {
+      acceptancePass: true,
+      specAlignmentPass: true,
+      dirtyScopePass: true,
+      details: ['ok'],
+    },
+    process: processChecks,
+    runId: `run-${arm}`,
+  };
+}
+
+describe('runPair', () => {
+  it('fails closed without an API key before creating worktrees', async () => {
+    const createArmWorktreesFn = vi.fn();
+
+    await expect(
+      runPair({
+        repoRoot: '/repo',
+        taskDir: '/repo/evals/dogfood/tasks/v2-trusted-template-gate',
+        runId: 'no-key',
+        apiKey: '',
+        createArmWorktreesFn,
+      })
+    ).rejects.toThrow('CURSOR_API_KEY is required for dogfood runs');
+    expect(createArmWorktreesFn).not.toHaveBeenCalled();
+  });
+
+  it('runs both arms, writes the report, and cleans up worktrees', async () => {
+    const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'dogfood-pair-'));
+    const taskDir = path.join(repoRoot, 'task');
+    fs.mkdirSync(taskDir, { recursive: true });
+    const cleanup = vi.fn();
+    const createArmWorktreesFn = vi.fn(() => ({
+      armA: path.join(repoRoot, 'arm-a'),
+      armB: path.join(repoRoot, 'arm-b'),
+      cleanup,
+    }));
+    const runArmFn = vi.fn(async ({ arm }) => armMetrics(arm));
+    const decideOutcomeFn = vi.fn(() => ({
+      outcome: 'go',
+      rationale: 'B wins duration',
+    }));
+
+    try {
+      const result = await runPair({
+        repoRoot,
+        taskDir,
+        taskId: 'task',
+        runId: 'pair-1',
+        modelId: 'test-model',
+        noiseBand: 0.2,
+        apiKey: 'test-key',
+        createArmWorktreesFn,
+        runArmFn,
+        decideOutcomeFn,
+      });
+
+      expect(createArmWorktreesFn).toHaveBeenCalledWith({ repoRoot, runId: 'pair-1' });
+      expect(runArmFn).toHaveBeenCalledWith({
+        arm: 'A',
+        worktreeRoot: path.join(repoRoot, 'arm-a'),
+        taskDir,
+        modelId: 'test-model',
+        apiKey: 'test-key',
+      });
+      expect(runArmFn).toHaveBeenCalledWith({
+        arm: 'B',
+        worktreeRoot: path.join(repoRoot, 'arm-b'),
+        taskDir,
+        modelId: 'test-model',
+        apiKey: 'test-key',
+      });
+      expect(decideOutcomeFn).toHaveBeenCalledWith({
+        A: armMetrics('A'),
+        B: armMetrics('B'),
+        noiseBand: 0.2,
+      });
+      expect(cleanup).toHaveBeenCalledOnce();
+      expect(result.outFile).toBe(path.join(repoRoot, 'evals/dogfood/reports/pair-1.json'));
+      expect(JSON.parse(fs.readFileSync(result.outFile, 'utf8'))).toMatchObject({
+        taskId: 'task',
+        modelId: 'test-model',
+        noiseBand: 0.2,
+        arms: { A: { arm: 'A' }, B: { arm: 'B' } },
+        outcome: 'go',
+        rationale: 'B wins duration',
+      });
+    } finally {
+      fs.rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+});

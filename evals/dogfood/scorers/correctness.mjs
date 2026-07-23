@@ -15,11 +15,12 @@ export function evaluateCorrectnessParts(parts) {
  */
 export function runAcceptance({ worktreeRoot, taskDir }) {
   const acceptanceDir = path.join(taskDir, 'acceptance');
+  const acceptanceConfig = path.join(worktreeRoot, 'evals/dogfood/vitest.acceptance.config.ts');
   const result = spawnSync(
     'bash',
     [
       '-lc',
-      `cd ${JSON.stringify(worktreeRoot)} && DOGFOOD_WORKTREE=${JSON.stringify(worktreeRoot)} pnpm exec vitest run ${JSON.stringify(acceptanceDir)}`,
+      `cd ${JSON.stringify(worktreeRoot)} && DOGFOOD_WORKTREE=${JSON.stringify(worktreeRoot)} pnpm --filter @bwilliamson/dogfood-evals exec vitest run --config ${JSON.stringify(acceptanceConfig)} ${JSON.stringify(acceptanceDir)}`,
     ],
     { encoding: 'utf8' }
   );

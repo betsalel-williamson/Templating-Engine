@@ -9,6 +9,13 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["scorers/**/*.ts", "scorers/**/*.mjs", "scorers/**/*.d.ts", "vitest.config.ts"],
-  "exclude": ["scorers/**/*.test.ts"]
+  "include": [
+    "scorers/**/*.ts",
+    "scorers/**/*.mjs",
+    "scorers/**/*.d.ts",
+    "runner/**/*.mjs",
+    "vitest.config.ts",
+    "vitest.acceptance.config.ts"
+  ],
+  "exclude": ["scorers/**/*.test.ts", "runner/**/*.test.ts"]
 }

@@ -1,5 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { evaluateCorrectnessParts } from './correctness.mjs';
+import { evaluateCorrectnessParts, runAcceptance } from './correctness.mjs';
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const dogfoodRoot = path.join(repoRoot, 'evals/dogfood');
 
 describe('evaluateCorrectnessParts', () => {
   it('valid only when all three pass', () => {
@@ -18,5 +24,34 @@ describe('evaluateCorrectnessParts', () => {
       details: ['spec'],
     });
     expect(bad.valid).toBe(false);
+  });
+});
+
+describe('runAcceptance', () => {
+  it('runs acceptance tests through the dogfood package vitest', () => {
+    const tmp = fs.mkdtempSync(path.join(dogfoodRoot, '.tmp-acceptance-'));
+    const taskDir = path.join(tmp, 'task');
+    const acceptanceDir = path.join(taskDir, 'acceptance');
+    fs.mkdirSync(acceptanceDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(acceptanceDir, 'env.test.ts'),
+      [
+        "import { describe, expect, it } from 'vitest';",
+        "describe('acceptance smoke', () => {",
+        "  it('receives the target worktree path', () => {",
+        `    expect(process.env.DOGFOOD_WORKTREE).toBe(${JSON.stringify(repoRoot)});`,
+        `    expect(process.cwd()).toBe(${JSON.stringify(dogfoodRoot)});`,
+        '  });',
+        '});',
+        '',
+      ].join('\n')
+    );
+
+    try {
+      const result = runAcceptance({ worktreeRoot: repoRoot, taskDir });
+      expect(result.pass, result.detail).toBe(true);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
   });
 });

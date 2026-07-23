@@ -40,5 +40,16 @@ export default tseslint.config(
         process: 'readonly',
       },
     },
+  },
+  {
+    files: ['evals/dogfood/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+      },
+    },
   }
 );
