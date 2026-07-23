@@ -2,14 +2,15 @@
 name: mdcp-getting-started
 description: >-
   Use when bootstrapping MDCP in a greenfield or brownfield repository, first-time
-  setup of sharded docs, migrating legacy markdown into MDCP guides, or when the
-  user asks to get started with an MDCP documentation pipeline.
+  setup of sharded docs, migrating legacy markdown into MDCP guides, getting started
+  with an MDCP documentation pipeline, or onboarding onto MDCP helper skills for a
+  first feature.
 license: MIT
 compatibility: >-
   Requires Node.js 18+ and the mdcp-cli installed globally or locally.
 metadata:
   author: betsalel-williamson
-  version: '0.5.0'
+  version: '0.6.1'
   openclaw:
     category: 'documentation'
     requires:
@@ -24,18 +25,19 @@ metadata:
 > **PREREQUISITE:** Follow the `mdcp` parent skill first (QA Principles, What
 > belongs where). Ensure the `mdcp` CLI is installed.
 
-One-time MDCP setup and onboarding. Day-to-day work uses other helpers
-(`mdcp-doc-only`, `mdcp-feature-level`, …).
+Bootstrap MDCP, then optionally guide a **first feature** through the helper
+skills. Day-to-day work after onboarding uses those helpers directly.
 
 **Invoke:** `/mdcp-getting-started`
 
 ## Role
 
-Documentation Architect: bootstrap config, guide layout, and initial shards.
-Adapt teaching depth to **EXPERIENCE**. Scope is documentation organization —
-small accurate shards, compile/check, maintainability with other agent systems.
-**Out of scope:** code TDD rituals, atomic commit grouping, and other local
-engineering process (use separate skills when coding).
+Documentation Architect: bootstrap config, guide layout, and initial shards;
+then orchestrate an optional first-feature tutorial (design → feature → UX →
+doc-only). Adapt teaching depth to **EXPERIENCE**.
+
+**Bootstrap out of scope:** inventing TDD rituals or atomic commit grouping
+during scaffold only — day-to-day helpers own those when the tutorial runs.
 
 ## Intake (ask before editing)
 
@@ -47,6 +49,12 @@ Ask for missing values; wait; do not invent. Skip only if already provided.
    - **novice** — first skill / unsure about Markdown → tutorial shards + short
      concept pauses
    - **expert** — read the docs / automating → concise scaffold; no lectures
+
+After bootstrap succeeds, ask tutorial intake (see
+[references/first-feature-tutorial.md](references/first-feature-tutorial.md)):
+
+4. **RUN_FIRST_FEATURE_TUTORIAL** — yes/skip (default **yes** for novice)
+5. **EXAMPLE_MODE** — **recommended** (`hello-greeting`) or **bring-your-own**
 
 ## Process
 
@@ -104,7 +112,17 @@ Seed domain terms that meet the inclusion bar; one `.md` per term + index.
 `mdcp compile` then `mdcp check` until clean. After cross-links, re-check;
 fragments must match **compiled** output (`mdcp refs list` if needed).
 
-## After bootstrap
+### 7. First feature tutorial (optional)
 
-Hand off to the matching helper for ongoing feature, docs-only, design, or UX
-work. This skill is setup only.
+Follow [references/first-feature-tutorial.md](references/first-feature-tutorial.md):
+
+1. Offer the walkthrough (`RUN_FIRST_FEATURE_TUTORIAL`).
+2. Resolve `EXAMPLE_MODE` (recommended `hello-greeting` or bring-your-own).
+3. Run phases in order, loading each helper’s Process:
+   design-architecture → feature-level → ux → doc-only.
+4. Pause for “go” between phases; `mdcp check` before advancing.
+5. Deliver the [Closing CTA](references/first-feature-tutorial.md#closing-cta)
+   (star, review, share, DORA capabilities, [dora.community/join](https://dora.community/join)).
+
+If the user skips the tutorial, hand off to the matching day-to-day helper and
+still offer the Closing CTA briefly.

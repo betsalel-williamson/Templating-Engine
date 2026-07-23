@@ -17,28 +17,23 @@ Config: [`docs/mdcp.config.json`](../mdcp.config.json).
 
 1. Edit shard `.md` files under the relevant guide directory.
 2. Run `pnpm docs:compile` then `pnpm docs:check` (Node >= 24).
-3. Commit shard changes. Regenerated `docs/_build/`, `docs/.caches/refs.json`, and `docs/mdcp.v*.llms.txt` (from `docs:compile`) are gitignored.
+3. Commit shard changes. Regenerated `docs/_build/` and `docs/.caches/refs.json` (from `docs:compile` / `docs:check`) are gitignored.
 4. Commit `DEVELOPERS.md` when `developer/` shards change.
 
 ## Agent context
 
 ```bash
+pnpm docs:compile
 pnpm docs:context
 ```
 
-Exports the **features** monolith only (`compileOrder` in config).
+Prints the **features** monolith (`docs/_build/features.md`). Prefer reading individual shards via the MDCP Agent Skill when possible (`npx skills add betsalel-williamson/mdcp --skill mdcp`).
 
 ## Bootstrap prompts
 
-After `mdcp export --llms-index --fetch`, task prompts are cached at `docs/.caches/mdcp/prompts/`:
+MDCP 0.6+ no longer ships `mdcp export --llms-index` / `--fetch`. Use the installed Agent Skills under `.agents/skills/` (refresh with `npx skills add betsalel-williamson/mdcp -y --skill "*"`).
 
-- `feature-level-task.prompt.md`
-- `doc-only-task.prompt.md`
-- `design-architecture-task.prompt.md`
-- `ux-task.prompt.md`
-- `review-task.prompt.md`
-
-Set `WORK_ITEM_LOOKUP` in each prompt to [agent work-item tracking](./agent-work-item-tracking.md).
+Set `WORK_ITEM_LOOKUP` in task prompts to [agent work-item tracking](./agent-work-item-tracking.md).
 
 ## Linting
 
@@ -46,4 +41,4 @@ Set `WORK_ITEM_LOOKUP` in each prompt to [agent work-item tracking](./agent-work
 - **xref lint** — `mdcp check` flags broken cross-references in shards
 - **link lint** — runs on every `docs:check` with default error severity
 
-Use `mdcp refs lookup "<topic>" --format json` before inserting `[text](#slug)` — slugs come from **compiled** output.
+Use `mdcp refs-list --format json` (or `pnpm docs:refs`) before inserting `[text](#slug)` — slugs come from **compiled** output.

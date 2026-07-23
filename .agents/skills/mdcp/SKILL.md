@@ -17,7 +17,7 @@ compatibility: >-
   wrappers; they do not replace the CLI.
 metadata:
   author: betsalel-williamson
-  version: '0.5.0'
+  version: '0.6.1'
   openclaw:
     category: 'documentation'
     requires:
@@ -65,7 +65,14 @@ These habits keep docs trustworthy while the product keeps changing:
 - **Small batches / one focused feature:** Prefer one shippable slice per branch
   or session. Oversized requests produce tangled diffs and half-updated docs;
   split the request (and the shards) before coding so each change stays
-  reviewable and documentation can stay current with it.
+  reviewable and documentation can stay current with it. Pair with **Atomic
+  commit groups** below when the plan has more than one logical change.
+- **Atomic commit groups:** Before waiting for human review / “go”, coding and
+  multi-concern plans MUST include numbered commit groups. Each group:
+  id/name, one concern, exact files, and the intended conventional commit
+  subject. After approval: implement and `git commit` one group at a time; do
+  not squash unrelated concerns into one commit. Why: reviewable diffs, one
+  concern per commit, and it matches small batches.
 - **Current docs only:** Shards must describe the product **as it works now**.
   When behavior or guidance changes, remove superseded or stale text from
   durable docs — do not leave “old way” sections for archaeology. Git history
@@ -176,7 +183,7 @@ Task-type instructions live in independent helper skills. Once the MDCP CLI is i
 
 | Helper Skill               | Description                                            |
 | -------------------------- | ------------------------------------------------------ |
-| `mdcp-getting-started`     | Bootstrap MDCP in a new repository                     |
+| `mdcp-getting-started`     | Bootstrap MDCP + optional first-feature tutorial       |
 | `mdcp-doc-only`            | Documentation-only work                                |
 | `mdcp-design-architecture` | High-level design and planning (RFCs, ADRs)            |
 | `mdcp-feature-level`       | Implement and document features (docs-first, then TDD) |
