@@ -31,18 +31,6 @@
       "skillPath": "skills/mdcp/SKILL.md",
       "computedHash": "7b41ed9cc1d323c31d131bfcbe3196357a7a1654e9c72ff27b45ac5b409e871c"
     },
-    "mdcp-arch-oss-library": {
-      "source": "betsalel-williamson/mdcp",
-      "sourceType": "github",
-      "skillPath": "skills/mdcp-arch-oss-library/SKILL.md",
-      "computedHash": "d27c29905d3ea7b116efcc681422feaee997674cc5f29cdd0f381e21984927f3"
-    },
-    "mdcp-arch-product-docs-site": {
-      "source": "betsalel-williamson/mdcp",
-      "sourceType": "github",
-      "skillPath": "skills/mdcp-arch-product-docs-site/SKILL.md",
-      "computedHash": "c4e1e08e35c7baabafbd388413c874b81c20dcf5df15cca87a988bbb64ce317c"
-    },
     "mdcp-design-architecture": {
       "source": "betsalel-williamson/mdcp",
       "sourceType": "github",
