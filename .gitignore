@@ -32,7 +32,6 @@ test-results/*
 .DS_Store
 
 # Local agent worktrees (isolated checkouts)
-.agents/
 .worktrees/
 
 # Dogfood gate run artifacts (ADR-006)
