@@ -55,15 +55,25 @@ Broad engine TDD for paused implementation issues remains **PREOP-PAUSE** until 
 
 ### §3 Scorers, metrics, and no-HITL
 
-**Primary metrics** (from Cursor SDK): `result.usage` (input / output / cache / total tokens) and wall-clock duration.
+Success checks follow four buckets (outcome / process / style / efficiency). Style stays thin for the pilot (spec-alignment covers contract shape). LLM-as-judge is never the sole gate.
 
-**Correctness** (fail-closed, post-run in each workspace):
+**Primary metrics — efficiency** (from Cursor SDK): `result.usage` (input / output / cache / total tokens) and wall-clock duration.
+
+**Correctness — outcome** (fail-closed, post-run in each workspace):
 
 1. Acceptance tests for the fixed slice must pass.
 2. Spec-alignment assertions (automated; not LLM-as-judge as the sole gate).
 3. Optional dirty-scope allowlist guard.
 
-**Aggregation:** only **valid** (correct) runs compare on tokens/time.
+**Process checks — Arm B** (fail-closed for B validity when the harness can observe them):
+
+1. Treatment skill was available in the B workspace (injected under `.agents/skills/`).
+2. Evidence the agent engaged the V2 contracts path (for example skill mention in the prompt path, and/or reads of allowlisted language-spec / ADR paths in the run transcript when the SDK exposes tool events).
+3. Arm A must **not** receive the treatment skill directory.
+
+If process checks cannot be observed for a given SDK/runtime, record `processObservability: "unavailable"` on the report and still require outcome correctness; do not invent LLM-judge substitutes.
+
+**Aggregation:** only **valid** (correct outcome, and process-pass when observability is available) runs compare on tokens/time.
 
 **No human-in-the-loop:** runs are start-to-stop autonomous — no mid-run approvals, clarifying questions, or manual merges. A run that receives mid-run human help is **invalid**.
 
@@ -79,16 +89,23 @@ evals/dogfood/
   skills/<treatment-skill>/   # Arm B only
     SKILL.md
     references/
+    eval/                     # pre-A/B skill mini-eval (trigger + RED/GREEN notes)
   scorers/
   runner/
 ```
 
 - **Arm B skill** is authored with Anthropic `skill-creator` and Superpowers `writing-skills` (RED without skill → GREEN with skill → refactor loopholes).
+- **Pre-A/B skill mini-eval (required before timed pair):** small should-trigger / should-not-trigger prompt set plus a short RED/GREEN pressure note. Timed A/B does not start until the treatment skill clears this mini-eval (or an explicit waiver is recorded on #96 with rationale).
 - Skill body points at paper contracts under `docs/features/`; it does not dump implementation.
-- Runner creates the workspace pair, injects the treatment skill only into B, enforces no-HITL permissions, scores both arms, and writes a report.
+- Runner creates the workspace pair, injects the treatment skill only into B, enforces no-HITL permissions, scores outcome + process + usage, and writes a report.
 - Authoring tooling: keep `skill-creator` available under `.agents/skills/` via `skills-lock.json`.
+- **Post-pilot (not v1):** gbrain-style replay/baseline regression LOOP against captured dogfood runs — defer until at least one valid pair report exists.
 
 Durable docs for this decision live here (ADR). A short developer runbook for running the harness lands with the harness implementation — not before.
+
+### Survey alignment (gbrain / gstack / OpenClaw)
+
+This gate borrows: multi-axis fail-closed scoring and honesty about weak outcomes (**gbrain**); thin harness + fat skills and structural skill checks before vibes (**gstack** / OpenAI skill-eval); living small eval sets grown from real failures (**OpenClaw** skill-eval patterns). It does **not** copy full BrainBench corpora or LLM-as-sole-judge into v1.
 
 ### §5 Go / no-go / slim-go
 
@@ -103,7 +120,8 @@ Durable docs for this decision live here (ADR). A short developer runbook for ru
 1. Both invalid → no language decision; fix task, acceptance, or harness; re-run.
 2. Invalid B + valid A → against the hypothesis (leans no-go or slim-go with a written “skill/contracts not enough” rationale).
 3. No-HITL violations → run invalid; do not count.
-4. Record the decision on [#96](https://github.com/betsalel-williamson/Templating-Engine/issues/96) with run ids, usage, durations, correctness logs, and which outcome row applied.
+4. Record the decision on [#96](https://github.com/betsalel-williamson/Templating-Engine/issues/96) with run ids, usage, durations, correctness logs, process-check results, and which outcome row applied.
+5. Broken harness / both-invalid / mini-eval failures → **inconclusive** (fix infra or skill); never treat as language **no-go**.
 
 **Noise band (default):** ≤10% difference on a single metric is a tie unless the other metric clearly favors one arm.
 
