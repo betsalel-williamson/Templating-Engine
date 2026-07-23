@@ -9,7 +9,9 @@ lib/
 # Tooling auto-save / local state
 .specstory/
 .cursor/plans/
+# Superpowers SDD scratch (task briefs, review diffs, progress ledger) — never commit
 .superpowers/
+# Local superpowers plans/specs (also gitignored by convention)
 docs/superpowers/
 
 # Test / typecheck artifacts
