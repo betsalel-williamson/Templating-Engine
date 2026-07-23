@@ -78,3 +78,5 @@ ls .worktrees/dogfood-b-<runId>/evals/dogfood/tasks/calculator-cli/
 ```
 
 Arm A: TypeScript only. Arm B: `templates/*.template` → `scripts/codegen.mjs` → `src/generated/*.ts` (build-time TS codegen, no runtime template engine).
+
+**Roadmap:** Dogfood pilots for this experiment recorded **no-go**; see [ADR-007](../../docs/features/architecture/adr-007-shelve-v2-agent-codegen.md).

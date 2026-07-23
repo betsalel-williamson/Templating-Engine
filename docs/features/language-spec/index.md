@@ -1,6 +1,6 @@
 # V2 Language Specification (Paper-First)
 
-**Status:** **Proposed** — on-paper design for go/no-go review and TDD slice estimation. Not shipped in product code until accepted and implemented.
+**Status:** **Shelved** — archived design reference per [ADR-007](../architecture/adr-007-shelve-v2-agent-codegen.md). Not an active implementation roadmap. The **shipped** product remains [legacy syntax](../../glossary/legacy-syntax.md) (`parseLegacy`, CLI-supported).
 
 Normative architecture decisions: [ADR-002: Mustache logic-less + JS/TS-first for code generation](../architecture/adr-002-mustache-js-first-code-generation.md), [ADR-004: Abstract host invocation](../architecture/adr-004-abstract-host-invocation.md).
 

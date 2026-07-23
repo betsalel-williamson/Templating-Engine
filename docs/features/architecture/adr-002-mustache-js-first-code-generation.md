@@ -1,6 +1,6 @@
 # ADR-002: Mustache Logic-less + JS/TS-First for Code Generation
 
-- **Status**: Accepted
+- **Status**: Accepted (historical); **implementation shelved** — [ADR-007](./adr-007-shelve-v2-agent-codegen.md)
 - **Date**: 2026-07-17
 - **Supersedes**: [ADR-001: Pkl adoption](./adr-001-adopt-pkl.md) — completely; Pkl is not a parallel or configuration side-path for this project
 

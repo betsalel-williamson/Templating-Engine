@@ -18,6 +18,7 @@ Product documentation for **what the templating engine does today**: packages, s
     - [ADR-004: Abstract host invocation](./architecture/adr-004-abstract-host-invocation.md)
     - [ADR-005: Retire all SEA CLI binaries](./architecture/adr-005-retire-sea-binaries.md)
     - [ADR-006: Dogfood gate before broad V2 engine TDD](./architecture/adr-006-dogfood-gate.md)
+    - [ADR-007: Shelve V2 and template-as-agent-codegen](./architecture/adr-007-shelve-v2-agent-codegen.md)
     - [ADR-001: Pkl adoption (superseded)](./architecture/adr-001-adopt-pkl.md)
     - [Modern syntax technical overview](./architecture/new_syntax_technical_overview.md)
     - [Language orthogonality](./architecture/language_orthogonality.md)
