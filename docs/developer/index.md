@@ -9,5 +9,6 @@
   - [Pre-commit hooks](./pre-commit-hooks.md)
   - [Changesets and releases](./changesets-and-releases.md)
   - [Docs dogfooding](./docs-dogfooding.md)
+  - [Dogfood gate harness](./dogfood-gate.md)
   - [Project management](./project-management.md)
   - [Agent work-item tracking](./agent-work-item-tracking.md)

@@ -6,7 +6,7 @@ Define the human- and machine-review goals that guide Version 2 syntax and API d
 
 ## Status
 
-V2 is **in active design**. [ADR-001](./adr-001-adopt-pkl.md) (Pkl adoption) is **fully superseded** — Pkl is not a parallel or recommended path. The normative decision record is [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md).
+V2 is **shelved for implementation** ([ADR-007](../architecture/adr-007-shelve-v2-agent-codegen.md)). [ADR-001](./adr-001-adopt-pkl.md) (Pkl adoption) is **fully superseded**. The historical decision record is [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md).
 
 The current parser and recipe implementations are exploratory. Goals here steer decisions; they do not freeze syntax that is not yet shipped. Where the codebase still exposes exploratory control-flow delimiters, treat that as implementation in flux—not the long-term destination.
 

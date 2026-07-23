@@ -9,6 +9,7 @@ export default tseslint.config(
       '**/dist/**',
       '**/lib/**',
       '**/node_modules/**',
+      '.worktrees/**',
       '.agents/**',
       '.cursor/**',
       'packages/**/test/**',
@@ -37,6 +38,17 @@ export default tseslint.config(
         Buffer: 'readonly',
         console: 'readonly',
         globalThis: 'readonly',
+        process: 'readonly',
+      },
+    },
+  },
+  {
+    files: ['evals/dogfood/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        console: 'readonly',
         process: 'readonly',
       },
     },

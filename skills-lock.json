@@ -73,6 +73,12 @@
       "skillPath": "skills/requesting-code-review/SKILL.md",
       "computedHash": "cde520e9118d7e6b74b5ab0123cff2f68d9c07bddb3f82c997753b6126600aed"
     },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2"
+    },
     "subagent-driven-development": {
       "source": "obra/superpowers",
       "sourceType": "github",

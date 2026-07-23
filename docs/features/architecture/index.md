@@ -7,6 +7,8 @@ Design notes and ADRs for the templating engine.
 - [ADR-002: Mustache logic-less + JS/TS-first for code generation](./adr-002-mustache-js-first-code-generation.md) — **current north star**
 - [ADR-004: Abstract host invocation for filters and functions](./adr-004-abstract-host-invocation.md) — invocation contracts and reserved backend direction
 - [ADR-005: Retire all SEA CLI binaries](./adr-005-retire-sea-binaries.md) — npm/npx is the supported CLI install path
+- [ADR-006: Dogfood gate before broad V2 engine TDD](./adr-006-dogfood-gate.md) — A/B Cursor eval; outcomes → ADR-007
+- [ADR-007: Shelve V2 and template-as-agent-codegen](./adr-007-shelve-v2-agent-codegen.md) — **current roadmap** after dogfood no-go
 - [ADR-001: Pkl adoption (superseded)](./adr-001-adopt-pkl.md)
 - [ADR-003: Retire Windows SEA and CI (superseded)](./adr-003-retire-windows-sea-ci.md)
 

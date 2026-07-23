@@ -1,0 +1,6 @@
+id,should_trigger,prompt
+t01,true,"Build a CLI help screen from a command registry using legacy templates"
+t02,true,"Format calculator results with template-engine-core parseLegacy"
+t03,true,"Generate SQL INSERT columns with conditional delimiters"
+t04,false,"Bump vitest devDependency only"
+t05,false,"Refactor a pure TS sort function with no text output"

@@ -61,3 +61,12 @@ if (rootConfigChanged) {
   run('pnpm run typecheck');
   run('pnpm run format:check');
 }
+
+const prettierRelevant = files.some(
+  (f) => /\.(ts|tsx|mjs|js|cjs|json|jsonc|md|yml|yaml)$/.test(f) || f === 'eslint.config.mjs'
+);
+// Safety net when lint-staged globs miss a new tree (e.g. evals/): refuse
+// unformatted prettier-covered files before the commit lands.
+if (prettierRelevant && !rootConfigChanged) {
+  run('pnpm run format:check');
+}

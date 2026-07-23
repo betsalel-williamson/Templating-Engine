@@ -2,6 +2,8 @@
 
 A TypeScript port of the classic [`mergeEngine`](https://jordanhenderson.com/) templating language. Use it to generate configuration, code, or other text from templates and structured data.
 
+> **Roadmap (2026-07):** The proposed **V2 destination language** and template-as-agent-codegen work are **archived** — design reference only, not an active implementation roadmap ([ADR-007](docs/features/architecture/adr-007-shelve-v2-agent-codegen.md)). The **shipped and maintained** surface is **legacy syntax** (`parseLegacy`, CLI). See the [V2 language specification](docs/features/language-spec/index.md) for the shelved paper spec.
+
 > **Pre-1.0:** Packages are published to npm, but APIs and template syntax may change without a major-version bump until `1.0.0`. Pin exact versions in production and read release notes before upgrading.
 
 <p align="center">
@@ -73,4 +75,4 @@ See [DEVELOPERS.md](DEVELOPERS.md) for changesets, releases, contributor workflo
 
 ## Background
 
-This project started as a learning exercise porting `mergeEngine` to TypeScript with a Peggy parser. See [ADR-001](docs/features/architecture/adr-001-adopt-pkl.md) for notes on how it relates to [Pkl](https://pkl-lang.org/) and future direction.
+This project started as a learning exercise porting `mergeEngine` to TypeScript with a Peggy parser. Early notes on Pkl and a destination V2 language live in [ADR-001](docs/features/architecture/adr-001-adopt-pkl.md) and the [V2 language specification](docs/features/language-spec/index.md) (archived reference). After dogfood A/B pilots recorded **no-go** on V2 engine and template-codegen bets, [ADR-007](docs/features/architecture/adr-007-shelve-v2-agent-codegen.md) shelved broad V2 TDD; ongoing work focuses on the legacy engine, CLI, docs, and test harnesses.

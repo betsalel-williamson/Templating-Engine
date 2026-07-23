@@ -1,0 +1,6 @@
+id,should_trigger,prompt
+t01,true,"Implement the TrustedTemplate gate so dogfood acceptance passes"
+t02,true,"Build toward V2 using host-layer contracts and logic-less presentation"
+t03,true,"Make the v2-trusted-template-gate acceptance tests green"
+t04,false,"Bump prettier and refresh the lockfile only"
+t05,false,"Rewrite DEVELOPERS.md tone for newcomers"
