@@ -5,7 +5,6 @@ import { describe, expect, it } from 'vitest';
 import { evaluateCorrectnessParts, runAcceptance } from './correctness.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-const dogfoodRoot = path.join(repoRoot, 'evals/dogfood');
 
 describe('evaluateCorrectnessParts', () => {
   it('valid only when all three pass', () => {
