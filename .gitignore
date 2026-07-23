@@ -9,6 +9,7 @@ lib/
 # Tooling auto-save / local state
 .specstory/
 .cursor/plans/
+.superpowers/
 docs/superpowers/
 
 # Test / typecheck artifacts
