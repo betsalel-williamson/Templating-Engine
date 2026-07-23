@@ -14,7 +14,8 @@ export function evaluateCorrectnessParts(parts) {
  * @param {{ worktreeRoot: string, taskDir: string }} args
  */
 export function runAcceptance({ worktreeRoot, taskDir }) {
-  const acceptanceDir = path.join(taskDir, 'acceptance');
+  const taskId = path.basename(taskDir);
+  const acceptanceDir = path.join(worktreeRoot, 'evals/dogfood/tasks', taskId, 'acceptance');
   const acceptanceConfig = path.join(worktreeRoot, 'evals/dogfood/vitest.acceptance.config.ts');
   const result = spawnSync(
     'bash',
