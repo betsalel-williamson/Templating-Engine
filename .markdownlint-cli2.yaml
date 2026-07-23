@@ -7,6 +7,7 @@ ignores:
   - 'node_modules/**'
   - 'packages/**/dist/**'
   - '**/*.pcf'
+  - '.agents/**'
   - 'docs/_build/**'
   - 'docs/.caches/**'
 
