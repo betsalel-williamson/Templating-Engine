@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { processPass, scoreProcess } from './process.mjs';
+import { processPass, runStaticProcessChecks, scoreProcess } from './process.mjs';
 
 describe('scoreProcess', () => {
   it('marks skillInjected when B worktree has the skill dir', () => {
@@ -90,8 +90,80 @@ describe('processPass', () => {
         skillInjected: true,
         skillAbsentOnArmA: true,
         contractsEngaged: null,
+        staticPass: true,
         details: [],
       })
     ).toBe(true);
+  });
+
+  it('fails Arm A when core import is present (calculator gate)', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dogfood-calc-a-'));
+    const taskId = 'calculator-cli';
+    const src = path.join(root, 'evals/dogfood/tasks', taskId, 'src');
+    fs.mkdirSync(src, { recursive: true });
+    fs.writeFileSync(
+      path.join(src, 'cli.ts'),
+      "import x from '@bwilliamson/template-engine-core';\n"
+    );
+    try {
+      const result = runStaticProcessChecks({
+        arm: 'A',
+        worktreeRoot: root,
+        taskId,
+        processConfig: { armAChecks: { forbidCoreImport: true } },
+      });
+      expect(result.pass).toBe(false);
+      expect(
+        processPass('A', {
+          staticPass: result.pass,
+          skillAbsentOnArmA: true,
+          skillInjected: false,
+          observability: 'unavailable',
+          contractsEngaged: null,
+          details: [],
+        })
+      ).toBe(false);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('requires help and runtime templates for Arm B calculator gate', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dogfood-calc-b-'));
+    const taskId = 'calculator-cli';
+    const taskRoot = path.join(root, 'evals/dogfood/tasks', taskId);
+    const src = path.join(taskRoot, 'src');
+    fs.mkdirSync(src, { recursive: true });
+    fs.writeFileSync(
+      path.join(src, 'render.ts'),
+      [
+        "import '@bwilliamson/template-engine-core';",
+        "import help from '../templates/help.template';",
+        'export function renderHelp() {}',
+        'export function renderOutput() {}',
+      ].join('\n')
+    );
+    fs.mkdirSync(path.join(taskRoot, 'templates'), { recursive: true });
+    fs.writeFileSync(path.join(taskRoot, 'templates/help.template'), '<#x#>');
+    fs.writeFileSync(path.join(taskRoot, 'templates/format-result.template'), '<#y#>');
+    const config = {
+      armBChecks: {
+        requireCoreImport: true,
+        requireTemplateFiles: true,
+        requireHelpTemplate: true,
+        requireRuntimeTemplate: true,
+      },
+    };
+    try {
+      const result = runStaticProcessChecks({
+        arm: 'B',
+        worktreeRoot: root,
+        taskId,
+        processConfig: config,
+      });
+      expect(result.pass).toBe(true);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
   });
 });

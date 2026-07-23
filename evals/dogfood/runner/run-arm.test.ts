@@ -94,15 +94,17 @@ describe('runArm', () => {
       expect(send).toHaveBeenCalledWith(
         expect.stringContaining('Use the v2-engine-build skill. Follow it strictly.')
       );
-      expect(scoreProcessFn).toHaveBeenCalledWith({
-        arm: 'B',
-        worktreeRoot,
-        skillPresent: true,
-        transcriptEvents: [
-          { kind: 'message', text: 'docs/features/language-spec/host-layer-contracts.md' },
-        ],
-        skillAbsentOnArmA: true,
-      });
+      expect(scoreProcessFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          arm: 'B',
+          worktreeRoot,
+          skillPresent: true,
+          transcriptEvents: [
+            { kind: 'message', text: 'docs/features/language-spec/host-layer-contracts.md' },
+          ],
+          skillAbsentOnArmA: true,
+        })
+      );
       expect(result).toMatchObject({
         arm: 'B',
         valid: true,

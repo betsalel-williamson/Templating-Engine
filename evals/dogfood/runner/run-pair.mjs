@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { decideOutcome } from '../scorers/decide.mjs';
+import { resolveSkillName, resolveTaskId } from '../task-config.mjs';
 import { hasTreatmentSkill, runArm } from './run-arm.mjs';
 import { createArmWorktrees } from './workspaces.mjs';
 
@@ -48,7 +49,7 @@ function requireApiKey(apiKey) {
  */
 export async function runPair({
   repoRoot = defaultRepoRoot,
-  taskId = process.env.DOGFOOD_TASK ?? 'v2-trusted-template-gate',
+  taskId = resolveTaskId(process.env.DOGFOOD_TASK),
   taskDir = path.join(repoRoot, 'evals/dogfood/tasks', taskId),
   runId = process.env.DOGFOOD_RUN_ID ?? `run-${Date.now()}`,
   modelId = process.env.DOGFOOD_MODEL ?? 'composer-2',
@@ -62,16 +63,19 @@ export async function runPair({
   requireApiKey(apiKey);
   const resolvedNoiseBand = resolveNoiseBand(noiseBand);
 
-  const pair = createArmWorktreesFn({ repoRoot, runId });
+  const skillName = resolveSkillName();
+  const pair = createArmWorktreesFn({ repoRoot, runId, skillName });
   try {
-    const armASkillPresent = hasTreatmentSkill(pair.armA);
-    const armBSkillPresent = hasTreatmentSkill(pair.armB);
+    const armASkillPresent = hasTreatmentSkill(pair.armA, skillName);
+    const armBSkillPresent = hasTreatmentSkill(pair.armB, skillName);
     const skillAbsentOnArmA = !armASkillPresent;
     const [A, B] = await Promise.all([
       runArmFn({
         arm: 'A',
         worktreeRoot: pair.armA,
         taskDir,
+        taskId,
+        skillName,
         modelId,
         apiKey,
         skillAbsentOnArmA,
@@ -81,6 +85,8 @@ export async function runPair({
         arm: 'B',
         worktreeRoot: pair.armB,
         taskDir,
+        taskId,
+        skillName,
         modelId,
         apiKey,
         skillAbsentOnArmA,
